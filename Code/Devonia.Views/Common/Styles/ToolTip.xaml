@@ -1,0 +1,46 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:sys="clr-namespace:System;assembly=netstandard">
+
+
+  <Styles.Resources>
+    <sys:Double x:Key="ToolTipContentMaxWidth">320</sys:Double>
+  </Styles.Resources>
+
+  <Style Selector="ToolTip">
+    <Setter Property="Foreground" Value="{DynamicResource textForeground}" />
+    <Setter Property="Background" Value="{DynamicResource containerBackground}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource ToolTipBorderBrush}" />
+    <Setter Property="BorderThickness" Value="{DynamicResource ToolTipBorderThemeThickness}" />
+    <Setter Property="FontSize" Value="{DynamicResource ToolTipContentThemeFontSize}" />
+    <Setter Property="Padding" Value="{DynamicResource ToolTipBorderThemePadding}" />
+    <Setter Property="MaxWidth" Value="{DynamicResource ToolTipContentMaxWidth}" />
+    <Setter Property="Transitions">
+      <Transitions>
+        <DoubleTransition Property="Opacity" Duration="0:0:0.15" />
+      </Transitions>
+    </Setter>
+    <Setter Property="Template">
+      <ControlTemplate>
+          <Border Name="PART_LayoutRoot" Classes="contentBorder" BoxShadow="3 3 5 1 #88000000">
+              <ContentPresenter Name="PART_ContentPresenter"
+                                MaxWidth="{TemplateBinding MaxWidth}"
+                                Content="{TemplateBinding Content}"
+                                ContentTemplate="{TemplateBinding ContentTemplate}" />
+          </Border>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+
+  <Style Selector="ToolTip > TextBlock">
+    <Setter Property="TextWrapping" Value="Wrap" />
+  </Style>
+
+  <Style Selector="ToolTip">
+    <Setter Property="Opacity" Value="0" />
+  </Style>
+
+  <Style Selector="ToolTip:open">
+    <Setter Property="Opacity" Value="1" />
+  </Style>
+</Styles>

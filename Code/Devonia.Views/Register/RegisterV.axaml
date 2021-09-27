@@ -1,0 +1,47 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        xmlns:i="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
+        xmlns:ia="clr-namespace:Avalonia.Xaml.Interactions.Core;assembly=Avalonia.Xaml.Interactions"
+        xmlns:iac="clr-namespace:Avalonia.Xaml.Interactions.Custom;assembly=Avalonia.Xaml.Interactions.Custom"
+        x:Class="Devonia.Views.Register.RegisterV"
+        Title="{Binding WindowTitle}" Classes="styledWindow" HasSystemDecorations="False" Height="305" Width="550" MinWidth="365" MinHeight="216" MaxHeight="750" MaxWidth="550" WindowStartupLocation="CenterScreen" KeyUp="Window_KeyUp" Opened="Window_Opened">
+  <i:Interaction.Behaviors>
+    <ia:EventTriggerBehavior EventName="Opened">
+      <ia:InvokeCommandAction Command="{Binding ViewOpened_Command}"/>
+    </ia:EventTriggerBehavior>
+  </i:Interaction.Behaviors>
+  <Grid Background="{DynamicResource containerBackground}">
+    <Grid Margin="21,21,21,56">
+      <Path Data="M 1,0 0.5,0 Q 0,0 0,0.5 L 0,1" Fill="Transparent" HorizontalAlignment="Left" Height="6" Margin="-5" Stretch="Fill" Stroke="{DynamicResource BorderLit}" StrokeThickness="4" VerticalAlignment="Top" Width="6"/>
+      <Path Data="M 0,1 0.5,1 Q 1,1 1,0.5 L 1,0" Fill="Transparent" HorizontalAlignment="Right" Height="6" Margin="-5" Stretch="Fill" Stroke="{DynamicResource BorderUnlit}" StrokeThickness="4" VerticalAlignment="Bottom" Width="6"/>
+      <Path Data="M 0,0 0.5,0 Q 1,0 1,0.5 L 1,1" Fill="Transparent" HorizontalAlignment="Right" Height="6" Margin="-5" Stretch="Fill" Stroke="{DynamicResource AngleShadow}" StrokeThickness="4" VerticalAlignment="Top" Width="6"/>
+      <Path Data="M 0,0 0,0.5 Q 0,1 0.5,1 L 1,1" Fill="Transparent" HorizontalAlignment="Left" Height="6" Margin="-5" Stretch="Fill" Stroke="{DynamicResource AngleShadow}" StrokeThickness="4" VerticalAlignment="Bottom" Width="6"/>
+      <Line StartPoint="0,0" EndPoint="1,0" Stroke="{DynamicResource BorderLit}" Stretch="Fill" Margin="1,-5" StrokeThickness="4" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+      <Line StartPoint="0,1" EndPoint="1,1" Stroke="{DynamicResource BorderUnlit}" Stretch="Fill" Margin="1,5,1,-5" StrokeThickness="4" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+      <Line StartPoint="0,0" EndPoint="0,1" Stroke="{DynamicResource BorderLit}" Stretch="Fill" Margin="-5,-1" StrokeThickness="4" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+      <Line StartPoint="1,0" EndPoint="1,1" Stroke="{DynamicResource BorderUnlit}" Stretch="Fill" Margin="5,-1,-5,-1" StrokeThickness="4" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+      <Line StartPoint="0,0" EndPoint="1,0" Stroke="{DynamicResource UpperHighlight}" Stretch="Fill" Margin="1,-5" StrokeThickness="4" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+    </Grid>
+    <Border Margin="10,10,10,45" Classes="contentBorder" BoxShadow="3 3 5 1 #88000000"/>
+
+    <Label Content="Username" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,24,0,0" Foreground="{DynamicResource textForeground}" FontSize="12"/>
+    <Label Content="Password" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,53,0,0" Foreground="{DynamicResource textForeground}" FontSize="12"/>
+    <Label Content="Password Confirm" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,82,0,0" Foreground="{DynamicResource textForeground}" FontSize="12"/>
+    <Label Content="Security Question" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,111,0,0" Foreground="{DynamicResource textForeground}" FontSize="12"/>
+    <Label Content="Security Answer" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,140,0,0" Foreground="{DynamicResource textForeground}" FontSize="12"/>
+    <Label Content="Security Answer Confirm" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,169,0,0" Foreground="{DynamicResource textForeground}" FontSize="12"/>
+   
+    <TextBox Text="{Binding Username}" Classes="inputField" Height="23" MinHeight="23" VerticalAlignment="Top" FontSize="12" Margin="180,25,21,0" ScrollViewer.VerticalScrollBarVisibility="Hidden"/>
+    <TextBox PasswordChar="*" Text="{Binding Password}" Classes="inputField" VerticalAlignment="Top" FontSize="12" Margin="180,53,21,0" Height="23" MinHeight="23" ScrollViewer.VerticalScrollBarVisibility="Hidden"/>
+    <TextBox PasswordChar="*" Text="{Binding ConfirmPassword}" Classes="inputField" VerticalAlignment="Top" FontSize="12" Margin="180,81,21,0" Height="23" MinHeight="23" ScrollViewer.VerticalScrollBarVisibility="Hidden"/>
+    <TextBox Text="{Binding SecurityQuestion}" Classes="inputField" Height="23" MinHeight="23" VerticalAlignment="Top" FontSize="12" Margin="180,110,21,0" ScrollViewer.VerticalScrollBarVisibility="Hidden"/>
+    <TextBox PasswordChar="*" Text="{Binding SecurityAnswer}" Classes="inputField" VerticalAlignment="Top" FontSize="12" Margin="180,139,21,0" Height="23" MinHeight="23" ScrollViewer.VerticalScrollBarVisibility="Hidden"/>
+    <TextBox PasswordChar="*" Text="{Binding ConfirmSecurityAnswer}" Classes="inputField" VerticalAlignment="Top" FontSize="12" Margin="180,168,21,0" Height="23" MinHeight="23" ScrollViewer.VerticalScrollBarVisibility="Hidden"/>
+   
+    <Button Command="{Binding RegisterAccount_Command}" Classes="confirmButton" IsDefault="True" Content="Confirm" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="93" Height="22" Margin="0,0,10,10" FontSize="12"/>
+    <Button Content="Close" HorizontalAlignment="Right" Classes="abortButton" VerticalAlignment="Bottom" Width="93" Height="22" Margin="0,0,119,10" Click="CloseWindow_Click" FontSize="12"/>
+  </Grid>
+</Window>

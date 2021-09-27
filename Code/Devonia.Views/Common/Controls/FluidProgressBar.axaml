@@ -1,0 +1,50 @@
+﻿<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="500" d:DesignHeight="20"
+             xmlns:Controls="clr-namespace:Devonia.Views.Common.Controls"
+             x:Class="Devonia.Views.Common.Controls.FluidProgressBar" Background="Transparent">
+  <Grid Background="Transparent">
+    <Border x:Name="Dot1" 
+               Background="{Binding Path=DotColor, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Controls:FluidProgressBar}}}"
+               Width="{Binding Path=DotWidth, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Controls:FluidProgressBar}}}"
+               Height="{Binding Path=DotHeight, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Controls:FluidProgressBar}}}"
+               CornerRadius="{Binding Path=DotRadius, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Controls:FluidProgressBar}}}"
+               HorizontalAlignment="Left"
+               IsHitTestVisible="False"
+               Opacity="1" Margin="15,0,0,0"/>
+    <Border x:Name="Dot2"
+                Background="{Binding Path=DotColor, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Controls:FluidProgressBar}}}"
+                Width="{Binding Path=DotWidth, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Controls:FluidProgressBar}}}"
+                Height="{Binding Path=DotHeight, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Controls:FluidProgressBar}}}"
+                CornerRadius="{Binding Path=DotRadius, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Controls:FluidProgressBar}}}"
+                HorizontalAlignment="Left"
+                IsHitTestVisible="False"
+                Opacity="1" Margin="30,0,0,0"/>
+    <Border x:Name="Dot3"
+                Background="{Binding Path=DotColor, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Controls:FluidProgressBar}}}" 
+                Width="{Binding Path=DotWidth, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Controls:FluidProgressBar}}}"
+                Height="{Binding Path=DotHeight, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Controls:FluidProgressBar}}}"
+                CornerRadius="{Binding Path=DotRadius, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Controls:FluidProgressBar}}}"
+                HorizontalAlignment="Left"
+                IsHitTestVisible="False"
+                Opacity="1" Margin="45,0,0,0"/>
+    <Border x:Name="Dot4"
+                Background="{Binding Path=DotColor, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Controls:FluidProgressBar}}}"
+                Width="{Binding Path=DotWidth, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Controls:FluidProgressBar}}}"
+                Height="{Binding Path=DotHeight, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Controls:FluidProgressBar}}}"
+                CornerRadius="{Binding Path=DotRadius, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Controls:FluidProgressBar}}}"
+                HorizontalAlignment="Left"
+                IsHitTestVisible="False"
+                Opacity="1" Margin="60,0,0,0"/>
+    <Border x:Name="Dot5"
+                Background="{Binding Path=DotColor, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Controls:FluidProgressBar}}}"
+                Width="{Binding Path=DotWidth, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Controls:FluidProgressBar}}}"
+                Height="{Binding Path=DotHeight, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Controls:FluidProgressBar}}}"
+                CornerRadius="{Binding Path=DotRadius, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Controls:FluidProgressBar}}}"
+                HorizontalAlignment="Left"
+                IsHitTestVisible="False"
+                Opacity="1" Margin="75,0,0,0"/>
+  </Grid>
+</UserControl>

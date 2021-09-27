@@ -1,0 +1,41 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="clr-namespace:Devonia.Views.Common.Controls"
+        xmlns:sw="clr-namespace:Devonia.Views.Common.Styles.StyleableWindow"
+        xmlns:i="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
+        xmlns:ia="clr-namespace:Avalonia.Xaml.Interactions.Core;assembly=Avalonia.Xaml.Interactions"
+        xmlns:iac="clr-namespace:Avalonia.Xaml.Interactions.Custom;assembly=Avalonia.Xaml.Interactions.Custom"
+        x:Class="Devonia.Views.Startup.StartupV"
+        Title="{Binding WindowTitle}" Classes="styledWindow" Icon="avares://Devonia/Assets/icon.ico" HasSystemDecorations="False" WindowStartupLocation="CenterScreen" Height="240" Width="550" MinWidth="520" MinHeight="240" Opened="Window_Opened" PositionChanged="Window_PositionChanged">
+
+  <i:Interaction.Behaviors>
+    <ia:EventTriggerBehavior EventName="Opened">
+      <ia:InvokeCommandAction Command="{Binding ViewOpened_Command}"/>
+    </ia:EventTriggerBehavior>
+  </i:Interaction.Behaviors>
+  
+  <Grid Background="{DynamicResource containerBackground}">
+    <Grid Margin="21,21,21,56">
+      <Path Data="M 1,0 0.5,0 Q 0,0 0,0.5 L 0,1" Fill="Transparent" HorizontalAlignment="Left" Height="6" Margin="-5" Stretch="Fill" Stroke="{DynamicResource BorderLit}" StrokeThickness="4" VerticalAlignment="Top" Width="6"/>
+      <Path Data="M 0,1 0.5,1 Q 1,1 1,0.5 L 1,0" Fill="Transparent" HorizontalAlignment="Right" Height="6" Margin="-5" Stretch="Fill" Stroke="{DynamicResource BorderUnlit}" StrokeThickness="4" VerticalAlignment="Bottom" Width="6"/>
+      <Path Data="M 0,0 0.5,0 Q 1,0 1,0.5 L 1,1" Fill="Transparent" HorizontalAlignment="Right" Height="6" Margin="-5" Stretch="Fill" Stroke="{DynamicResource AngleShadow}" StrokeThickness="4" VerticalAlignment="Top" Width="6"/>
+      <Path Data="M 0,0 0,0.5 Q 0,1 0.5,1 L 1,1" Fill="Transparent" HorizontalAlignment="Left" Height="6" Margin="-5" Stretch="Fill" Stroke="{DynamicResource AngleShadow}" StrokeThickness="4" VerticalAlignment="Bottom" Width="6"/>
+      <Line StartPoint="0,0" EndPoint="1,0" Stroke="{DynamicResource BorderLit}" Stretch="Fill" Margin="1,-5" StrokeThickness="4" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+      <Line StartPoint="0,1" EndPoint="1,1" Stroke="{DynamicResource BorderUnlit}" Stretch="Fill" Margin="1,5,1,-5" StrokeThickness="4" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+      <Line StartPoint="0,0" EndPoint="0,1" Stroke="{DynamicResource BorderLit}" Stretch="Fill" Margin="-5,-1" StrokeThickness="4" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+      <Line StartPoint="1,0" EndPoint="1,1" Stroke="{DynamicResource BorderUnlit}" Stretch="Fill" Margin="5,-1,-5,-1" StrokeThickness="4" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+      <Line StartPoint="0,0" EndPoint="1,0" Stroke="{DynamicResource UpperHighlight}" Stretch="Fill" Margin="1,-5" StrokeThickness="4" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+    </Grid>
+    <Border Margin="10,10,10,45" Classes="contentBorder" BoxShadow="3 3 5 1 #88000000"/>
+    <Label Content="Username" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,24,0,0" Foreground="{DynamicResource textForeground}" FontSize="12"/>
+    <Label Content="Password" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20,53,0,0" Foreground="{DynamicResource textForeground}" FontSize="12"/>
+    <TextBox x:Name="txtUsername" Text="{Binding Username}" Classes="inputField" Height="23" MinHeight="23" Margin="92,25,21,0" VerticalAlignment="Top" Padding="2" FontSize="12"/>
+    <TextBox x:Name="txtPassword" Text="{Binding Password}" Classes="inputField" PasswordChar="*" Height="23" MinHeight="23" Margin="92,53,21,0" VerticalAlignment="Top" ScrollViewer.VerticalScrollBarVisibility="Hidden"/>
+    <CheckBox IsChecked="{Binding RememberCredentials}" Command="{Binding RememberCredentialsAsync_Command}" Content="Remember username and password" Classes="checkBox" FontSize="12" HorizontalAlignment="Left" Margin="92,81,0,0" Height="30" VerticalAlignment="Top"/>
+    <CheckBox IsChecked="{Binding AutoLogin}" Command="{Binding AutoLoginAsync_Command}" Content="Login automatically" Classes="checkBox" HorizontalAlignment="Left" FontSize="12" Margin="92,111,0,0" VerticalAlignment="Top" Height="30"/>
+    <Button Command="{Binding LoginAsync_Command}" Classes="confirmButton" IsDefault="True" Content="Login" Margin="0,0,10,10" BorderThickness="0" Height="22" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="105" FontSize="12"/>
+    <Button Command="{Binding RegisterUsernameAsync_Command}" Classes="abortButton" Content="Register" Margin="0,0,131,10" BorderThickness="0" Height="22" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="105" FontSize="12"/>
+    <Button Command="{Binding RecoverPasswordAsync_Command}" Classes="abortButton" Content="Recover Password" Margin="0,0,253,10" BorderThickness="0" Height="22" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="117" FontSize="12"/>
+    <Button Command="{Binding ChangePasswordAsync_Command}" Classes="abortButton" Content="Change Password" Margin="0,0,387,10" BorderThickness="0" Height="22" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="117" FontSize="12"/>
+  </Grid>
+</Window>

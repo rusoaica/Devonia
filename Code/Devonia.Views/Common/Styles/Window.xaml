@@ -1,0 +1,113 @@
+﻿<Styles
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:behaviors="clr-namespace:Devonia.Views.Common.Behaviors"
+        xmlns:converters="clr-namespace:Devonia.Views.Common.Converters"
+        xmlns:controls="clr-namespace:Devonia.Views.Common.Controls"
+        xmlns:i="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
+        xmlns:ia="clr-namespace:Avalonia.Xaml.Interactions.Core;assembly=Avalonia.Xaml.Interactions"
+        xmlns:iac="clr-namespace:Avalonia.Xaml.Interactions.Custom;assembly=Avalonia.Xaml.Interactions.Custom"
+        xmlns:sw="clr-namespace:Devonia.Views.Common.Styles.StyleableWindow"
+        xmlns:sys="clr-namespace:System;assembly=netstandard">
+
+
+  <Design.PreviewWith>
+    <Window Height="600" Width="620" Classes="styledWindow">
+
+    </Window>
+  </Design.PreviewWith>
+
+
+  <Style Selector="Window.styledWindow">
+    <Style.Resources>
+      <ImageBrush x:Key="TileBitmap" Source="avares://Devonia/Assets/honeycomb_tile.png" TileMode="Tile" Stretch="Fill" SourceRect="0,0,45,49" DestinationRect="0,0,45,49" Opacity="0.2"/>
+      <converters:ImageSourceConverter x:Key="ImageSourceConverter"/>
+    </Style.Resources>
+    <Setter Property="Background" Value="Black"/>
+    <Setter Property="HasSystemDecorations" Value="False"/>
+    <Setter Property="Foreground" Value="{DynamicResource ThemeForegroundBrush}"/>
+    <Setter Property="FontSize" Value="{DynamicResource FontSizeNormal}"/>
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Grid RowDefinitions="1,*,1" ColumnDefinitions="1,*,1" Background="DodgerBlue">
+          <DockPanel Grid.Column="1"  Grid.Row="1" Background="{DynamicResource WindowTitlebarBackgroundColor}" >
+            <Grid Name="TitleBar" Background="{DynamicResource TileBitmap}" DockPanel.Dock="Top" Height="39">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="150"/>
+                <ColumnDefinition Width="35"/>
+                <ColumnDefinition Width="100"/>
+              </Grid.ColumnDefinitions>
+              <Image Grid.Column="0" Margin="10,0,0,0" Height="20" Width="20" Source="avares://Devonia/Assets/icon.ico"/>
+              <Grid Name="grdWindowDrag" Grid.Column="0" Margin="0" Grid.ColumnSpan="4" Width="360" Cursor="SizeAll" behaviors:DragBehavior.Command=""
+                    behaviors:DragBehavior.CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}">
+                <Polygon Points="0,0 360,0 330,30 30,30" StrokeThickness="0" Fill="{DynamicResource titleBackgroundGradient}"/>
+                <Path StrokeThickness="3" Stroke="{DynamicResource titleSlantGradient}">
+                  <Path.Data>
+                    <LineGeometry StartPoint="0,1" EndPoint="30,28"/>
+                  </Path.Data>
+                </Path>
+                <TextBlock DockPanel.Dock="Left" TextAlignment="Center" Text="{Binding WindowTitle}" Margin="0" FontSize="{Binding TitleFontSize}" Foreground="{DynamicResource WindowForeColor}" FontWeight="DemiBold" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                <Path StrokeThickness="3" Stroke="{DynamicResource titleSlantGradient}">
+                  <Path.Data>
+                    <LineGeometry StartPoint="360,1" EndPoint="330,28"/>
+                  </Path.Data>
+                </Path>
+              </Grid>
+              
+              <Ellipse Grid.Column="3" HorizontalAlignment="Left" IsVisible="{Binding IsMediaPlayingIndicatorSocketVisible}" Width="20" Height="20" Fill="{StaticResource GlowBackGround}" VerticalAlignment="Center"/>
+              <Image Source="{Binding MediaPlayingImage, Converter={StaticResource ImageSourceConverter}}" IsVisible="{Binding IsMediaPlayingIndicatorVisible}" Grid.Column="3" HorizontalAlignment="Left" VerticalAlignment="Center" Width="20" Height="20"/>
+              
+              <controls:FluidProgressBar Grid.Column="2" Height="4" IsVisible="{Binding IsProgressBarVisible}"/>
+              <StackPanel Grid.Column="4" Margin="0,0,4,0" Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Classes="abortButton" Name="HelpButton" Content="?" ToolTip.Tip="Display Help" Cursor="Help" Margin="2" BorderThickness="0" Height="20" VerticalAlignment="Center" HorizontalAlignment="Right" Width="20" Padding="7,0,0,0" HorizontalContentAlignment="Left" FontSize="12" behaviors:HelpBehavior.Command=""
+                        behaviors:HelpBehavior.CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}" IsVisible="{Binding IsHelpButtonVisible}"/>
+                <Button Classes="confirmButton" Name="MinimizeButton" Content="_" Cursor="Arrow" ToolTip.Tip="Minimize Window" Margin="2" BorderThickness="0" Height="20" VerticalAlignment="Center" HorizontalAlignment="Right" Width="20" Padding="7,0,0,0" HorizontalContentAlignment="Left" FontSize="12" behaviors:MinimizeBehavior.Command=""
+                        behaviors:MinimizeBehavior.CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"/>
+                <Button Classes="confirmButton" Name="MaximizeButton" Content="+" ToolTip.Tip="Maximize Window" Cursor="Arrow" Margin="2" BorderThickness="0" Height="20" VerticalAlignment="Center" HorizontalAlignment="Right" Width="20" Padding="0" FontSize="12" behaviors:MaximizeBehavior.Command=""
+                        behaviors:MaximizeBehavior.CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"/>
+                <Button Classes="confirmButton" Name="CloseButton" Content="X" ToolTip.Tip="Close Window" Cursor="Arrow" Margin="2" BorderThickness="0" Height="20" VerticalAlignment="Center" HorizontalAlignment="Right" Width="20" FontSize="12" behaviors:CloseBehavior.Command=""
+                        behaviors:CloseBehavior.CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"/>
+              </StackPanel>
+              <Separator Grid.Column="0" Grid.ColumnSpan="5" Margin="0,37,0,0" Height="1" HorizontalAlignment="Stretch" VerticalAlignment="Top" Background="{DynamicResource WindowSeparatorDark}" />
+              <Separator Grid.Column="0" Grid.ColumnSpan="5" Margin="0,38,0,0" Height="1" HorizontalAlignment="Stretch" VerticalAlignment="Top" Background="{DynamicResource WindowSeparatorMedium}" />
+              <Rectangle Grid.Column="0" Grid.ColumnSpan="5" Margin="0,38,0,0" Height="1" HorizontalAlignment="Stretch" VerticalAlignment="Top" Fill="{StaticResource WindowSeparatorHighlight}"/>
+            </Grid>
+            <VisualLayerManager>
+              <ContentPresenter Name="PART_ContentPresenter"
+                      ContentTemplate="{TemplateBinding ContentTemplate}"
+                      Content="{TemplateBinding Content}"
+                      HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                      VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
+            </VisualLayerManager>
+          </DockPanel>
+          <Border Name="Top" Background="Transparent" Height="5" Grid.Column="1" Cursor="SizeNorthSouth"
+                              behaviors:ResizeBehavior.Command=""
+                              behaviors:ResizeBehavior.CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"/>
+          <Border Name="Right" Background="Transparent" Width="5" Grid.Row="1" Grid.Column="2" Cursor="SizeWestEast"
+                              behaviors:ResizeBehavior.Command=""
+                              behaviors:ResizeBehavior.CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"/>
+          <Border Name="Bottom" Background="Transparent" Height="5" Grid.Row="2" Grid.Column="1" Cursor="SizeNorthSouth"
+                              behaviors:ResizeBehavior.Command=""
+                              behaviors:ResizeBehavior.CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"/>
+          <Border Name="Left" Background="Transparent" Width="5" Grid.Row="1" Cursor="SizeWestEast"
+                              behaviors:ResizeBehavior.Command=""
+                              behaviors:ResizeBehavior.CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"/>
+          <Border Name="TopLeft" Background="Transparent" Width="5" Height="5" Cursor="TopLeftCorner"
+                              behaviors:ResizeBehavior.Command=""
+                              behaviors:ResizeBehavior.CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"/>
+          <Border Name="TopRight" Background="Transparent" Width="5" Height="5" Grid.Column="2" Cursor="TopRightCorner"
+                              behaviors:ResizeBehavior.Command=""
+                              behaviors:ResizeBehavior.CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"/>
+          <Border Name="BottomLeft" Background="Transparent" Width="5" Height="5" Grid.Row="2" Cursor="BottomLeftCorner"
+                              behaviors:ResizeBehavior.Command=""
+                              behaviors:ResizeBehavior.CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"/>
+          <Border Name="BottomRight" Background="Transparent" Width="5" Height="5"  Grid.Row="2" Grid.Column="2" Cursor="BottomRightCorner"
+                              behaviors:ResizeBehavior.Command=""
+                              behaviors:ResizeBehavior.CommandParameter="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}}"/>
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+</Styles>

@@ -1,0 +1,139 @@
+﻿<Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Style Selector="ListBox">
+        <Setter Property="Background" Value="{TemplateBinding Background}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="4"/>
+        <Setter Property="ScrollViewer.HorizontalScrollBarVisibility" Value="Auto"/>
+        <Setter Property="ScrollViewer.VerticalScrollBarVisibility" Value="Auto"/>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid>
+                    <Border Name="border" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}">
+                        <ScrollViewer Name="PART_ScrollViewer" Classes="ScrollViewer"
+                          Background="{TemplateBinding Background}"
+                          HorizontalScrollBarVisibility="{TemplateBinding (ScrollViewer.HorizontalScrollBarVisibility)}"
+                          VerticalScrollBarVisibility="{TemplateBinding (ScrollViewer.VerticalScrollBarVisibility)}"
+                          AllowAutoHide="{TemplateBinding (ScrollViewer.AllowAutoHide)}">                        
+                            <ItemsPresenter Name="PART_ItemsPresenter"
+                              Items="{TemplateBinding Items}"
+                              ItemsPanel="{TemplateBinding ItemsPanel}"
+                              ItemTemplate="{TemplateBinding ItemTemplate}"
+                              Margin="{TemplateBinding Padding}"
+                              VirtualizationMode="{TemplateBinding VirtualizationMode}"/>
+                        </ScrollViewer>
+                    </Border>
+                    <Grid>
+                        <Line StartPoint="0,0" EndPoint="1,0" Stroke="{DynamicResource BorderUnlit}" Stretch="Fill" StrokeThickness="1" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                        <Line StartPoint="0,1" EndPoint="1,1" Stroke="{DynamicResource BorderLit}" Stretch="Fill" StrokeThickness="2" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+                        <Line StartPoint="0,0" EndPoint="0,1" Stroke="{DynamicResource BorderUnlit}" Stretch="Fill" StrokeThickness="1" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                        <Line StartPoint="1,0" EndPoint="1,1" Stroke="{DynamicResource BorderLit}" Stretch="Fill" StrokeThickness="2" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                    </Grid>
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+    <Style Selector="ListBox:disabled /template/ Border#border">
+        <Setter Property="Opacity" Value="{DynamicResource ThemeDisabledOpacity}" />
+    </Style>
+    
+    <Style Selector="ListBoxItem">
+        <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+      <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="2 1"/>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid Background="Transparent">
+                    <Border x:Name="bg" CornerRadius="1" BorderThickness="0">
+                        <ContentPresenter Name="PART_ContentPresenter"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            ContentTemplate="{TemplateBinding ContentTemplate}"
+                            Content="{TemplateBinding Content}"
+                            Padding="{TemplateBinding Padding}"
+                            VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                            HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"/>
+                    </Border>
+                    <Grid>
+                        <Rectangle Fill="{DynamicResource BorderLit}" Margin="0" Height="1" HorizontalAlignment="Stretch" VerticalAlignment="Top"/>
+                        <Rectangle Fill="{DynamicResource BorderUnlit}" Margin="0" Height="1" HorizontalAlignment="Stretch" VerticalAlignment="Bottom"/>
+                        <!--For delimiting the columns of listboxes, uncomment these:-->
+                        <!--<Rectangle Fill="{DynamicResource BorderLit}" Margin="0" Width="1" HorizontalAlignment="Left" VerticalAlignment="Stretch"/>
+                        <Rectangle Fill="{DynamicResource BorderUnlit}" Margin="0" Width="1" HorizontalAlignment="Right" VerticalAlignment="Stretch"/>-->
+                        <Rectangle Name="UpperHighlight" Height="1" VerticalAlignment="Top">
+                            <Rectangle.Fill>
+                                <LinearGradientBrush StartPoint="0%,50%" EndPoint="100%,50%">
+                                    <GradientStop Color="#55FFFFFF" Offset="0.40"/>
+                                    <GradientStop Color="#FFFFFFFF" Offset="0.50"/>
+                                    <GradientStop Color="#55FFFFFF" Offset="0.60"/>
+                                </LinearGradientBrush>
+                            </Rectangle.Fill>
+                        </Rectangle>
+                    </Grid>
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+
+    <Style Selector="ListBoxItem:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="Transparent"/>
+    </Style>
+    <Style Selector="ListBoxItem:pointerover">
+        <Setter Property="Foreground" Value="{DynamicResource ListviewItemBottomBorderColor}"/>
+    </Style>
+    
+    <Style Selector="ListBoxItem:selected /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource SelectedListItemBackground}"/>
+    </Style>
+    <Style Selector="ListBoxItem:selected /template/ Rectangle#UpperHighlight">
+        <Setter Property="IsVisible" Value="True"/>
+    </Style>
+    <Style Selector="ListBoxItem:selected">
+        <Setter Property="Foreground" Value="{DynamicResource ListviewItemBottomBorderColor}"/>
+    </Style>
+    
+    <Style Selector="ListBoxItem:not(:selected) /template/ Rectangle#UpperHighlight">
+        <Setter Property="IsVisible" Value="False"/>
+    </Style>
+    <Style Selector="ListBoxItem:not(:selected)">
+        <Setter Property="Foreground" Value="{DynamicResource ListviewItemBottomBorderColor}"/>
+    </Style>
+    
+    <Style Selector="ListBoxItem:selected:focus /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource SelectedListItemBackground}"/>
+    </Style>
+    <Style Selector="ListBoxItem:selected:focus /template/ Rectangle#UpperHighlight">
+        <Setter Property="IsVisible" Value="True"/>
+    </Style>
+    <Style Selector="ListBoxItem:selected:focus">
+        <Setter Property="Foreground" Value="{DynamicResource ListviewItemBottomBorderColor}"/>
+    </Style>
+    
+    <Style Selector="ListBoxItem:selected:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource SelectedListItemBackground}"/>
+    </Style>
+    <Style Selector="ListBoxItem:selected:pointerover /template/ Rectangle#UpperHighlight">
+        <Setter Property="IsVisible" Value="True"/>
+    </Style>
+    <Style Selector="ListBoxItem:selected:pointerover">
+        <Setter Property="Foreground" Value="{DynamicResource ListviewItemBottomBorderColor}"/>
+    </Style>
+    
+    <Style Selector="ListBoxItem:selected:focus:pointerover /template/ ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource SelectedListItemBackground}"/>
+    </Style>
+    <Style Selector="ListBoxItem:selected:focus:pointerover /template/ Rectangle#UpperHighlight">
+        <Setter Property="IsVisible" Value="True"/>
+    </Style>
+    <Style Selector="ListBoxItem:selected:focus:pointerover">
+        <Setter Property="Foreground" Value="{DynamicResource ListviewItemBottomBorderColor}"/>
+    </Style>
+
+    <Style Selector="ListBoxItem.nth-odd-child /template/ Border#bg">
+        <Setter Property="Background" Value="{DynamicResource ListviewLightBg}" />
+    </Style>
+    <Style Selector="ListBoxItem.nth-even-child /template/ Border#bg">
+        <Setter Property="Background" Value="{DynamicResource ListviewDarkBg}" />
+    </Style>
+</Styles>

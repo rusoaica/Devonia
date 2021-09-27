@@ -1,0 +1,24 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Devonia.Views.App">
+  <Application.Styles>
+    <FluentTheme Mode="Light"/>
+    <StyleInclude Source="/Common/Styles/Dark.xaml"/>
+    <StyleInclude Source="/Common/Styles/CommonStyles.xaml"/>
+    <StyleInclude Source="/Common/Styles/RepeatButton.xaml"/>
+    <StyleInclude Source="/Common/Styles/ScrollBar.xaml"/>
+    <StyleInclude Source="/Common/Styles/ScrollViewer.xaml"/>
+    <StyleInclude Source="/Common/Styles/TreeView.xaml"/>
+    <StyleInclude Source="/Common/Styles/Button.xaml"/>
+    <StyleInclude Source="/Common/Styles/TextBox.xaml"/>
+    <StyleInclude Source="/Common/Styles/Window.xaml"/>
+    <StyleInclude Source="/Common/Styles/AutoCompleteBox.xaml"/>
+    <StyleInclude Source="/Common/Styles/CheckBox.xaml"/>
+    <StyleInclude Source="/Common/Styles/ComboBox.xaml"/>
+    <StyleInclude Source="/Common/Styles/ListBox.xaml"/>
+    <StyleInclude Source="/Common/Styles/ToolTip.xaml"/>
+    <StyleInclude Source="/Common/Styles/Label.xaml"/>
+    <StyleInclude Source="/Common/Styles/Expander.xaml"/>
+    <StyleInclude Source="/Common/Styles/RadioButton.xaml"/>
+  </Application.Styles>
+</Application>

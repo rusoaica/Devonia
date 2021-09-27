@@ -1,0 +1,41 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:common="clr-namespace:Devonia.Views.Common.AttachedProperties"
+        xmlns:converter="clr-namespace:Devonia.Views.Common.Converters"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="Devonia.Views.Common.Dialogs.MsgBoxV"
+        Title="{Binding WindowTitle}" Topmost="True" Classes="styledWindow" HasSystemDecorations="False" Height="226" Width="600" WindowStartupLocation="CenterScreen" FontSize="14" MinWidth="600" MinHeight="225" MaxWidth="800" Opened="Window_Opened">
+  <Window.Resources>
+    <converter:ImageSourceConverter x:Key="ImageSourceConverter"/>
+  </Window.Resources>
+  <Grid Background="{DynamicResource containerBackground}">
+    <Grid Margin="21,21,21,56">
+      <Path Data="M 1,0 0.5,0 Q 0,0 0,0.5 L 0,1" Fill="Transparent" HorizontalAlignment="Left" Height="6" Margin="-5" Stretch="Fill" Stroke="{DynamicResource BorderLit}" StrokeThickness="4" VerticalAlignment="Top" Width="6"/>
+      <Path Data="M 0,1 0.5,1 Q 1,1 1,0.5 L 1,0" Fill="Transparent" HorizontalAlignment="Right" Height="6" Margin="-5" Stretch="Fill" Stroke="{DynamicResource BorderUnlit}" StrokeThickness="4" VerticalAlignment="Bottom" Width="6"/>
+      <Path Data="M 0,0 0.5,0 Q 1,0 1,0.5 L 1,1" Fill="Transparent" HorizontalAlignment="Right" Height="6" Margin="-5" Stretch="Fill" Stroke="{DynamicResource AngleShadow}" StrokeThickness="4" VerticalAlignment="Top" Width="6"/>
+      <Path Data="M 0,0 0,0.5 Q 0,1 0.5,1 L 1,1" Fill="Transparent" HorizontalAlignment="Left" Height="6" Margin="-5" Stretch="Fill" Stroke="{DynamicResource AngleShadow}" StrokeThickness="4" VerticalAlignment="Bottom" Width="6"/>
+      <Line StartPoint="0,0" EndPoint="1,0" Stroke="{DynamicResource BorderLit}" Stretch="Fill" Margin="1,-5" StrokeThickness="4" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+      <Line StartPoint="0,1" EndPoint="1,1" Stroke="{DynamicResource BorderUnlit}" Stretch="Fill" Margin="1,5,1,-5" StrokeThickness="4" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+      <Line StartPoint="0,0" EndPoint="0,1" Stroke="{DynamicResource BorderLit}" Stretch="Fill" Margin="-5,-1" StrokeThickness="4" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+      <Line StartPoint="1,0" EndPoint="1,1" Stroke="{DynamicResource BorderUnlit}" Stretch="Fill" Margin="5,-1,-5,-1" StrokeThickness="4" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+      <Line StartPoint="0,0" EndPoint="1,0" Stroke="{DynamicResource UpperHighlight}" Stretch="Fill" Margin="1,-5" StrokeThickness="4" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+    </Grid>
+    <Border Margin="10,10,10,45" Classes="contentBorder" BoxShadow="3 3 5 1 #88000000"/>
+
+    <DockPanel Margin="21,21,21,56">
+      <Image Source="{Binding MessageBoxIcon, Converter={StaticResource ImageSourceConverter}}" Height="32" Width="32" Margin="6" VerticalAlignment="Top"/>
+      <TextBlock Text="{Binding Prompt}" Foreground="{DynamicResource textForeground}" TextWrapping="Wrap" Margin="6">
+          <TextBlock.ContextMenu>
+            <ContextMenu>
+              <MenuItem Header="Copy" Command="{Binding Copy_Command}"/>
+            </ContextMenu>
+          </TextBlock.ContextMenu>
+        </TextBlock>
+      </DockPanel>
+    <Button Content="{Binding YesLabel}" Command="{Binding Yes_Command}" Classes="confirmButton" IsDefault="True" HorizontalAlignment="Right" Margin="0,0,10,10" Height="22" VerticalAlignment="Bottom" Width="105"/>
+    <Button Content="{Binding NoLabel}" IsVisible="{Binding IsNoVisible}" Classes="abortButton" Command="{Binding No_Command}" IsCancel="True" Margin="0,0,120,9" Height="22" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="105"/>
+    <Button Content="{Binding CancelLabel}" IsVisible="{Binding IsCancelVisible}" Classes="abortButton" Click="Window_Close" IsCancel="True" Margin="0,0,230,9" Height="22" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="121"/>
+  </Grid>
+</Window>

@@ -1,0 +1,408 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:converters="clr-namespace:Avalonia.Controls.Converters;assembly=Avalonia.Controls"
+        xmlns:i="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
+        xmlns:ia="clr-namespace:Avalonia.Xaml.Interactions.Core;assembly=Avalonia.Xaml.Interactions"
+        xmlns:iac="clr-namespace:Avalonia.Xaml.Interactions.Custom;assembly=Avalonia.Xaml.Interactions.Custom"
+        xmlns:sys="clr-namespace:System;assembly=netstandard">
+    
+    <!--BUTTON-->
+    <Design.PreviewWith>
+        <Grid Background="#333333" Height="300" Width="120">
+            <Button Classes="abortButton" Content="Schimbare parola" Width="105" Height="22" Margin="0,10" VerticalAlignment="Top"/>
+            <Button Classes="abortButton" Content="Schimbare parola" Width="105" Height="22" IsEnabled="False" Margin="0,40" VerticalAlignment="Top"/>
+            <Button Classes="confirmButton" Content="Schimbare parola" Width="105" Height="22" Margin="0,70" VerticalAlignment="Top"/>
+            <Button Classes="confirmButton" Content="Schimbare parola" Width="105" Height="22" IsEnabled="False" Margin="0,100" VerticalAlignment="Top"/>
+        </Grid>
+    </Design.PreviewWith>
+
+    <Style Selector="Button.abortButton">
+        <Setter Property="Foreground" Value="{DynamicResource ButtonForeground}"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Padding" Value="4"/>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid Background="Transparent">
+                    <Line StartPoint="0,0" EndPoint="1,0" x:Name="borderTop" Margin="9,2" Stretch="Fill" StrokeThickness="4" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                    <Line StartPoint="0,1" EndPoint="1,1" x:Name="borderBottom" Margin="9,2" Stretch="Fill" StrokeThickness="4" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+                    <Line StartPoint="0,0" EndPoint="0,1" x:Name="borderLeft" Margin="3,8" Stretch="Fill" StrokeThickness="4" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                    <Line StartPoint="1,0" EndPoint="1,1" x:Name="borderRight" Margin="3,8" Stretch="Fill" StrokeThickness="4" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                    <Path Data="M 1,0 0.65,0 Q 0,0 0,0.65 L 0,1" Fill="Transparent" HorizontalAlignment="Left" Height="6" Margin="3,2,0,0" Stretch="Fill" x:Name="cornerTopLeft" StrokeThickness="4" VerticalAlignment="Top" Width="6"/>
+                    <Path Data="M 0,1 0.65,1 Q 1,1 1,0.65 L 1,0" Fill="Transparent" HorizontalAlignment="Right" Height="6" Margin="0,0,3,2" Stretch="Fill" x:Name="cornerBottomRight" StrokeThickness="4" VerticalAlignment="Bottom" Width="6"/>
+                    <Path Data="M 0,0 0.65,0 Q 1,0 1,0.65 L 1,1" Fill="Transparent" HorizontalAlignment="Right" Height="6" Margin="0,2,3,0" Stretch="Fill" x:Name="cornerTopRight" StrokeThickness="4" VerticalAlignment="Top" Width="6"/>
+                    <Path Data="M 0,0 0,0.65 Q 0,1 0.65,1 L 1,1" Fill="Transparent" HorizontalAlignment="Left" Height="6" Margin="3,0,0,2" Stretch="Fill" x:Name="cornerBottomLeft" StrokeThickness="4" VerticalAlignment="Bottom" Width="6"/>
+                    <Border Margin="-3,-4" x:Name="bg" CornerRadius="4" BorderThickness="10"/>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="0.5*"/>
+                            <RowDefinition Height="0.5*"/>
+                        </Grid.RowDefinitions>
+                        <Border RenderTransformOrigin="50%,0%"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0" x:Name="glow" Grid.Row="0" Grid.RowSpan="2" CornerRadius="4">
+                            <Border.Background>
+                                <RadialGradientBrush Radius="0.25">
+                                    <GradientStop Color="#B200FF8B" Offset="0.0"/>
+                                    <GradientStop Color="#2200FF8B" Offset="0.5"/>
+                                    <GradientStop Color="#00000000" Offset="0.9"/>
+                                    <GradientStop Color="#00000000" Offset="1.0"/>
+                                </RadialGradientBrush>
+                            </Border.Background>
+                            <Border.RenderTransform>
+                                <TransformGroup >
+                                    <ScaleTransform ScaleX="2.7" ScaleY="2"/>
+                                    <SkewTransform AngleX="0" AngleY="0"/>
+                                    <RotateTransform Angle="0"/>
+                                    <TranslateTransform X="-0.0" Y="0"/>
+                                </TransformGroup>
+                            </Border.RenderTransform>
+                        </Border>
+                        <Border HorizontalAlignment="Stretch" Margin="1,0" x:Name="shine" CornerRadius="4,4,0,0" Padding="0">
+                            <Border.Background>
+                                <LinearGradientBrush EndPoint="50%,90%" StartPoint="50%,0%">
+                                    <GradientStop Color="#99FFFFFF" Offset="0"/>
+                                    <GradientStop Color="#33FFFFFF" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                        </Border>
+                        <ContentPresenter Name="PART_ContentPresenter" Grid.RowSpan="2"
+                            Background="Transparent"
+                            ContentTemplate="{TemplateBinding ContentTemplate}"
+                            Content="{TemplateBinding Content}"
+                            Padding="{TemplateBinding Padding}"
+                            TextBlock.Foreground="{TemplateBinding Foreground}"
+                            HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                    </Grid>
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+    <Style Selector="Button.abortButton:pressed /template/Border#shine">
+        <Setter Property="Opacity" Value="0.4"/>
+    </Style>
+    <Style Selector="Button.abortButton:pressed /template/Border.border">
+        <Setter Property="Background" Value="{DynamicResource ButtonBackgroundHover}"/>
+    </Style>
+    <Style Selector="Button.abortButton:disabled /template/ContentPresenter#PART_ContentPresenter">
+        <Setter Property="TextBlock.Foreground" Value="{DynamicResource ListviewItemTopBorderColor}"/>
+    </Style>
+    <Style Selector="Button.abortButton:disabled /template/Border#shine">
+        <Setter Property="Opacity" Value="0"/>
+    </Style>
+    <Style Selector="Button.abortButton:disabled /template/Border.borders">
+        <Setter Property="Opacity" Value="0"/>
+    </Style>
+    <Style Selector="Button.abortButton:disabled /template/Border#bg">
+        <Setter Property="Background" Value="{DynamicResource ButtonBackgroundDisabledColor}"/>
+    </Style>
+    
+    <Style Selector="Button.abortButton:disabled /template/Line#borderTop">
+        <Setter Property="Stroke" Value="#333"/>
+    </Style>
+    <Style Selector="Button.abortButton:disabled /template/Line#borderLeft">
+        <Setter Property="Stroke" Value="#333"/>
+    </Style>
+    <Style Selector="Button.abortButton:disabled /template/Line#borderBottom">
+        <Setter Property="Stroke" Value="#333"/>
+    </Style>
+    <Style Selector="Button.abortButton:disabled /template/Line#borderRight">
+        <Setter Property="Stroke" Value="#333"/>
+    </Style>
+
+
+    <Style Selector="Button.abortButton:disabled /template/Path#cornerTopLeft">
+        <Setter Property="Stroke" Value="#333"/>
+    </Style>
+    <Style Selector="Button.abortButton:disabled /template/Path#cornerBottomRight">
+        <Setter Property="Stroke" Value="#333"/>
+    </Style>
+    <Style Selector="Button.abortButton:disabled /template/Path#cornerTopRight">
+        <Setter Property="Stroke" Value="#333"/>
+    </Style>
+    <Style Selector="Button.abortButton:disabled /template/Path#cornerBottomLeft">
+        <Setter Property="Stroke" Value="#333"/>
+    </Style>
+
+    <Style Selector="Button.abortButton:not(:disabled) /template/Path#cornerTopLeft">
+        <Setter Property="Stroke" Value="{DynamicResource AngleShadowGlass}"/>
+    </Style>
+    <Style Selector="Button.abortButton:not(:disabled) /template/Path#cornerBottomRight">
+        <Setter Property="Stroke" Value="{DynamicResource AbortBorderBottomColor}"/>
+    </Style>
+    <Style Selector="Button.abortButton:not(:disabled) /template/Path#cornerTopRight">
+        <Setter Property="Stroke" Value="{DynamicResource AngleShadowGlass}"/>
+    </Style>
+    <Style Selector="Button.abortButton:not(:disabled) /template/Path#cornerBottomLeft">
+        <Setter Property="Stroke" Value="{DynamicResource AngleShadowGlassBottom}"/>
+    </Style>
+
+    
+    <Style Selector="Button.abortButton:not(:disabled) /template/Line#borderTop">
+        <Setter Property="Stroke" Value="{DynamicResource AbortBorderTopColor}"/>
+    </Style>
+    <Style Selector="Button.abortButton:not(:disabled) /template/Line#borderLeft">
+        <Setter Property="Stroke" Value="{DynamicResource AbortBorderLeftColor}"/>
+    </Style>
+    <Style Selector="Button.abortButton:not(:disabled) /template/Line#borderBottom">
+        <Setter Property="Stroke" Value="{DynamicResource AbortBorderBottomColor}"/>
+    </Style>
+    <Style Selector="Button.abortButton:not(:disabled) /template/Line#borderRight">
+        <Setter Property="Stroke" Value="{DynamicResource AbortBorderRightColor}"/>
+    </Style>
+
+    <Style Selector="Button.abortButton:not(:disabled) /template/Border#bg">
+        <Setter Property="Background" Value="#004030"/>
+    </Style>
+    <Style Selector="Button.abortButton:not(:pressed) /template/Border.border">
+        <Setter Property="Background" Value="{DynamicResource abortButtonBackground}"/>
+    </Style>
+    <Style Selector="Button.abortButton:pointerover /template/ContentPresenter#PART_ContentPresenter">
+        <Setter Property="TextBlock.Foreground" Value="White"/>
+        <Setter Property="TextBlock.FontWeight" Value="Bold"/>
+    </Style>
+    <Style Selector="Button.abortButton /template/Border#glow">
+        <Setter Property="Transitions">
+            <Transitions>
+                <DoubleTransition Property="Opacity" Duration="0:0:0.3"/>
+            </Transitions>
+        </Setter>
+    </Style>
+    <Style Selector="Button.abortButton:not(:pointerover) /template/Border#glow">
+        <Setter Property="Opacity" Value="0"/>
+    </Style>
+    <Style Selector="Button.abortButton:pointerover /template/Border#glow">
+        <Setter Property="Opacity" Value="1"/>
+    </Style>
+
+
+    <Style Selector="Button.confirmButton">
+        <Setter Property="Foreground" Value="{DynamicResource ButtonForeground}"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Padding" Value="4"/>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid Background="Transparent">
+                    <Line StartPoint="0,0" EndPoint="1,0" x:Name="borderTop" Margin="9,2" Stretch="Fill" StrokeThickness="4" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                    <Line StartPoint="0,1" EndPoint="1,1" x:Name="borderBottom" Margin="9,2" Stretch="Fill" StrokeThickness="4" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+                    <Line StartPoint="0,0" EndPoint="0,1" x:Name="borderLeft" Margin="3,8" Stretch="Fill" StrokeThickness="4" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                    <Line StartPoint="1,0" EndPoint="1,1" x:Name="borderRight" Margin="3,8" Stretch="Fill" StrokeThickness="4" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                    <Path Data="M 1,0 0.65,0 Q 0,0 0,0.65 L 0,1" Fill="Transparent" HorizontalAlignment="Left" Height="6" Margin="3,2,0,0" Stretch="Fill" x:Name="cornerTopLeft" StrokeThickness="4" VerticalAlignment="Top" Width="6"/>
+                    <Path Data="M 0,1 0.65,1 Q 1,1 1,0.65 L 1,0" Fill="Transparent" HorizontalAlignment="Right" Height="6" Margin="0,0,3,2" Stretch="Fill" x:Name="cornerBottomRight" StrokeThickness="4" VerticalAlignment="Bottom" Width="6"/>
+                    <Path Data="M 0,0 0.65,0 Q 1,0 1,0.65 L 1,1" Fill="Transparent" HorizontalAlignment="Right" Height="6" Margin="0,2,3,0" Stretch="Fill" x:Name="cornerTopRight" StrokeThickness="4" VerticalAlignment="Top" Width="6"/>
+                    <Path Data="M 0,0 0,0.65 Q 0,1 0.65,1 L 1,1" Fill="Transparent" HorizontalAlignment="Left" Height="6" Margin="3,0,0,2" Stretch="Fill" x:Name="cornerBottomLeft" StrokeThickness="4" VerticalAlignment="Bottom" Width="6"/>
+                    <Border Margin="-3,-4" x:Name="bg" CornerRadius="4" BorderThickness="10" ClipToBounds="True"/>
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="0.5*"/>
+                            <RowDefinition Height="0.5*"/>
+                        </Grid.RowDefinitions>
+                        <Border RenderTransformOrigin="50%,0%"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0" x:Name="glow" Grid.Row="0" Grid.RowSpan="2" CornerRadius="4">
+                            <Border.Background>
+                                <RadialGradientBrush Radius="0.25">
+                                    <GradientStop Color="#B200FF8B" Offset="0.0"/>
+                                    <GradientStop Color="#2200FF8B" Offset="0.5"/>
+                                    <GradientStop Color="#00000000" Offset="0.9"/>
+                                    <GradientStop Color="#00000000" Offset="1.0"/>
+                                </RadialGradientBrush>
+                            </Border.Background>
+                            <Border.RenderTransform>
+                                <TransformGroup >
+                                    <ScaleTransform ScaleX="2.7" ScaleY="2"/>
+                                    <SkewTransform AngleX="0" AngleY="0"/>
+                                    <RotateTransform Angle="0"/>
+                                    <TranslateTransform X="-0.0" Y="0"/>
+                                </TransformGroup>
+                            </Border.RenderTransform>
+                        </Border>
+                        <Border HorizontalAlignment="Stretch" Margin="1,0" x:Name="shine" CornerRadius="4,4,0,0" Padding="0">
+                            <Border.Background>
+                                <LinearGradientBrush EndPoint="50%,90%" StartPoint="50%,0%">
+                                    <GradientStop Color="#99FFFFFF" Offset="0"/>
+                                    <GradientStop Color="#33FFFFFF" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                        </Border>
+                        <ContentPresenter Name="PART_ContentPresenter" Grid.RowSpan="2"
+                            Background="Transparent"
+                            ContentTemplate="{TemplateBinding ContentTemplate}"
+                            Content="{TemplateBinding Content}"
+                            Padding="{TemplateBinding Padding}"
+                            TextBlock.Foreground="{TemplateBinding Foreground}"
+                            HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                    </Grid>
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+    <Style Selector="Button.confirmButton:pressed /template/Border#shine">
+        <Setter Property="Opacity" Value="0.4"/>
+    </Style>
+    <Style Selector="Button.confirmButton:pressed /template/Border.border">
+        <Setter Property="Background" Value="{DynamicResource ButtonBackgroundHover}"/>
+    </Style>
+    <Style Selector="Button.confirmButton:disabled /template/ContentPresenter#PART_ContentPresenter">
+        <Setter Property="TextBlock.Foreground" Value="{DynamicResource ListviewItemTopBorderColor}"/>
+    </Style>
+    <Style Selector="Button.confirmButton:disabled /template/Border#shine">
+        <Setter Property="Opacity" Value="0"/>
+    </Style>
+    <Style Selector="Button.confirmButton:disabled /template/Border.borders">
+        <Setter Property="Opacity" Value="0"/>
+    </Style>
+    <Style Selector="Button.confirmButton:disabled /template/Border#bg">
+        <Setter Property="Background" Value="{DynamicResource ButtonBackgroundDisabledColor}"/>
+    </Style>
+
+    <Style Selector="Button.confirmButton:disabled /template/ContentPresenter#PART_ContentPresenter">
+        <Setter Property="TextBlock.Foreground" Value="{DynamicResource ListviewItemTopBorderColor}"/>
+    </Style>
+    <Style Selector="Button.confirmButton:disabled /template/Border#shine">
+        <Setter Property="Opacity" Value="0"/>
+    </Style>
+    <Style Selector="Button.confirmButton:disabled /template/Border.borders">
+        <Setter Property="Opacity" Value="0"/>
+    </Style>
+    <Style Selector="Button.confirmButton:disabled /template/Border#bg">
+        <Setter Property="Background" Value="{DynamicResource ButtonBackgroundDisabledColor}"/>
+    </Style>
+
+    <Style Selector="Button.confirmButton:disabled /template/Line#borderTop">
+        <Setter Property="Stroke" Value="#333"/>
+    </Style>
+    <Style Selector="Button.confirmButton:disabled /template/Line#borderLeft">
+        <Setter Property="Stroke" Value="#333"/>
+    </Style>
+    <Style Selector="Button.confirmButton:disabled /template/Line#borderBottom">
+        <Setter Property="Stroke" Value="#333"/>
+    </Style>
+    <Style Selector="Button.confirmButton:disabled /template/Line#borderRight">
+        <Setter Property="Stroke" Value="#333"/>
+    </Style>
+
+
+    <Style Selector="Button.confirmButton:disabled /template/Path#cornerTopLeft">
+        <Setter Property="Stroke" Value="#333"/>
+    </Style>
+    <Style Selector="Button.confirmButton:disabled /template/Path#cornerBottomRight">
+        <Setter Property="Stroke" Value="#333"/>
+    </Style>
+    <Style Selector="Button.confirmButton:disabled /template/Path#cornerTopRight">
+        <Setter Property="Stroke" Value="#333"/>
+    </Style>
+    <Style Selector="Button.confirmButton:disabled /template/Path#cornerBottomLeft">
+        <Setter Property="Stroke" Value="#333"/>
+    </Style>
+
+    <Style Selector="Button.confirmButton:not(:disabled) /template/Path#cornerTopLeft">
+        <Setter Property="Stroke" Value="{DynamicResource BorderLit}"/>
+    </Style>
+    <Style Selector="Button.confirmButton:not(:disabled) /template/Path#cornerBottomRight">
+        <Setter Property="Stroke" Value="{DynamicResource BorderUnlit}"/>
+    </Style>
+    <Style Selector="Button.confirmButton:not(:disabled) /template/Path#cornerTopRight">
+        <Setter Property="Stroke" Value="{DynamicResource AngleShadow}"/>
+    </Style>
+    <Style Selector="Button.confirmButton:not(:disabled) /template/Path#cornerBottomLeft">
+        <Setter Property="Stroke" Value="{DynamicResource AngleShadow}"/>
+    </Style>
+
+
+    <Style Selector="Button.confirmButton:not(:disabled) /template/Line#borderTop">
+        <Setter Property="Stroke" Value="{DynamicResource BorderLit}"/>
+    </Style>
+    <Style Selector="Button.confirmButton:not(:disabled) /template/Line#borderLeft">
+        <Setter Property="Stroke" Value="{DynamicResource BorderLit}"/>
+    </Style>
+    <Style Selector="Button.confirmButton:not(:disabled) /template/Line#borderBottom">
+        <Setter Property="Stroke" Value="{DynamicResource BorderUnlit}"/>
+    </Style>
+    <Style Selector="Button.confirmButton:not(:disabled) /template/Line#borderRight">
+        <Setter Property="Stroke" Value="{DynamicResource BorderUnlit}"/>
+    </Style>
+    
+    <Style Selector="Button.confirmButton:not(:disabled) /template/Border#bg">
+        <Setter Property="Background" Value="#000000"/>
+    </Style>
+    <Style Selector="Button.confirmButton:not(:pressed) /template/Border.border">
+        <Setter Property="Background" Value="{DynamicResource ConfirmButtonBackground}"/>
+    </Style>
+    <Style Selector="Button.confirmButton:pointerover /template/ContentPresenter#PART_ContentPresenter">
+        <Setter Property="TextBlock.Foreground" Value="White"/>
+        <Setter Property="TextBlock.FontWeight" Value="Bold"/>
+    </Style>
+    <Style Selector="Button.confirmButton /template/Border#glow">
+        <Setter Property="Transitions">
+            <Transitions>
+                <DoubleTransition Property="Opacity" Duration="0:0:0.3"/>
+            </Transitions>
+        </Setter>
+    </Style>    
+    <Style Selector="Button.confirmButton:not(:pointerover) /template/Border#glow">
+        <Setter Property="Opacity" Value="0"/>
+    </Style>
+    <Style Selector="Button.confirmButton:pointerover /template/Border#glow">
+        <Setter Property="Opacity" Value="1"/>
+    </Style>
+
+
+
+
+    <Style Selector="Button.flatButton">
+        <Setter Property="Foreground" Value="{DynamicResource ButtonForeground}"/>
+        <Setter Property="HorizontalContentAlignment" Value="Center"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Padding" Value="4"/>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid Background="{TemplateBinding Background}">
+                    <Grid Width="1" Classes="borders" Margin="0" Background="{DynamicResource TimelineGradient}" HorizontalAlignment="Left" VerticalAlignment="Stretch"/>
+                    <Grid Width="1" Classes="borders" Margin="0" Background="{DynamicResource TimelineGradient}" HorizontalAlignment="Right" VerticalAlignment="Stretch"/>
+                    <Grid Margin="1,0,1,0">
+                        <ContentPresenter Name="PART_ContentPresenter" Grid.RowSpan="2"
+                Background="Transparent"
+                ContentTemplate="{TemplateBinding ContentTemplate}"
+                Content="{TemplateBinding Content}"
+                Padding="0"
+                TextBlock.Foreground="{TemplateBinding Foreground}"
+                HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                    </Grid>
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+    <Style Selector="Button.flatButton:pressed">
+        <Setter Property="FontStyle" Value="Italic"/>
+    </Style>
+    <Style Selector="Button.flatButton:pressed /template/ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource ButtonBackgroundHover}"/>
+    </Style>
+    <Style Selector="Button.flatButton:disabled /template/ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource ButtonBackgroundDisabled}"/>
+    </Style>
+    <Style Selector="Button.flatButton:disabled">
+        <Setter Property="FontStyle" Value="Italic"/>
+    </Style>
+    <Style Selector="Button.flatButton:not(:pressed) /template/ContentPresenter">
+        <Setter Property="Background" Value="{DynamicResource ConfirmButtonBackground}"/>
+    </Style>
+    <Style Selector="Button.flatButton:pointerover">
+        <Setter Property="Foreground" Value="#FFFFFF"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+    </Style>
+
+
+    <Style Selector="Button.TreeViewButton">
+        <Setter Property="TextBlock.TextAlignment" Value="Center" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border CornerRadius="5" BorderBrush="{DynamicResource WindowSeparatorMediumColor}" BorderThickness="1" Background="{TemplateBinding Background}">
+                    <ContentPresenter Name="PART_ContentPresenter" ContentTemplate="{TemplateBinding ContentTemplate}" Content="{TemplateBinding Content}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}" Margin="{TemplateBinding Padding}" VerticalAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+    <!-- Width="NaN" should really be Width="Auto", which is not yet supported in Avalonia-->
+</Styles>

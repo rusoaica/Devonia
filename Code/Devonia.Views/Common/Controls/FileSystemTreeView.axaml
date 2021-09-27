@@ -1,0 +1,33 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:i="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
+             xmlns:ia="clr-namespace:Avalonia.Xaml.Interactions.Core;assembly=Avalonia.Xaml.Interactions"
+             xmlns:iac="clr-namespace:Avalonia.Xaml.Interactions.Custom;assembly=Avalonia.Xaml.Interactions.Custom"
+             xmlns:converters="clr-namespace:Devonia.Views.Common.Converters"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Devonia.Views.Common.Controls.FileSystemTreeView" Background="Transparent">
+  <UserControl.Resources>
+    <converters:ImageSourceConverter x:Key="ImageSourceConverter"/>
+    <TreeDataTemplate x:Key="NavigationTreeViewTemplate" ItemsSource="{Binding Children}">
+      <Button Classes="TreeViewButton" Cursor="Hand" ToolTip.Tip="{Binding Path=FullPathName, Mode=OneTime}" Background="Transparent" BorderBrush="{x:Null}" Padding="0,0,2,0" Height="22" Focusable="False" ClickMode="Press"
+              Command="{Binding Path=DataContext.TreeSelectedItemChangedAsync_Command, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}" CommandParameter="{Binding FullPathName}">
+        <StackPanel Orientation="Horizontal" Margin="3,1" VerticalAlignment="Stretch" >
+          <Image Source="{Binding Path=Icon, Mode=OneTime, Converter={StaticResource ImageSourceConverter}}" Stretch="Fill" Height="19" Width="19"/>
+          <TextBlock Margin="5,0,0,0" Text="{Binding FriendlyName, Mode=OneTime}" Foreground="{DynamicResource textForeground}"/>
+        </StackPanel>
+      </Button>
+    </TreeDataTemplate>
+  </UserControl.Resources>
+  <Grid ClipToBounds="True">
+    <TreeView Classes="customTreeView" x:Name="tree" BorderThickness="0" Items="{Binding Path=RootChildren}" ItemTemplate="{StaticResource NavigationTreeViewTemplate}">
+      <TreeView.KeyBindings>
+        <KeyBinding Gesture="Enter" Command="{Binding Path=DataContext.NavigateToSelectedItemAsync_Command, RelativeSource={RelativeSource FindAncestor, AncestorType={x:Type Window}}}"
+                                CommandParameter="{Binding SelectedItem, RelativeSource={RelativeSource Self}}"/>
+      </TreeView.KeyBindings>
+    </TreeView>
+    <Border Background="Black" Height="10" Margin="-3,-10,-3,0" VerticalAlignment="Top" BoxShadow="3 3 5 1 #88000000"/>
+    <Border Background="Black" Width="10" Margin="-10,-3,0,-3" HorizontalAlignment="Left" BoxShadow="3 3 5 1 #88000000"/>
+  </Grid>
+</UserControl>

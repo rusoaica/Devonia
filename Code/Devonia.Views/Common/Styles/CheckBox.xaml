@@ -1,0 +1,136 @@
+﻿<Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Style Selector="CheckBox.checkBox">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Padding" Value="4,0,0,0"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid ColumnDefinitions="Auto,*">
+                    <Rectangle Name="checkMark" Width="18" Height="18" Stretch="Uniform" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                    <Grid Margin="0" Width="18" Height="18" Grid.Column="0">
+                        <Rectangle x:Name="borderTop" Margin="0" Height="1" HorizontalAlignment="Stretch" VerticalAlignment="Top"/>
+                        <Rectangle x:Name="borderLeft" Margin="0" Width="1" HorizontalAlignment="Left" VerticalAlignment="Stretch"/>
+                        <Rectangle x:Name="borderBottom" Margin="0" Height="1" HorizontalAlignment="Stretch" VerticalAlignment="Bottom"/>
+                        <Rectangle x:Name="borderRight" Margin="0" Width="1" HorizontalAlignment="Right" VerticalAlignment="Stretch"/>
+                    </Grid>
+                    <ContentPresenter Name="PART_ContentPresenter"
+                        ContentTemplate="{TemplateBinding ContentTemplate}"
+                        Content="{TemplateBinding Content}"
+                        Margin="{TemplateBinding Padding}"
+                        VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
+                        HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                        IsVisible="{TemplateBinding Content, Converter={x:Static ObjectConverters.IsNotNull}}"
+                        Grid.Column="1"/>
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+
+    <Style Selector="CheckBox /template/ Rectangle#borderTop">
+        <Setter Property="Fill" Value="{DynamicResource BorderUnlit}"/>
+    </Style>
+    <Style Selector="CheckBox /template/ Rectangle#borderLeft">
+        <Setter Property="Fill" Value="{DynamicResource BorderUnlit}"/>
+    </Style>
+    <Style Selector="CheckBox /template/ Rectangle#borderBottom">
+        <Setter Property="Fill" Value="{DynamicResource BorderLit}"/>
+    </Style>
+    <Style Selector="CheckBox /template/ Rectangle#borderRight">
+        <Setter Property="Fill" Value="{DynamicResource BorderLit}"/>
+    </Style>
+    <Style Selector="CheckBox:checked /template/ Rectangle#borderTop">
+        <Setter Property="Fill" Value="{DynamicResource BorderUnlit}"/>
+    </Style>
+    <Style Selector="CheckBox:checked /template/ Rectangle#borderLeft">
+        <Setter Property="Fill" Value="{DynamicResource BorderUnlit}"/>
+    </Style>
+    <Style Selector="CheckBox:checked /template/ Rectangle#borderBottom">
+        <Setter Property="Fill" Value="{DynamicResource BorderLit}"/>
+    </Style>
+    <Style Selector="CheckBox:checked /template/ Rectangle#borderRight">
+        <Setter Property="Fill" Value="{DynamicResource BorderLit}"/>
+    </Style>
+    <Style Selector="CheckBox /template/ Rectangle#checkMark">
+        <Setter Property="Fill">
+            <Setter.Value>
+                <LinearGradientBrush EndPoint="50%,100%" StartPoint="50%,0%">
+                    <GradientStop Color="#111" Offset="0" />
+                    <GradientStop Color="#222" Offset="0.5" />
+                    <GradientStop Color="#333" Offset="1" />
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style Selector="CheckBox:checked /template/ Rectangle#checkMark">
+        <Setter Property="Fill">
+            <Setter.Value>
+                <LinearGradientBrush EndPoint="50%,100%" StartPoint="50%,0%">
+                    <GradientStop Color="#5FAFFF" Offset="0" />
+                    <GradientStop Color="#3399FF" Offset="0.5" />
+                    <GradientStop Color="#2774C2" Offset="1" />
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style Selector="CheckBox:indeterminate /template/ Rectangle#checkMark">
+        <Setter Property="Fill">
+            <Setter.Value>
+                <LinearGradientBrush EndPoint="50%,100%" StartPoint="50%,0%">
+                    <GradientStop Color="#00995A" Offset="0" />
+                    <GradientStop Color="#006642" Offset="0.5" />
+                    <GradientStop Color="#004230" Offset="1" />
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style Selector="CheckBox:disabled /template/ Rectangle#checkMark">
+        <Setter Property="Opacity" Value="0.2"/>
+    </Style>    
+    <Style Selector="CheckBox:disabled /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="TextBlock.Foreground" Value="{DynamicResource WindowForeColor}"/>
+    </Style>
+    <Style Selector="CheckBox /template/ ContentPresenter#PART_ContentPresenter">
+        <Setter Property="TextBlock.Foreground" Value="{DynamicResource textForeground}"/>
+    </Style>
+    
+    <Style Selector="CheckBox.favorite">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Path x:Name="shape" Width="{TemplateBinding Width}" Height="{TemplateBinding Height}" Stretch="Fill"
+                    Data="F1 M 17.4167,32.25L 32.9107,32.25L 38,18L 43.0893,32.25L 58.5833,32.25L 45.6798,41.4944L 51.4583,56L 38,48.0833L 26.125,56L 30.5979,41.7104L 17.4167,32.25 Z "/>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+    <Style Selector="CheckBox.favorite /template/ Path#shape">
+        <Setter Property="Fill" Value="{DynamicResource BorderUnlit}"/>
+    </Style>
+    <Style Selector="CheckBox.favorite:checked /template/ Path#shape">
+        <Setter Property="Fill" Value="#3399FF"/>
+    </Style>
+
+
+    <Style Selector="CheckBox.preview">
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="HorizontalContentAlignment" Value="Left"/>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Path x:Name="shape" Width="{TemplateBinding Width}" Height="{TemplateBinding Height}" Stretch="Fill"
+                    Data="M12,9A3,3 0 0,1 15,12A3,3 0 0,1 12,15A3,3 0 0,1 9,12A3,3 0 0,1 12,9M12,4.5C17,4.5 21.27,7.61 23,12C21.27,16.39 17,19.5 12,19.5C7,19.5 2.73,16.39 1,12C2.73,7.61 7,4.5 12,4.5M3.18,12C4.83,15.36 8.24,17.5 12,17.5C15.76,17.5 19.17,15.36 20.82,12C19.17,8.64 15.76,6.5 12,6.5C8.24,6.5 4.83,8.64 3.18,12Z"/>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+    <Style Selector="CheckBox.preview /template/ Path#shape">
+        <Setter Property="Fill" Value="{DynamicResource BorderUnlit}"/>
+    </Style>
+    <Style Selector="CheckBox.preview:checked /template/ Path#shape">
+        <Setter Property="Fill" Value="#3399FF"/>
+    </Style>
+
+</Styles>

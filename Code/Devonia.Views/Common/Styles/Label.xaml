@@ -1,0 +1,46 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Style Selector="Label.zoomTransformLabel">
+    <Setter Property="Padding" Value="3"/>
+    <Setter Property="Foreground" Value="Red"/>
+    <Setter Property="Template">
+      <ControlTemplate>
+        <ContentPresenter Name="PART_ContentPresenter"
+                          Background="{TemplateBinding Background}"
+                          BorderBrush="{TemplateBinding BorderBrush}"
+                          BorderThickness="{TemplateBinding BorderThickness}"
+                          ContentTemplate="{TemplateBinding ContentTemplate}"
+                          Content="{TemplateBinding Content}"
+                          Padding="{TemplateBinding Padding}"
+                          RecognizesAccessKey="True"
+                          VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                          HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"/>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+
+  <Style Selector="Label.zoomTransformLabel:not(:pointerover)">
+    <Setter Property="Transitions">
+      <Transitions>
+        <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.3"/>
+      </Transitions>
+    </Setter>
+  </Style>
+  
+  <Style Selector="Label.zoomTransformLabel:pointerover">
+    <Setter Property="Transitions">
+      <Transitions>
+        <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.1"/>
+      </Transitions>
+    </Setter>
+  </Style>
+
+  <Style Selector="Label.zoomTransformLabel:not(:pointerover)">
+    <Setter Property="RenderTransform" Value="scale(1.0)" />
+    <!--<Setter Property="RenderTransform" Value="scaleY(1.0) scaleX(1.0)" />-->
+  </Style>
+  
+  <Style Selector="Label.zoomTransformLabel:pointerover">
+    <Setter Property="RenderTransform" Value="scale(2.0)"/>
+  </Style>
+</Styles>

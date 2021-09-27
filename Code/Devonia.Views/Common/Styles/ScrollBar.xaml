@@ -1,0 +1,155 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    
+     <Style Selector="ScrollBar:vertical">
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid>
+                    <Grid RowDefinitions="15,*,15">
+                        <Border Grid.RowSpan="3" CornerRadius="-5" Background="Black" Margin="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderThickness="11,15" BorderBrush="#404040"/>
+                        <!--left margin-->
+                        <RepeatButton Name="PART_LineUpButton" Width="25"  Height="18"  HorizontalAlignment="Center" Classes="ScrollBarRepeatButtonVerticalTop" Grid.Row="0" Focusable="False" MinHeight="{DynamicResource ScrollBarThickness}"/>
+
+                        <Grid Margin="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Row="1" ClipToBounds="True">
+                            <Border Grid.RowSpan="3" CornerRadius="0" Background="#404040" Margin="0" Width="11" HorizontalAlignment="Right" BorderThickness="2,0,0,0" BorderBrush="#515151"/>
+                            <!--left margin-->
+                            <Border Grid.RowSpan="3" CornerRadius="0" Background="#404040" Margin="0" Width="11" HorizontalAlignment="Left" BorderThickness="0,0,2,0" BorderBrush="#303030"/>
+                            <!--right margin-->
+                            <Track Grid.Row="1" Grid.Column="1" Minimum="{TemplateBinding Minimum}" Maximum="{TemplateBinding Maximum}" Value="{TemplateBinding Value, Mode=TwoWay}"
+                                    ViewportSize="{TemplateBinding ViewportSize}" Orientation="{TemplateBinding Orientation}" IsDirectionReversed="True">
+                                <Thumb Name="thumbVertical"/>
+                            </Track>
+                        </Grid>
+                        <RepeatButton Name="PART_LineDownButton" Width="25"  Height="18" HorizontalAlignment="Center" Classes="ScrollBarRepeatButtonVerticalBottom" Grid.Row="2" Grid.Column="2" Focusable="False" MinHeight="{DynamicResource ScrollBarThickness}"/>
+                    </Grid>
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+
+    <Style Selector="ScrollBar:horizontal">
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid>
+                    <Grid ColumnDefinitions="15,*,15">
+                        <Border Grid.ColumnSpan="3" CornerRadius="-5" Background="Black" Margin="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderThickness="15,0" BorderBrush="#404040"/>
+                        <!--left margin-->
+                        <RepeatButton Name="PART_LineUpButton" Width="18"  Height="25"  HorizontalAlignment="Center" Classes="ScrollBarRepeatButtonHorizontalLeft" Grid.Column="0" Focusable="False" MinWidth="{DynamicResource ScrollBarThickness}"/>
+
+                        <Grid Margin="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Column="1" ClipToBounds="True">
+                            <Border Grid.ColumnSpan="3" CornerRadius="0" Background="#404040" Margin="0" Height="11" VerticalAlignment="Bottom" BorderThickness="0,2,0,0" BorderBrush="#515151"/>
+                            <!--top margin-->
+                            <Border Grid.ColumnSpan="3" CornerRadius="0" Background="#404040" Margin="0" Height="11" VerticalAlignment="Top" BorderThickness="0,0,0,2" BorderBrush="#303030"/>
+                            <!--bottom margin-->
+                            <Track Grid.Row="1" Grid.Column="1" Minimum="{TemplateBinding Minimum}" Maximum="{TemplateBinding Maximum}" Value="{TemplateBinding Value, Mode=TwoWay}"
+                                    ViewportSize="{TemplateBinding ViewportSize}" Orientation="{TemplateBinding Orientation}" IsDirectionReversed="False">
+                                <Thumb Name="thumbHorizontal"/>
+                            </Track>
+                        </Grid>
+                        <RepeatButton Name="PART_LineDownButton" Width="18"  Height="25" HorizontalAlignment="Center" Classes="ScrollBarRepeatButtonHorizontalRight" Grid.Row="2" Grid.Column="2" Focusable="False" MinHeight="{DynamicResource ScrollBarThickness}"/>
+                    </Grid>
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+    
+    <Style Selector="ScrollBar /template/ Thumb#thumbVertical">
+        <Setter Property="Background" Value="Blue"/>
+        <Setter Property="ClipToBounds" Value="False"/>
+        <Setter Property="MinHeight" Value="30"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Grid>
+                        <Border CornerRadius="0" Background="{DynamicResource downGradient}" BorderThickness="0" Height="35" Width="3" Margin="0,0,0,-35" VerticalAlignment="Bottom"/>
+                        <!--glow border down-->
+                        <Border CornerRadius="0" Background="{DynamicResource upGradient}" BorderThickness="0" Height="35" Width="3" Margin="0,-35,0,0" VerticalAlignment="Top"/>
+                        <!--glow border up-->
+                        
+                        <Grid Width="13" Margin="0">
+                            <Line StartPoint="0,0" EndPoint="1,0" Stroke="#989898" Stretch="Fill" Margin="0,1,0,1" StrokeThickness="4" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                            <Line StartPoint="0,1" EndPoint="1,1" Stroke="#202020" Stretch="Fill" Margin="1,0,1,1.8" StrokeThickness="4" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+                            <Line StartPoint="0,0" EndPoint="0,1" Stroke="#878787" Stretch="Fill" Margin="2,1,2,1" StrokeThickness="4" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                            <Line StartPoint="1,0" EndPoint="1,1" Stroke="#474747" Stretch="Fill" Margin="2,1,2,1" StrokeThickness="4" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        </Grid>
+                        <Border CornerRadius="0" BorderThickness="1" Width="13" Margin="0" BoxShadow="3 3 5 1 #88000000">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="50%,0%" EndPoint="50%,100%">
+                                    <GradientStop Color="#606060" Offset="0.0" />
+                                    <GradientStop Color="#555555" Offset="0.25" />
+                                    <GradientStop Color="#4C4C4C" Offset="0.75" />
+                                    <GradientStop Color="#414141" Offset="1.0" />
+                                </LinearGradientBrush>
+                            </Border.Background>
+                        </Border>
+                        <Image Source="avares://Devonia/Assets/scrollbar_dots_v.png" Stretch="Fill" Width="3" Height="14" x:Name="verticalDots"/>
+                        <Image Source="avares://Devonia/Assets/scrollbar_dots_lit_v.png" Stretch="Fill" Width="3" Height="14" x:Name="verticalDotsHighlight"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style Selector="ScrollBar /template/ Thumb#thumbHorizontal">
+        <Setter Property="Background" Value="Blue"/>
+        <Setter Property="ClipToBounds" Value="False"/>
+        <Setter Property="MinWidth" Value="30"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate>
+                    <Grid>
+                        <Border CornerRadius="0" Background="{DynamicResource downGradient}" BorderThickness="0" Width="35" Height="3" Margin="0,0,-35,0" HorizontalAlignment="Right"/>
+                        <!--glow border down-->
+                        <Border CornerRadius="0" Background="{DynamicResource upGradient}" BorderThickness="0" Width="35" Height="3" Margin="-35,0,0,0" HorizontalAlignment="Left"/>
+                        <!--glow border up-->
+                        <Grid Height="13" Margin="0">
+                            <Line StartPoint="0,0" EndPoint="1,0" Stroke="#989898" Stretch="Fill" Margin="0,1,0,1" StrokeThickness="4" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                            <Line StartPoint="0,1" EndPoint="1,1" Stroke="#202020" Stretch="Fill" Margin="1,0,1,1.8" StrokeThickness="4" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+                            <Line StartPoint="0,0" EndPoint="0,1" Stroke="#878787" Stretch="Fill" Margin="2,1,2,1" StrokeThickness="4" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                            <Line StartPoint="1,0" EndPoint="1,1" Stroke="#474747" Stretch="Fill" Margin="2,1,2,1" StrokeThickness="4" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                        </Grid>
+                        <Border CornerRadius="0" BorderThickness="1" Height="13" Margin="0" BoxShadow="3 3 5 1 #88000000">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0%,50%" EndPoint="50%,100%">
+                                    <GradientStop Color="#606060" Offset="0.0" />
+                                    <GradientStop Color="#555555" Offset="0.25" />
+                                    <GradientStop Color="#4C4C4C" Offset="0.75" />
+                                    <GradientStop Color="#414141" Offset="1.0" />
+                                </LinearGradientBrush>
+                            </Border.Background>
+                        </Border>
+                        <Image Source="avares://Devonia/Assets/scrollbar_dots_h.png" Stretch="Fill" Width="14" Height="3" x:Name="horizontalDots"/>
+                        <Image Source="avares://Devonia/Assets/scrollbar_dots_lit_h.png" Stretch="Fill" Width="14" Height="3" x:Name="horizontalDotsHighlight"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    
+    <Style Selector="ScrollBar /template/ Thumb#thumbVertical:pressed Image#verticalDotsHighlight">
+        <Setter Property="Opacity" Value="1"/>
+    </Style>
+    <Style Selector="ScrollBar /template/ Thumb#thumbVertical:pressed Image#verticalDots">
+        <Setter Property="Opacity" Value="0"/>
+    </Style>
+    <Style Selector="ScrollBar /template/ Thumb#thumbVertical:not(:pressed) Image#verticalDotsHighlight">
+        <Setter Property="Opacity" Value="0"/>
+    </Style>
+    <Style Selector="ScrollBar /template/ Thumb#thumbVertical:not(:pressed) Image#verticalDots">
+        <Setter Property="Opacity" Value="1"/>
+    </Style>
+
+    <Style Selector="ScrollBar /template/ Thumb#thumbHorizontal:pressed Image#horizontalDotsHighlight">
+        <Setter Property="Opacity" Value="1"/>
+    </Style>
+    <Style Selector="ScrollBar /template/ Thumb#thumbHorizontal:pressed Image#horizontalDots">
+        <Setter Property="Opacity" Value="0"/>
+    </Style>
+
+    <Style Selector="ScrollBar /template/ Thumb#thumbHorizontal:not(:pressed) Image#horizontalDotsHighlight">
+        <Setter Property="Opacity" Value="0"/>
+    </Style>
+    <Style Selector="ScrollBar /template/ Thumb#thumbHorizontal:not(:pressed) Image#horizontalDots">
+        <Setter Property="Opacity" Value="1"/>
+    </Style>
+</Styles>

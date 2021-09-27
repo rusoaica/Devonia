@@ -1,0 +1,167 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:sys="clr-namespace:System;assembly=netstandard">
+
+    <StyleInclude Source="avares://Devonia/Common/Styles/ApplicationSpecificDark.xaml"/>
+    <Style>
+        <Style.Resources>
+            <Color x:Key="AbortBorderLeftColor">#099</Color>
+            <Color x:Key="AbortBorderRightColor">#004030</Color>
+            <Color x:Key="AbortBorderTopColor">#00FFAA</Color>
+            <Color x:Key="AbortBorderBottomColor">#003020</Color>
+            <Color x:Key="ConfirmBorderLeftColor">#6495ED</Color>
+            <Color x:Key="ConfirmBorderRightColor">#3162AB</Color>
+            <Color x:Key="ConfirmBorderTopColor">#81B2FA</Color>
+            <Color x:Key="ConfirmBorderBottomColor">#21529B</Color>
+            <Color x:Key="ButtonForegroundColor">#AAAAAA</Color>
+            <Color x:Key="AbortButtonBackgroundColor">#999999</Color>
+            <Color x:Key="ConfirmButtonBackgroundColor">#000000</Color>
+            <Color x:Key="ButtonBackgroundHoverColor">#919FB8</Color>
+            <Color x:Key="ButtonBackgroundDisabledColor">#333333</Color>
+            <Color x:Key="WindowSeparatorDarkColor">#101010</Color>
+            <Color x:Key="WindowSeparatorMediumColor">#363636</Color>
+            <Color x:Key="WindowTitlebarBackgroundColor">#232323</Color>
+            <Color x:Key="WindowForeDarkColor">#3D3D3D</Color>
+            <Color x:Key="WindowForeColor">#888888</Color>
+            <Color x:Key="WindowForeLightColor">#111111</Color>
+            <Color x:Key="ContainerBorderBackgroundColor">#CCCCCC</Color>
+            <Color x:Key="ListboxBackgroundColor">#AAAAAA</Color>
+            <Color x:Key="ListviewItemTopBorderColor">#777777</Color>
+            <Color x:Key="ListviewItemBottomBorderColor">#999999</Color>
+            <Color x:Key="FallingNotesBackgroundColor">#4C7DCE</Color>
+
+
+            <LinearGradientBrush x:Key="RadioButtonOutterEllipseGradient" StartPoint="0%,0%" EndPoint="100%,100%">
+                <GradientStop Color="#000000" Offset="0.0" />
+                <GradientStop Color="#363636" Offset="1.0" />
+            </LinearGradientBrush>
+            <LinearGradientBrush x:Key="RadioButtonInnerEllipseGradientBackground" StartPoint="0%,0%" EndPoint="100%,100%">
+                <GradientStop Color="#BB000000" Offset="0.0" />
+                <GradientStop Color="#00000000" Offset="1.0" />
+            </LinearGradientBrush>
+            <LinearGradientBrush x:Key="RadioButtonInnerEllipseGradient" StartPoint="0%,0%" EndPoint="100%,100%">
+                <GradientStop Color="#5FAFFF" Offset="0" />
+                <GradientStop Color="#3399FF" Offset="0.5" />
+                <GradientStop Color="#2774C2" Offset="1" />
+            </LinearGradientBrush>
+            
+          <LinearGradientBrush x:Key="SelectedListItemBackground" StartPoint="50%,0%" EndPoint="50%,100%">
+            <GradientStop Color="#505050" Offset="0.0" />
+            <GradientStop Color="#464646" Offset="0.35" />
+            <GradientStop Color="#404040" Offset="0.55" />
+            <GradientStop Color="#363636" Offset="1.0" />
+          </LinearGradientBrush>
+
+          <RadialGradientBrush x:Key="GlowBackGround">
+                <GradientStop Color="#555" Offset="0.438"/>
+                <GradientStop Color="#222" Offset="0.861"/>
+                <GradientStop Color="#000" Offset="1"/>
+            </RadialGradientBrush>
+
+            <LinearGradientBrush x:Key="upGradient">
+                <GradientStop Color="#FF000000" Offset="0.0" />
+                <GradientStop Color="#FF2B81D7" Offset="0.8" />
+                <GradientStop Color="#FF2B81D7" Offset="1.0" />
+            </LinearGradientBrush>
+            
+            <LinearGradientBrush x:Key="downGradient">
+                <GradientStop Color="#FF2B81D7" Offset="0.0" />
+                <GradientStop Color="#FF2B81D7" Offset="0.2" />
+                <GradientStop Color="#FF000000" Offset="1.0" />
+            </LinearGradientBrush>
+            
+            <LinearGradientBrush x:Key="textBoxBackgroundNotFocused" StartPoint="50%,0%" EndPoint="50%,100%">
+                <GradientStop Color="#6b7579" Offset="0.0" />
+                <GradientStop Color="#656f73" Offset="0.35" />
+                <GradientStop Color="#5d676b" Offset="0.75" />
+                <GradientStop Color="#576b65" Offset="1.0" />
+            </LinearGradientBrush>
+
+            <LinearGradientBrush x:Key="textBoxBackgroundFocused" StartPoint="50%,0%" EndPoint="50%,100%">
+                <GradientStop Color="#6AAFF8" Offset="0.0" />
+                <GradientStop Color="#78CCF8" Offset="0.25" />
+                <GradientStop Color="#7DDFF6" Offset="0.75" />
+                <GradientStop Color="#82E9F7" Offset="1.0" />
+            </LinearGradientBrush>
+
+            <LinearGradientBrush x:Key="titleBackgroundGradient" StartPoint="50%,0%" EndPoint="50%,100%">
+                <GradientStop Color="#111" Offset="0.0"/>
+                <GradientStop Color="#222" Offset="0.35" />
+                <GradientStop Color="#333" Offset="0.55" />
+                <GradientStop Color="#555" Offset="0.83" />
+                <GradientStop Color="#bbb" Offset="0.85" />
+                <GradientStop Color="#555" Offset="0.86" />
+                <GradientStop Color="#0f0" Offset="0.95" />
+                <GradientStop Color="#00000000" Offset="1.0" />
+            </LinearGradientBrush>
+
+            <LinearGradientBrush x:Key="titleSlantGradient" StartPoint="50%,0%" EndPoint="50%,100%">
+                <GradientStop Color="#020" Offset="0.0"/>
+                <GradientStop Color="#070" Offset="0.35" />
+                <GradientStop Color="#0a0" Offset="0.55" />
+                <GradientStop Color="#0d0" Offset="1.0" />
+            </LinearGradientBrush>
+
+            <LinearGradientBrush x:Key="WindowSeparatorHighlight" StartPoint="0%,50%" EndPoint="100%,50%">
+                <GradientStop Color="Transparent" Offset="0.18"/>
+                <GradientStop Color="#FFFFFFFF" Offset="0.48"/>
+                <GradientStop Color="Transparent" Offset="0.78"/>
+            </LinearGradientBrush>
+
+            <LinearGradientBrush x:Key="windowMenuBarGradient" StartPoint="50%,0%" EndPoint="50%,100%">
+                <GradientStop Color="#878787" Offset="0.05"/>
+                <GradientStop Color="#5F5F5F" Offset="0.10"/>
+                <GradientStop Color="#515151" Offset="0.50"/>
+                <GradientStop Color="#434343" Offset="0.90"/>
+                <GradientStop Color="#313131" Offset="0.95"/>
+                <GradientStop Color="#191919" Offset="0.97"/>
+            </LinearGradientBrush>
+
+            <LinearGradientBrush x:Key="listboxHeaderBarGradient" StartPoint="50%,0%" EndPoint="50%,100%">
+                <GradientStop Color="#83B4FC" Offset="0.0"/>
+                <GradientStop Color="#6292E9" Offset="0.05"/>
+                <GradientStop Color="#4C7DCE" Offset="0.50"/>
+                <GradientStop Color="#3162AB" Offset="1.0"/>
+            </LinearGradientBrush>
+
+            <LinearGradientBrush x:Key="listboxSelectedItemGradient" StartPoint="50%,0%" EndPoint="50%,100%">
+                <GradientStop Color="#6495ed" Offset="0.0" />
+                <GradientStop Color="#5384dc" Offset="0.35" />
+                <GradientStop Color="#4273cb" Offset="0.55" />
+                <GradientStop Color="#3162ba" Offset="1.0" />
+            </LinearGradientBrush>
+
+            <LinearGradientBrush x:Key="TimelineGradient" StartPoint="50%,0%" EndPoint="50%,100%">
+                <GradientStop Color="#272727" Offset="0.0" />
+                <GradientStop Color="#646464" Offset="0.01" />
+                <GradientStop Color="#3A3A3A" Offset="0.50" />
+                <GradientStop Color="#262626" Offset="0.50" />
+                <GradientStop Color="#383838" Offset="0.99" />
+                <GradientStop Color="#0B0B0B" Offset="1.0" />
+            </LinearGradientBrush>
+
+          <SolidColorBrush x:Key="ListviewLightBg" Color="#28292b"/>
+          <SolidColorBrush x:Key="ListviewDarkBg" Color="#191e21"/>
+          <SolidColorBrush x:Key="AbortBorderLeft" Color="{DynamicResource AbortBorderLeftColor}"></SolidColorBrush>
+            <SolidColorBrush x:Key="AbortBorderRight" Color="{DynamicResource AbortBorderRightColor}"></SolidColorBrush>
+            <SolidColorBrush x:Key="AbortBorderTop" Color="{DynamicResource AbortBorderTopColor}"></SolidColorBrush>
+            <SolidColorBrush x:Key="AbortBorderBottom" Color="{DynamicResource AbortBorderBottomColor}"></SolidColorBrush>
+            <SolidColorBrush x:Key="ConfirmBorderLeft" Color="{DynamicResource ConfirmBorderLeftColor}"></SolidColorBrush>
+            <SolidColorBrush x:Key="ConfirmBorderRight" Color="{DynamicResource ConfirmBorderRightColor}"></SolidColorBrush>
+            <SolidColorBrush x:Key="ConfirmBorderTop" Color="{DynamicResource ConfirmBorderTopColor}"></SolidColorBrush>
+            <SolidColorBrush x:Key="ConfirmBorderBottom" Color="{DynamicResource ConfirmBorderBottomColor}"></SolidColorBrush>
+            <SolidColorBrush x:Key="ButtonForeground" Color="{DynamicResource ButtonForegroundColor}"></SolidColorBrush>
+            <SolidColorBrush x:Key="AbortButtonBackground" Color="{DynamicResource AbortButtonBackgroundColor}"></SolidColorBrush>
+            <SolidColorBrush x:Key="ConfirmButtonBackground" Color="{DynamicResource ConfirmButtonBackgroundColor}"></SolidColorBrush>
+            <SolidColorBrush x:Key="ButtonBackgroundHover" Color="{DynamicResource ButtonBackgroundHoverColor}"></SolidColorBrush>
+            <SolidColorBrush x:Key="ButtonBackgroundDisabled" Color="{DynamicResource ButtonBackgroundDisabledColor}"></SolidColorBrush>
+            <SolidColorBrush x:Key="WindowSeparatorDark" Color="{DynamicResource WindowSeparatorDarkColor}"></SolidColorBrush>
+            <SolidColorBrush x:Key="WindowSeparatorMedium" Color="{DynamicResource WindowSeparatorMediumColor}"></SolidColorBrush>
+            <SolidColorBrush x:Key="ContainerBorderBackground" Color="{DynamicResource ContainerBorderBackgroundColor}"></SolidColorBrush>
+            <SolidColorBrush x:Key="ListboxBackground" Color="{DynamicResource ListboxBackgroundColor}"></SolidColorBrush>
+            <SolidColorBrush x:Key="ListviewItemTopBorder" Color="{DynamicResource ListviewItemTopBorderColor}"></SolidColorBrush>
+            <SolidColorBrush x:Key="ListviewItemBottomBorder" Color="{DynamicResource ListviewItemBottomBorderColor}"></SolidColorBrush>
+            <SolidColorBrush x:Key="FallingNotesBackground" Color="{DynamicResource FallingNotesBackgroundColor}"></SolidColorBrush>
+        </Style.Resources>
+    </Style>
+</Styles> 

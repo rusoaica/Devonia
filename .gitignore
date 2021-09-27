@@ -1,0 +1,10 @@
+Code/.vs/*
+Code/.idea/*
+Code/.editorconfig
+Code/Devonia.Infrastructure/obj/*
+Code/Devonia.Models/obj/*
+Code/Devonia.ViewModels/obj/*
+Code/Devonia.Views/obj/*
+Code/Devonia.Views.Avalonia/obj/*
+Build/*
+.git/*

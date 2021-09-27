@@ -1,0 +1,53 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Style Selector="RepeatButton.ScrollBarRepeatButtonVerticalTop">
+        <Setter Property="IsVisible" Value="True"/>
+        <Setter Property="Focusable" Value="false"/>
+        <Setter Property="Template">
+            <ControlTemplate TargetType="{x:Type RepeatButton}">
+                <Border Name="Border" Margin="0" Background="Transparent" BorderThickness="0">
+                    <Path Name="arrow" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" Fill="White" Data="F1M753.644,-13.0589L753.736,-12.9639 753.557,-12.7816 732.137,8.63641 732.137,29.7119 756.445,5.40851 764.094,-2.24384 764.275,-2.42352 771.834,5.1286 796.137,29.4372 796.137,8.36163 774.722,-13.0589 764.181,-23.5967 753.644,-13.0589z" Width="10" Height="10" Stretch="Uniform"/>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+    <Style Selector="RepeatButton.ScrollBarRepeatButtonVerticalBottom">
+        <Setter Property="IsVisible" Value="True"/>
+        <Setter Property="Focusable" Value="false"/>
+        <Setter Property="Template">
+            <ControlTemplate TargetType="{x:Type RepeatButton}">
+                <Border Name="Border" Margin="0" Background="Transparent" BorderThickness="0">
+                    <Path Name="arrow" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" Fill="White" Data="F1M181.297,177.841L181.205,177.746 181.385,177.563 202.804,156.146 202.804,135.07 178.497,159.373 170.847,167.026 170.666,167.205 163.107,159.653 138.804,135.345 138.804,156.42 160.219,177.841 170.76,188.379 181.297,177.841z" Width="10" Height="10" Stretch="Uniform"/>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+    <Style Selector="RepeatButton.ScrollBarRepeatButtonHorizontalLeft">
+        <Setter Property="IsVisible" Value="True"/>
+        <Setter Property="Focusable" Value="false"/>
+        <Setter Property="Template">
+            <ControlTemplate TargetType="{x:Type RepeatButton}">
+                <Border Name="Border" Margin="0" Background="Transparent" BorderThickness="0">
+                    <Path Name="arrow" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" Fill="White" Data="F1M646.688,13.5518L646.783,13.4593 646.965,13.639 668.383,35.0583 689.459,35.0583 665.155,10.751 657.503,3.10126 657.323,2.92023 664.876,-4.63837 689.184,-28.9417 668.109,-28.9417 646.688,-7.52637 636.15,3.01398 646.688,13.5518z" Width="10" Height="10" Stretch="Uniform"/>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+    <Style Selector="RepeatButton.ScrollBarRepeatButtonHorizontalRight">
+        <Setter Property="IsVisible" Value="True"/>
+        <Setter Property="Focusable" Value="false"/>
+        <Setter Property="Template">
+            <ControlTemplate TargetType="{x:Type RepeatButton}">
+                <Border Name="Border" Margin="0" Background="Transparent" BorderThickness="0">
+                    <Path Name="arrow" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" Fill="White" Data="F1M568.254,-7.43524L568.159,-7.34277 567.977,-7.52246 546.559,-28.9417 525.484,-28.9417 549.787,-4.63446 557.439,3.01532 557.619,3.19629 550.067,10.7549 525.758,35.0583 546.834,35.0583 568.254,13.6429 578.792,3.10254 568.254,-7.43524z" Width="10" Height="10" Stretch="Uniform"/>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+    <Style Selector="RepeatButton:pressed /template/ Path#arrow">
+        <Setter Property="Opacity" Value="0.2" />
+    </Style>
+    <Style Selector="RepeatButton:disabled">
+        <Setter Property="Opacity" Value="0.2" />
+    </Style>
+</Styles>

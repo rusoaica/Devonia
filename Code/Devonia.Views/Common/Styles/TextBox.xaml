@@ -1,0 +1,85 @@
+﻿<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:converters="clr-namespace:Avalonia.Controls.Converters;assembly=Avalonia.Controls"
+        xmlns:i="clr-namespace:Avalonia.Xaml.Interactivity;assembly=Avalonia.Xaml.Interactivity"
+        xmlns:ia="clr-namespace:Avalonia.Xaml.Interactions.Core;assembly=Avalonia.Xaml.Interactions"
+        xmlns:iac="clr-namespace:Avalonia.Xaml.Interactions.Custom;assembly=Avalonia.Xaml.Interactions.Custom"
+        xmlns:sys="clr-namespace:System;assembly=netstandard">
+
+    <!--TEXTBOX-->
+    <Style Selector="TextBox.inputField">
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="4"/>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid Background="Transparent">
+                    <Line StartPoint="0,0" EndPoint="1,0" Stroke="{DynamicResource BorderLit}" Margin="9,2" Stretch="Fill" StrokeThickness="4" HorizontalAlignment="Center" VerticalAlignment="Top"/>
+                    <Line StartPoint="0,1" EndPoint="1,1" Stroke="{DynamicResource BorderUnlit}" Margin="9,2" Stretch="Fill" StrokeThickness="4" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+                    <Line StartPoint="0,0" EndPoint="0,1" Stroke="{DynamicResource BorderLit}" Margin="3,8" Stretch="Fill" StrokeThickness="4" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                    <Line StartPoint="1,0" EndPoint="1,1" Stroke="{DynamicResource BorderUnlit}" Margin="3,8" Stretch="Fill" StrokeThickness="4" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                    <Path Data="M 1,0 0.25,0 Q 0,0 0,0.25 L 0,1" Fill="Transparent" HorizontalAlignment="Left" Height="6" Margin="3,2,0,0" Stretch="Fill" Stroke="{DynamicResource BorderLit}" StrokeThickness="4" VerticalAlignment="Top" Width="6"/>
+                    <Path Data="M 0,1 0.65,1 Q 1,1 1,0.25 L 1,0" Fill="Transparent" HorizontalAlignment="Right" Height="6" Margin="0,0,3,2" Stretch="Fill" Stroke="{DynamicResource BorderUnlit}" StrokeThickness="4" VerticalAlignment="Bottom" Width="6"/>
+                    <Path Data="M 0,0 0.25,0 Q 1,0 1,0.25 L 1,1" Fill="Transparent" HorizontalAlignment="Right" Height="6" Margin="0,2,3,0" Stretch="Fill" Stroke="{DynamicResource AngleShadow}" StrokeThickness="4" VerticalAlignment="Top" Width="6"/>
+                    <Path Data="M 0,0 0,0.25 Q 0,1 0.25,1 L 1,1" Fill="Transparent" HorizontalAlignment="Left" Height="6" Margin="3,0,0,2" Stretch="Fill" Stroke="{DynamicResource AngleShadow}" StrokeThickness="4" VerticalAlignment="Bottom" Width="6"/>
+                    <Border Name="border" Margin="2,1,2,1"  CornerRadius="3" Background="{TemplateBinding Background}">
+                        <DockPanel Margin="{TemplateBinding Padding}">
+                            <TextBlock Name="floatingWatermark" Foreground="{DynamicResource ThemeAccentBrush}" FontSize="{DynamicResource FontSizeSmall}" Text="{TemplateBinding Watermark}" DockPanel.Dock="Top">
+                                <TextBlock.IsVisible>
+                                    <MultiBinding Converter="{x:Static BoolConverters.And}">
+                                        <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="UseFloatingWatermark"/>
+                                        <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="Text" Converter="{x:Static StringConverters.IsNotNullOrEmpty}"/>
+                                    </MultiBinding>
+                                </TextBlock.IsVisible>
+                            </TextBlock>
+                            <DataValidationErrors>
+                                <ScrollViewer HorizontalScrollBarVisibility="{TemplateBinding (ScrollViewer.HorizontalScrollBarVisibility)}" VerticalScrollBarVisibility="{TemplateBinding (ScrollViewer.VerticalScrollBarVisibility)}">
+                                    <Panel>
+                                        <TextBlock Name="watermark" Opacity="0.5" Text="{TemplateBinding Watermark}" IsVisible="{TemplateBinding Text, Converter={x:Static StringConverters.IsNullOrEmpty}}"/>
+                                        <TextPresenter Name="PART_TextPresenter"
+                                             Text="{TemplateBinding Text, Mode=TwoWay}"
+                                             CaretIndex="{TemplateBinding CaretIndex}"
+                                             SelectionStart="{TemplateBinding SelectionStart}"
+                                             SelectionEnd="{TemplateBinding SelectionEnd}"
+                                             TextAlignment="{TemplateBinding TextAlignment}"
+                                             TextWrapping="{TemplateBinding TextWrapping}"
+                                             PasswordChar="{TemplateBinding PasswordChar}"
+                                             SelectionBrush="{TemplateBinding SelectionBrush}"
+                                             SelectionForegroundBrush="{TemplateBinding SelectionForegroundBrush}"
+                                             CaretBrush="{TemplateBinding CaretBrush}"/>
+                                    </Panel>
+                                </ScrollViewer>
+                            </DataValidationErrors>
+                        </DockPanel>
+                    </Border>
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+    <Style Selector="TextBox:pointerover /template/ Border#border">
+        <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderHighBrush}"/>
+    </Style>
+
+    <Style Selector="TextBox:focus">
+        <Setter Property="Background" Value="{DynamicResource textBoxBackgroundFocused}"/>
+    </Style>
+
+    <Style Selector="TextBox:not(:focus)">
+        <Setter Property="Background" Value="{DynamicResource textBoxBackgroundNotFocused}"/>
+    </Style>
+
+    <Style Selector="TextBox:error /template/Border#border">
+        <Setter Property="BorderBrush" Value="{DynamicResource ErrorBrush}"/>
+    </Style>
+    <Style Selector="TextBox">
+        <Setter Property="Cursor" Value="IBeam" />
+    </Style>
+    <Style Selector="TextBox:disabled /template/Border#border">
+        <Setter Property="Background" Value="{StaticResource WindowBackColor}"/>
+    </Style>
+    <Style Selector="TextBox[IsReadOnly=True]">
+        <Setter Property="Background" Value="{StaticResource WindowBackColor}"/>
+    </Style>
+
+    <!--END TEXTBOX-->
+
+</Styles>

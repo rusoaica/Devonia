@@ -1,0 +1,185 @@
+﻿<Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+   <Styles.Resources>
+    <Thickness x:Key="ExpHeaderPadding">16</Thickness>
+    <Thickness x:Key="ExpContentPadding">16</Thickness>
+
+    <Thickness x:Key="ExpBorderThickness">1</Thickness>
+
+    <Thickness x:Key="ExpDropdownLeftBorderThickness">1,1,0,1</Thickness>
+    <Thickness x:Key="ExpDropdownUpBorderThickness">1,1,1,0</Thickness>
+    <Thickness x:Key="ExpDropdownRightBorderThickness">0,1,1,1</Thickness>
+    <Thickness x:Key="ExpDropdownDownBorderThickness">1,0,1,1</Thickness>
+
+    <SolidColorBrush x:Key="ExpBackground" Color="{DynamicResource SystemAltMediumHighColor}" />
+    <SolidColorBrush x:Key="ExpBorderBrush" Color="{DynamicResource SystemBaseLowColor}" />
+
+    <SolidColorBrush x:Key="ExpDropDownBackground" Color="{DynamicResource SystemChromeMediumLowColor}" />
+    <SolidColorBrush x:Key="ExpDropDownBorderBrush" Color="{DynamicResource SystemBaseLowColor}" />
+
+    <SolidColorBrush x:Key="ExpForeground" Color="{DynamicResource SystemBaseHighColor}" />
+
+    <SolidColorBrush x:Key="ExpChevronForeground" Color="{DynamicResource SystemBaseHighColor}" />
+  </Styles.Resources>
+  <Style Selector="Expander.Exp">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="BorderBrush" Value="#FF0093E7" />
+    <Setter Property="Padding" Value="{DynamicResource ExpHeaderPadding}" />
+    <Setter Property="HorizontalAlignment" Value="Stretch" />
+    <Setter Property="HorizontalContentAlignment" Value="Left" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+  </Style>
+  <Style Selector="Expander.Exp">
+    <Setter Property="Template">
+      <ControlTemplate>
+        <DockPanel>
+          <ToggleButton x:Name="ExpHeader"
+                        Height="40"
+                        Padding="0"
+                        HorizontalAlignment="{TemplateBinding HorizontalAlignment}"
+                        Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        Content="{TemplateBinding Header}"
+                        ContentTemplate="{TemplateBinding HeaderTemplate}"
+                        IsChecked="{Binding Path=IsExpanded, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                        IsEnabled="{TemplateBinding IsEnabled}" />
+          <Border x:Name="ExpContent" Padding="{DynamicResource ExpContentPadding}" Background="Transparent" IsVisible="{Binding Path=IsExpanded, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}">
+            <ContentPresenter x:Name="PART_ContentPresenter"
+                              HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                              VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                              Content="{TemplateBinding Content}"
+                              ContentTemplate="{TemplateBinding ContentTemplate}" />
+          </Border>
+        </DockPanel>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+
+  <Style Selector="Expander.Exp /template/ ToggleButton#ExpHeader">
+    <Setter Property="HorizontalContentAlignment" Value="Left" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border x:Name="ToggleButtonBackground">
+          <Grid ColumnDefinitions="*,Auto">
+            <ContentPresenter x:Name="PART_ContentPresenter" Margin="{TemplateBinding Padding}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                              VerticalContentAlignment="Center" Background="Transparent" BorderBrush="Transparent" BorderThickness="0" Content="{TemplateBinding Content}"
+                              ContentTemplate="{TemplateBinding ContentTemplate}" TextBlock.Foreground="{DynamicResource ExpForeground}" />
+            <Border x:Name="ExpandCollapseChevronBorder" Grid.Column="1" Width="32" Height="20" Margin="2" RenderTransformOrigin="50%,50%">
+              <Path x:Name="ExpandCollapseChevron" HorizontalAlignment="Center" VerticalAlignment="Center" RenderTransformOrigin="50%,50%" Stretch="None"
+                    Stroke="#FF0093E7" StrokeThickness="1" />
+              <Border.RenderTransform>
+                <RotateTransform />
+              </Border.RenderTransform>
+            </Border>
+          </Grid>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+  <Style Selector="Expander /template/ ToggleButton#ExpHeader:pressed">
+    <Setter Property="RenderTransform" Value="{x:Null}" />
+  </Style>
+
+  <Style Selector="Expander:left /template/ ToggleButton#ExpHeader, Expander:right /template/ ToggleButton#ExpHeader">
+    <Setter Property="VerticalAlignment" Value="Stretch" />
+  </Style>
+
+
+  <Style Selector="Expander /template/ ToggleButton#ExpHeader /template/ Border#ToggleButtonBackground">
+    <Setter Property="Background" Value="{TemplateBinding Background}" />
+    <Setter Property="BorderBrush" Value="{TemplateBinding BorderBrush}" />
+    <Setter Property="BorderThickness" Value="{TemplateBinding BorderThickness}" />
+  </Style>
+
+  <Style Selector="Expander:not(:expanded) /template/ ToggleButton#ExpHeader /template/ Border#ToggleButtonBackground">
+    <Setter Property="CornerRadius" Value="{Binding $parent[Expander].CornerRadius}" />
+  </Style>
+  <Style Selector="Expander:expanded:up /template/ ToggleButton#ExpHeader /template/ Border#ToggleButtonBackground">
+    <Setter Property="CornerRadius" Value="{Binding $parent[Expander].CornerRadius}" />
+  </Style>
+  <Style Selector="Expander:expanded:up /template/ Border#ExpContent">
+    <Setter Property="CornerRadius" Value="{Binding $parent[Expander].CornerRadius}" />
+  </Style>
+  <Style Selector="Expander:expanded:down /template/ ToggleButton#ExpHeader /template/ Border#ToggleButtonBackground">
+    <Setter Property="CornerRadius" Value="{Binding $parent[Expander].CornerRadius}" />
+  </Style>
+  <Style Selector="Expander:expanded:down /template/ Border#ExpContent">
+    <Setter Property="CornerRadius" Value="{Binding $parent[Expander].CornerRadius}" />
+  </Style>
+  <Style Selector="Expander:expanded:left /template/ ToggleButton#ExpHeader /template/ Border#ToggleButtonBackground">
+    <Setter Property="CornerRadius" Value="{Binding $parent[Expander].CornerRadius}" />
+  </Style>
+  <Style Selector="Expander:expanded:left /template/ Border#ExpContent">
+    <Setter Property="CornerRadius" Value="{Binding $parent[Expander].CornerRadius}" />
+  </Style>
+  <Style Selector="Expander:expanded:right /template/ ToggleButton#ExpHeader /template/ Border#ToggleButtonBackground">
+    <Setter Property="CornerRadius" Value="{Binding $parent[Expander].CornerRadius}" />
+  </Style>
+  <Style Selector="Expander:expanded:right /template/ Border#ExpContent">
+    <Setter Property="CornerRadius" Value="{Binding $parent[Expander].CornerRadius}" />
+  </Style>
+
+  <Style Selector="Expander:left /template/ ToggleButton#ExpHeader">
+    <Setter Property="DockPanel.Dock" Value="Right" />
+  </Style>
+  <Style Selector="Expander:up /template/ ToggleButton#ExpHeader">
+    <Setter Property="DockPanel.Dock" Value="Bottom" />
+  </Style>
+  <Style Selector="Expander:right /template/ ToggleButton#ExpHeader">
+    <Setter Property="DockPanel.Dock" Value="Left" />
+  </Style>
+  <Style Selector="Expander:down /template/ ToggleButton#ExpHeader">
+    <Setter Property="DockPanel.Dock" Value="Top" />
+  </Style>
+
+
+  <Style Selector="Expander:expanded /template/ ToggleButton#ExpHeader /template/ Border#ExpandCollapseChevronBorder">
+    <Style.Animations>
+      <Animation FillMode="Both" Duration="0:0:0.0625">
+        <KeyFrame Cue="100%">
+          <Setter Property="RotateTransform.Angle" Value="180" />
+        </KeyFrame>
+      </Animation>
+    </Style.Animations>
+  </Style>
+  <Style Selector="Expander:not(:expanded) /template/ ToggleButton#ExpHeader /template/ Border#ExpandCollapseChevronBorder">
+    <Style.Animations>
+      <Animation FillMode="Both" Duration="0:0:0.0625">
+        <KeyFrame Cue="0%">
+          <Setter Property="RotateTransform.Angle" Value="180" />
+        </KeyFrame>
+        <KeyFrame Cue="100%">
+          <Setter Property="RotateTransform.Angle" Value="0" />
+        </KeyFrame>
+      </Animation>
+    </Style.Animations>
+  </Style>
+
+  <Style Selector="Expander:left /template/ ToggleButton#ExpHeader /template/ Path#ExpandCollapseChevron">
+    <Setter Property="Data" Value="M 7 0 L 0 7 L 7 14" />
+  </Style>
+  <Style Selector="Expander:up /template/ ToggleButton#ExpHeader /template/ Path#ExpandCollapseChevron">
+    <Setter Property="Data" Value="M 0 7 L 7 0 L 14 7" />
+  </Style>
+  <Style Selector="Expander:right /template/ ToggleButton#ExpHeader /template/ Path#ExpandCollapseChevron">
+    <Setter Property="Data" Value="M 0 0 L 7 7 L 0 14" />
+  </Style>
+  <Style Selector="Expander:down /template/ ToggleButton#ExpHeader /template/ Path#ExpandCollapseChevron">
+    <Setter Property="Data" Value="M 0 0 L 8 8 L 16 0 Z" />
+  </Style>
+
+
+  <Style Selector="Expander:left /template/ Border#ExpContent">
+    <Setter Property="BorderThickness" Value="{DynamicResource ExpDropdownLeftBorderThickness}" />
+  </Style>
+  <Style Selector="Expander:up /template/ Border#ExpContent">
+    <Setter Property="BorderThickness" Value="{DynamicResource ExpDropdownUpBorderThickness}" />
+  </Style>
+  <Style Selector="Expander:right /template/ Border#ExpContent">
+    <Setter Property="BorderThickness" Value="{DynamicResource ExpDropdownRightBorderThickness}" />
+  </Style>
+  <Style Selector="Expander:down /template/ Border#ExpContent">
+    <Setter Property="BorderThickness" Value="{DynamicResource ExpDropdownDownBorderThickness}" />
+  </Style>
+</Styles>

@@ -1,0 +1,124 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net5.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <AssemblyName>Devonia</AssemblyName>
+    <ApplicationIcon>Assets\icon.ico</ApplicationIcon>
+    <SatelliteResourceLanguages>none</SatelliteResourceLanguages>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <OutputPath>..\..\Build\Debug\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <OutputPath>..\..\Build\Release\</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <None Remove="Assets\drive.png" />
+    <None Remove="Assets\empty_trash.png" />
+    <None Remove="Assets\file.png" />
+    <None Remove="Assets\folder-empty.png" />
+    <None Remove="Assets\green.png" />
+    <None Remove="Assets\honeycomb_tile.png" />
+    <None Remove="Assets\icon.ico" />
+    <None Remove="Assets\mb_iconasterisk.png" />
+    <None Remove="Assets\mb_iconexclamation.png" />
+    <None Remove="Assets\mb_iconhand.png" />
+    <None Remove="Assets\mb_iconquestion.png" />
+    <None Remove="Assets\red.png" />
+    <None Remove="Assets\scrollbar_dots.png" />
+    <None Remove="Assets\scrollbar_dots_h.png" />
+    <None Remove="Assets\scrollbar_dots_lit_h.png" />
+    <None Remove="Assets\scrollbar_dots_lit_v.png" />
+    <None Remove="Assets\scrollbar_dots_v.png" />
+    <None Remove="Assets\yellow.png" />
+    <None Remove="Common\Styles\ApplicationSpecificDark.xaml" />
+    <None Remove="Common\Styles\ApplicationSpecificLight.xaml" />
+    <None Remove="Common\Styles\AutoCompleteBox.xaml" />
+    <None Remove="Common\Styles\Button.xaml" />
+    <None Remove="Common\Styles\CheckBox.xaml" />
+    <None Remove="Common\Styles\ComboBox.xaml" />
+    <None Remove="Common\Styles\CommonStyles.xaml" />
+    <None Remove="Common\Styles\Dark.xaml" />
+    <None Remove="Common\Styles\Expander.xaml" />
+    <None Remove="Common\Styles\Label.xaml" />
+    <None Remove="Common\Styles\Light.xaml" />
+    <None Remove="Common\Styles\ListBox.xaml" />
+    <None Remove="Common\Styles\RadioButton.xaml" />
+    <None Remove="Common\Styles\RepeatButton.xaml" />
+    <None Remove="Common\Styles\ScrollBar.xaml" />
+    <None Remove="Common\Styles\ScrollViewer.xaml" />
+    <None Remove="Common\Styles\TextBox.xaml" />
+    <None Remove="Common\Styles\ToolTip.xaml" />
+    <None Remove="Common\Styles\TreeView.xaml" />
+    <None Remove="Common\Styles\Window.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AvaloniaResource Include="Assets\drive.png" />
+    <AvaloniaResource Include="Assets\empty_trash.png" />
+    <AvaloniaResource Include="Assets\file.png" />
+    <AvaloniaResource Include="Assets\folder-empty.png" />
+    <AvaloniaResource Include="Assets\green.png" />
+    <AvaloniaResource Include="Assets\honeycomb_tile.png" />
+    <AvaloniaResource Include="Assets\icon.ico" />
+    <AvaloniaResource Include="Assets\mb_iconasterisk.png" />
+    <AvaloniaResource Include="Assets\mb_iconexclamation.png" />
+    <AvaloniaResource Include="Assets\mb_iconhand.png" />
+    <AvaloniaResource Include="Assets\mb_iconquestion.png" />
+    <AvaloniaResource Include="Assets\red.png" />
+    <AvaloniaResource Include="Assets\scrollbar_dots.png" />
+    <AvaloniaResource Include="Assets\scrollbar_dots_h.png" />
+    <AvaloniaResource Include="Assets\scrollbar_dots_lit_h.png" />
+    <AvaloniaResource Include="Assets\scrollbar_dots_lit_v.png" />
+    <AvaloniaResource Include="Assets\scrollbar_dots_v.png" />
+    <AvaloniaResource Include="Assets\yellow.png" />
+    <AvaloniaResource Include="Common\Styles\ApplicationSpecificDark.xaml" />
+    <AvaloniaResource Include="Common\Styles\ApplicationSpecificLight.xaml" />
+    <AvaloniaResource Include="Common\Styles\AutoCompleteBox.xaml" />
+    <AvaloniaResource Include="Common\Styles\Button.xaml" />
+    <AvaloniaResource Include="Common\Styles\CheckBox.xaml" />
+    <AvaloniaResource Include="Common\Styles\ComboBox.xaml" />
+    <AvaloniaResource Include="Common\Styles\CommonStyles.xaml" />
+    <AvaloniaResource Include="Common\Styles\Dark.xaml" />
+    <AvaloniaResource Include="Common\Styles\Expander.xaml" />
+    <AvaloniaResource Include="Common\Styles\Label.xaml" />
+    <AvaloniaResource Include="Common\Styles\Light.xaml" />
+    <AvaloniaResource Include="Common\Styles\ListBox.xaml" />
+    <AvaloniaResource Include="Common\Styles\RadioButton.xaml" />
+    <AvaloniaResource Include="Common\Styles\RepeatButton.xaml" />
+    <AvaloniaResource Include="Common\Styles\ScrollBar.xaml" />
+    <AvaloniaResource Include="Common\Styles\ScrollViewer.xaml" />
+    <AvaloniaResource Include="Common\Styles\TextBox.xaml" />
+    <AvaloniaResource Include="Common\Styles\ToolTip.xaml" />
+    <AvaloniaResource Include="Common\Styles\TreeView.xaml" />
+    <AvaloniaResource Include="Common\Styles\Window.xaml" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Autofac" Version="6.2.0" />
+    <PackageReference Include="Autofac.Extras.DynamicProxy" Version="6.0.0" />
+    <PackageReference Include="Avalonia" Version="0.10.6" />
+    <PackageReference Include="Avalonia.Desktop" Version="0.10.6" />
+    <PackageReference Include="Avalonia.Diagnostics" Version="0.10.6" />
+    <PackageReference Include="Avalonia.Xaml.Behaviors" Version="0.10.6.10" />
+    <PackageReference Include="Avalonia.Xaml.Interactions.Custom" Version="0.10.3" />
+    <PackageReference Include="Avalonia.Xaml.Interactivity" Version="0.10.6.10" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Devonia.ViewModels\Devonia.ViewModels.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Startup\" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="appsettings.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+  <Target Name="RemoveSatelliteAssemblies" AfterTargets="ResolveAssemblyReferences">
+    <ItemGroup>
+      <ReferenceCopyLocalPaths Remove="@(ReferenceSatellitePaths)" />
+    </ItemGroup>
+  </Target>
+
+</Project>
