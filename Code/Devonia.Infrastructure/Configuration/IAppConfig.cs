@@ -13,7 +13,7 @@ namespace Devonia.Infrastructure.Configuration
         #region ================================================================ PROPERTIES =================================================================================
         string ConfigurationFilePath { get; }
         List<UserConfigEntity> Users { get; set; }
-        DialogsConfigEntity Dialogs { get; set; }
+        ExplorerConfigEntity Explorer { get; set; }
         ApplicationConfigEntity Application { get; set; }
         MiscellaneousConfigEntity Miscellaneous { get; set; }
         AuthenticationConfigEntity Authentication { get; set; }

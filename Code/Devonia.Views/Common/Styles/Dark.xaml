@@ -28,7 +28,6 @@
             <Color x:Key="ListboxBackgroundColor">#AAAAAA</Color>
             <Color x:Key="ListviewItemTopBorderColor">#777777</Color>
             <Color x:Key="ListviewItemBottomBorderColor">#999999</Color>
-            <Color x:Key="FallingNotesBackgroundColor">#4C7DCE</Color>
 
 
             <LinearGradientBrush x:Key="RadioButtonOutterEllipseGradient" StartPoint="0%,0%" EndPoint="100%,100%">
@@ -161,7 +160,6 @@
             <SolidColorBrush x:Key="ListboxBackground" Color="{DynamicResource ListboxBackgroundColor}"></SolidColorBrush>
             <SolidColorBrush x:Key="ListviewItemTopBorder" Color="{DynamicResource ListviewItemTopBorderColor}"></SolidColorBrush>
             <SolidColorBrush x:Key="ListviewItemBottomBorder" Color="{DynamicResource ListviewItemBottomBorderColor}"></SolidColorBrush>
-            <SolidColorBrush x:Key="FallingNotesBackground" Color="{DynamicResource FallingNotesBackgroundColor}"></SolidColorBrush>
-        </Style.Resources>
+         </Style.Resources>
     </Style>
 </Styles> 

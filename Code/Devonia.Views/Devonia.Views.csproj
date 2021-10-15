@@ -25,6 +25,8 @@
     <None Remove="Assets\mb_iconexclamation.png" />
     <None Remove="Assets\mb_iconhand.png" />
     <None Remove="Assets\mb_iconquestion.png" />
+    <None Remove="Assets\Next-icon.png" />
+    <None Remove="Assets\Previous-icon.png" />
     <None Remove="Assets\red.png" />
     <None Remove="Assets\scrollbar_dots.png" />
     <None Remove="Assets\scrollbar_dots_h.png" />
@@ -52,6 +54,8 @@
     <None Remove="Common\Styles\ToolTip.xaml" />
     <None Remove="Common\Styles\TreeView.xaml" />
     <None Remove="Common\Styles\Window.xaml" />
+    <None Remove="Common\Controls\FileSystemExplorerItem.axaml.bak" />
+    <None Remove="Common\Controls\FileSystemExplorerItem.axaml.cs.bak" />
   </ItemGroup>
   <ItemGroup>
     <AvaloniaResource Include="Assets\drive.png" />
@@ -65,6 +69,8 @@
     <AvaloniaResource Include="Assets\mb_iconexclamation.png" />
     <AvaloniaResource Include="Assets\mb_iconhand.png" />
     <AvaloniaResource Include="Assets\mb_iconquestion.png" />
+    <AvaloniaResource Include="Assets\Next-icon.png" />
+    <AvaloniaResource Include="Assets\Previous-icon.png" />
     <AvaloniaResource Include="Assets\red.png" />
     <AvaloniaResource Include="Assets\scrollbar_dots.png" />
     <AvaloniaResource Include="Assets\scrollbar_dots_h.png" />
@@ -92,6 +98,12 @@
     <AvaloniaResource Include="Common\Styles\ToolTip.xaml" />
     <AvaloniaResource Include="Common\Styles\TreeView.xaml" />
     <AvaloniaResource Include="Common\Styles\Window.xaml" />
+    <None Remove="Assets\details.png" />
+    <AvaloniaResource Include="Assets\details.png" />
+    <None Remove="Assets\icons.png" />
+    <AvaloniaResource Include="Assets\icons.png" />
+    <None Remove="Assets\list.png" />
+    <AvaloniaResource Include="Assets\list.png" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Autofac" Version="6.2.0" />

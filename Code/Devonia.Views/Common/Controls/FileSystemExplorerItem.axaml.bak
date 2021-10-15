@@ -1,0 +1,30 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Devonia.Views.Common.Controls.FileSystemExplorerItem" 
+             BorderThickness="1" Padding="0"
+             
+             ToolTip.Tip="{Binding Path}"
+             Initialized="UserControl_Initialized"
+             PointerPressed="Control_OnPointerPressed"><!--BorderBrush="{Binding ItemsBorderColorFirst}"--> 
+    <Border BorderThickness="0,0,1,1" BorderBrush="{Binding ItemsBorderColorSecond}" Margin="0,0,-1,-1">
+        <Panel>
+            <!-- <Rectangle Fill="Red" Width="{Binding IconSize}" Height="{Binding IconSize}" VerticalAlignment="Center" HorizontalAlignment="Left" /> -->
+            <!-- <Image Width="{Binding IconSize}" Height="{Binding IconSize}" Margin="0" Source="{Binding Path=IconSource, Converter={StaticResource ImageSourceConverter}}" VerticalAlignment="Center" HorizontalAlignment="Left"/> -->
+            <Image Width="{Binding IconSize}"  Height="{Binding IconSize}" Margin="0" Source="{StaticResource MyBitmap}" VerticalAlignment="Center" HorizontalAlignment="Left"/>
+    
+            <!-- <Label Content="{Binding Text}" FontFamily="{Binding CurrentTypeFace.FontFamily}" FontStyle="{Binding CurrentTypeFace.Style}" FontWeight="{Binding CurrentTypeFace.Weight}" Padding="0" Margin="{Binding TextMargin}" BorderThickness="0" VerticalContentAlignment="Center" /> -->
+            <Label Content="{Binding Text}" Padding="0" BorderThickness="0" VerticalContentAlignment="Center" />
+        </Panel>
+    </Border>
+    
+        <!-- <Panel> -->
+        <!--     ~1~ <Rectangle Fill="Red" Width="{Binding IconSize}" Height="{Binding IconSize}" VerticalAlignment="Center" HorizontalAlignment="Left" /> @1@ -->
+        <!--     ~1~ <Image Width="{Binding IconSize}" Height="{Binding IconSize}" Margin="0" Source="{Binding Path=IconSource, Converter={StaticResource ImageSourceConverter}}" VerticalAlignment="Center" HorizontalAlignment="Left"/> @1@ -->
+        <!--     ~1~ <Image Width="{Binding IconSize}"  Height="{Binding IconSize}" Margin="0" Source="{StaticResource MyBitmap}" VerticalAlignment="Center" HorizontalAlignment="Left"/> @1@ -->
+        <!-- -->
+        <!--     <Label Content="{Binding Text}" Padding="0" BorderThickness="0" VerticalContentAlignment="Center" /> -->
+        <!-- </Panel> -->
+</UserControl>

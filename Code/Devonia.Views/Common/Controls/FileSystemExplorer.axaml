@@ -1,0 +1,74 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:enums="clr-namespace:Devonia.Infrastructure.Enums;assembly=Devonia.Infrastructure"
+             mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+             x:Class="Devonia.Views.Common.Controls.FileSystemExplorer" Focusable="True" 
+             PointerWheelChanged="UserControl_PointerWheelChanged"
+             PointerMoved="UserControl_OnPointerMoved"
+             PointerReleased="UserControl_OnPointerReleased">
+    <Grid>
+        <Grid x:Name="grdDetails" Height="25" VerticalAlignment="Top" Margin="0,0,40,0">
+            <Button x:Name="btnName" Padding="0" HorizontalAlignment="Stretch" Margin="0,0,550,0" Tag="{x:Static enums:SortingItems.Name}" Click="BtnSort_OnClick">
+                <Grid ColumnDefinitions="*,Auto,Auto,*">
+                    <Image x:Name="imgName" Grid.Column="1" Width="10" Height="10" IsVisible="true" Margin="0,3,5,0">
+                        <Image.Source>
+                            <DrawingImage>
+                                <DrawingImage.Drawing>
+                                    <GeometryDrawing Brush="Red" Geometry="{StaticResource SortDescendingBitmap}" />
+                                </DrawingImage.Drawing>
+                            </DrawingImage>
+                        </Image.Source>
+                    </Image>
+                    <TextBlock Grid.Column="2" Text="Name"/>
+                </Grid>
+            </Button>
+            <Button x:Name="btnSize" Width="150" Padding="0" HorizontalAlignment="Right" Margin="0,0,400,0" Tag="{x:Static enums:SortingItems.Size}" Click="BtnSort_OnClick">
+                <Grid ColumnDefinitions="*,Auto,Auto,*">
+                    <Image x:Name="imgSize" Grid.Column="1" Width="10" Height="10" IsVisible="true" Margin="0,3,5,0">
+                        <Image.Source>
+                            <DrawingImage>
+                                <DrawingImage.Drawing>
+                                    <GeometryDrawing Brush="Red" Geometry="{StaticResource SortDescendingBitmap}" />
+                                </DrawingImage.Drawing>
+                            </DrawingImage>
+                        </Image.Source>
+                    </Image>
+                    <TextBlock Grid.Column="2" Text="Size"/>
+                </Grid>
+            </Button>
+            <Button x:Name="btnType" Width="150" Padding="0" HorizontalAlignment="Right" Margin="0,0,250,0" Tag="{x:Static enums:SortingItems.Type}" Click="BtnSort_OnClick">
+                <Grid ColumnDefinitions="*,Auto,Auto,*">
+                    <Image x:Name="imgType" Grid.Column="1" Width="10" Height="10" IsVisible="true" Margin="0,3,5,0">
+                        <Image.Source>
+                            <DrawingImage>
+                                <DrawingImage.Drawing>
+                                    <GeometryDrawing Brush="Red" Geometry="{StaticResource SortDescendingBitmap}" />
+                                </DrawingImage.Drawing>
+                            </DrawingImage>
+                        </Image.Source>
+                    </Image>
+                    <TextBlock Grid.Column="2" Text="Type"/>
+                </Grid>
+            </Button>
+            <Button x:Name="btnModified" Width="245" Padding="0" HorizontalAlignment="Right" Margin="0,0,5,0" Tag="{x:Static enums:SortingItems.Date}" Click="BtnSort_OnClick">
+                <Grid ColumnDefinitions="*,Auto,Auto,*">
+                    <Image x:Name="imgModified" Grid.Column="1" Width="10" Height="10" IsVisible="true" Margin="0,3,5,0">
+                        <Image.Source>
+                            <DrawingImage>
+                                <DrawingImage.Drawing>
+                                    <GeometryDrawing Brush="Red" Geometry="{StaticResource SortDescendingBitmap}" />
+                                </DrawingImage.Drawing>
+                            </DrawingImage>
+                        </Image.Source>
+                    </Image>
+                    <TextBlock Grid.Column="2" Text="Date Modified"/>
+                </Grid>
+            </Button>
+        </Grid>
+        <Canvas x:Name="container" Background="#55000000" Margin="0,25,25,25" ClipToBounds="True" PointerPressed="UserControl_OnPointerPressed"/>
+        <ScrollBar Orientation="Vertical" AllowAutoHide="False" ViewportSize="{Binding ScrollbarThumbSize}" HorizontalAlignment="Right" Maximum="{Binding VerticalScrollBarMaximumValue}" Value="{Binding VerticalScrollBarValue}" LargeChange="1" SmallChange="1" Visibility="{Binding IsVerticalScrollBarEnabled}" Margin="0,0,0,25" Scroll="VerticalScrollBar_OnScroll"/>
+        <ScrollBar Orientation="Horizontal" AllowAutoHide="False" ViewportSize="{Binding ScrollbarThumbSize}" VerticalAlignment="Bottom" Maximum="{Binding HorizontalScrollBarMaximumValue}" Value="{Binding HorizontalScrollBarValue}" LargeChange="1" SmallChange="1" Visibility="{Binding IsHorizontalScrollBarEnabled}" Margin="0,0,25,0" Scroll="HorizontalScrollBar_OnScroll"/>
+    </Grid>
+</UserControl>

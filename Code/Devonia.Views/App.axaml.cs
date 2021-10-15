@@ -5,10 +5,12 @@
 using Autofac;
 using Avalonia;
 using Avalonia.Markup.Xaml;
+using Devonia.Infrastructure.Configuration;
 using Devonia.Models.Core.Options;
 using Devonia.Views.Common.Styles;
 using Devonia.Views.Common.Configuration;
 using Devonia.ViewModels.Common.ViewFactory;
+using Devonia.ViewModels.Main;
 using Devonia.ViewModels.Startup;
 #endregion
 
@@ -44,7 +46,8 @@ namespace Devonia.Views
             {
                 // get a view factory from the DI container and display the startup view from it, as modal dialog
                 IViewFactory factory = container.Resolve<IViewFactory>();
-                IStartupView main = factory.CreateView<IStartupView>();
+                // if the user set authentication in app settinggs, display the login view, otherwise, the main view
+                IView main = container.Resolve<IAppConfig>().Miscellaneous.UsesAuthentication ? factory.CreateView<IStartupView>() : factory.CreateView<IMainWindowView>();
                 main.Show();
             }
             base.OnFrameworkInitializationCompleted();

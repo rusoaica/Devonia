@@ -51,7 +51,7 @@ namespace Devonia.ViewModels.Common.Controls.NavigationTreeView
         {
             ObservableCollection<INavigationTreeViewItem> childrenList = new ObservableCollection<INavigationTreeViewItem>();
             INavigationTreeViewItem child;
-            foreach (string specialFolder in appConfig.Dialogs.FavoritePaths)
+            foreach (string specialFolder in appConfig.Explorer.FavoritePaths)
             {
                     child = new FolderItem();
                     child.FullPathName = specialFolder;

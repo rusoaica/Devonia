@@ -6,6 +6,7 @@ using Devonia.Infrastructure.Enums;
 using Devonia.Infrastructure.Notification;
 using Devonia.Models.Common.Models.Common;
 using Devonia.Models.Core.Options;
+using Devonia.ViewModels.Common.Models;
 using Devonia.ViewModels.Common.MVVM;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Devonia.Infrastructure.Configuration;
+
 #endregion
 
 namespace Devonia.ViewModels.Main
@@ -28,11 +31,15 @@ namespace Devonia.ViewModels.Main
         public delegate bool AutoCompleteFilterPredicate<T>(string search, T item);
 
         private readonly IAppOptions appOptions;
+        private readonly IAppConfig appConfig;
+
         #endregion
 
         #region ============================================================= BINDING COMMANDS ==============================================================================
         public IAsyncCommand ViewOpenedAsync_Command { get; private set; }
         public AutoCompleteFilterPredicate<object> SearchMediaLibrary_Command { get; private set; }
+        public IAsyncCommand SelectedExtensionChangedAsync_Command { get; private set; }
+        public IAsyncCommand CreateNewFolder_Command { get; private set; }
         #endregion
 
         #region ============================================================ BINDING PROPERTIES ============================================================================= 
@@ -42,6 +49,53 @@ namespace Devonia.ViewModels.Main
             get { return version; }
             set { version = value; Notify(); }
         }
+
+        private string currentPath = "/mnt/STORAGE/MULTIMEDIA/MUSIC/";
+        public string CurrentPath
+        {
+            get { return currentPath; }
+            set
+            {
+                currentPath = value; Notify();
+            }
+        }
+
+        private bool isFavoritePath;
+        public bool IsFavoritePath
+        {
+            get { return isFavoritePath; }
+            set { isFavoritePath = value; Notify(); }
+        }
+
+
+        private SearchEntity selectedExtensionFilter;
+        public SearchEntity SelectedExtensionFilter
+        {
+            get { return selectedExtensionFilter; }
+            set { selectedExtensionFilter = value; Notify(); }
+        }
+
+        private ObservableCollection<FileSystemEntity> sourceDirectories = new ObservableCollection<FileSystemEntity>();
+        public ObservableCollection<FileSystemEntity> SourceDirectories
+        {
+            get { return sourceDirectories; }
+            set { sourceDirectories = value; Notify(); }
+        }
+        
+        
+        private ObservableCollection<SearchEntity> sourceSearchDirectories = new ObservableCollection<SearchEntity>();
+        public ObservableCollection<SearchEntity> SourceSearchDirectories
+        {
+            get { return sourceSearchDirectories; }
+            set { sourceSearchDirectories = value; Notify(); }
+        }
+
+        private SearchEntity searchDirectoriesSelectedItem;
+        public SearchEntity SearchDirectoriesSelectedItem
+        {
+            get { return searchDirectoriesSelectedItem; }
+            set { searchDirectoriesSelectedItem = value; Notify(); }
+        }
         #endregion
 
         #region ================================================================== CTOR =====================================================================================
@@ -50,9 +104,10 @@ namespace Devonia.ViewModels.Main
         /// </summary>
         /// <param name="appOptions">Injected application options</param>
         /// <param name="notificationService">Injected notification service</param>
-        public MainWindowVM(IAppOptions appOptions, INotificationService notificationService)
+        public MainWindowVM(IAppOptions appOptions, INotificationService notificationService, IAppConfig appConfig)
         {
             this.appOptions = appOptions;
+            this.appConfig = appConfig;
             this.notificationService = notificationService;
 
             ViewOpenedAsync_Command = new AsyncCommand(ViewOpenedAsync);
@@ -71,6 +126,42 @@ namespace Devonia.ViewModels.Main
             Notify(propertyName);
         }
 
+        /// <summary>
+        /// Checks if the current path is saved in the favorite paths 
+        /// </summary>
+        /// <returns>True if the current path is saved in the favorite paths, False otherwise</returns>
+        private bool GetIsFavoritePath()
+        {
+            return SearchDirectoriesSelectedItem != null && appConfig.Explorer.FavoritePaths != null &&
+                   appConfig.Explorer.FavoritePaths.Where(e => e == SearchDirectoriesSelectedItem.Value.ToString()).Count() > 0;
+        }
+        
+        /// <summary>
+        /// Gets the name of all directories in <paramref name="path"/> and adds them to the directories searcheable autocomplete box
+        /// </summary>
+        /// <param name="path">The path for which to get all directories</param>
+        private async Task GetPathDirectoriesAsync(string path)
+        {
+            List<SearchEntity> temp = new List<SearchEntity>();
+            // get a list of all subdirectories of the provided path argument
+            await Task.Run(() =>
+            {
+                foreach (string directory in path.Split(Path.DirectorySeparatorChar))
+                    if (!string.IsNullOrEmpty(directory))
+                        temp.Add(new SearchEntity() { Text = directory, Value = path.Substring(0, path.IndexOf(directory) + directory.Length) + Path.DirectorySeparatorChar });
+            });
+            SourceSearchDirectories = new ObservableCollection<SearchEntity>(temp);
+            // set the selected search directory to the last item in the list, which should be similar to the current path
+            if (SourceSearchDirectories.Count > 0)
+                SearchDirectoriesSelectedItem = SourceSearchDirectories[SourceSearchDirectories.Count - 1];
+            if (SearchDirectoriesSelectedItem == null)
+                throw new Exception("Selected search directory cannot be null!");
+            // check if the current path is in the list of favorite paths
+            IsFavoritePath = GetIsFavoritePath();
+            // re-check if the current path permits adding new folders
+            //await dispatcher.DispatchAsync(() => ShowNewFolderDialog_Command.RaiseCanExecuteChanged(), null);
+        }
+        
         /// <summary>
         /// Custom filter for the media library searching
         /// </summary>
@@ -104,7 +195,7 @@ namespace Devonia.ViewModels.Main
             ShowProgressBar();
             WindowTitle = "Devonia";
             IsMediaPlayingIndicatorSocketVisible = true;
-            HideProgressBar();
+            //HideProgressBar();
         }
         #endregion
     }

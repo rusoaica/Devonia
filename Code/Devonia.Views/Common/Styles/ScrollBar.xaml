@@ -4,24 +4,22 @@
      <Style Selector="ScrollBar:vertical">
         <Setter Property="Template">
             <ControlTemplate>
-                <Grid>
-                    <Grid RowDefinitions="15,*,15">
-                        <Border Grid.RowSpan="3" CornerRadius="-5" Background="Black" Margin="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderThickness="11,15" BorderBrush="#404040"/>
-                        <!--left margin-->
-                        <RepeatButton Name="PART_LineUpButton" Width="25"  Height="18"  HorizontalAlignment="Center" Classes="ScrollBarRepeatButtonVerticalTop" Grid.Row="0" Focusable="False" MinHeight="{DynamicResource ScrollBarThickness}"/>
+                <Grid RowDefinitions="15,*,15">
+                    <Border Grid.RowSpan="3" ZIndex="0" Background="Black" CornerRadius="-5" Margin="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" BorderThickness="11,15" BorderBrush="#404040"/>
+                    <!--left margin-->
+                    <RepeatButton Name="PART_LineUpButton" ZIndex="1" Width="25"  Height="18"  HorizontalAlignment="Center" Classes="ScrollBarRepeatButtonVerticalTop" Grid.Row="0" Focusable="False" MinHeight="{DynamicResource ScrollBarThickness}"/>
 
-                        <Grid Margin="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Row="1" ClipToBounds="True">
-                            <Border Grid.RowSpan="3" CornerRadius="0" Background="#404040" Margin="0" Width="11" HorizontalAlignment="Right" BorderThickness="2,0,0,0" BorderBrush="#515151"/>
-                            <!--left margin-->
-                            <Border Grid.RowSpan="3" CornerRadius="0" Background="#404040" Margin="0" Width="11" HorizontalAlignment="Left" BorderThickness="0,0,2,0" BorderBrush="#303030"/>
-                            <!--right margin-->
-                            <Track Grid.Row="1" Grid.Column="1" Minimum="{TemplateBinding Minimum}" Maximum="{TemplateBinding Maximum}" Value="{TemplateBinding Value, Mode=TwoWay}"
-                                    ViewportSize="{TemplateBinding ViewportSize}" Orientation="{TemplateBinding Orientation}" IsDirectionReversed="True">
-                                <Thumb Name="thumbVertical"/>
-                            </Track>
-                        </Grid>
-                        <RepeatButton Name="PART_LineDownButton" Width="25"  Height="18" HorizontalAlignment="Center" Classes="ScrollBarRepeatButtonVerticalBottom" Grid.Row="2" Grid.Column="2" Focusable="False" MinHeight="{DynamicResource ScrollBarThickness}"/>
+                    <Grid Margin="0" ZIndex="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Row="1" ClipToBounds="True">
+                        <Border Grid.RowSpan="3" ZIndex="3" CornerRadius="0" Background="#404040" Margin="0" Width="11" HorizontalAlignment="Right" BorderThickness="2,0,0,0" BorderBrush="#515151"/>
+                        <!--left margin-->
+                        <Border Grid.RowSpan="3" ZIndex="3" CornerRadius="0" Background="#404040" Margin="0" Width="11" HorizontalAlignment="Left" BorderThickness="0,0,2,0" BorderBrush="#303030"/>
+                        <!--right margin-->
+                        <Track Grid.Row="1" ZIndex="4" Grid.Column="1" Minimum="{TemplateBinding Minimum}" Maximum="{TemplateBinding Maximum}" Value="{TemplateBinding Value, Mode=TwoWay}"
+                                ViewportSize="{TemplateBinding ViewportSize}" Orientation="{TemplateBinding Orientation}" IsDirectionReversed="True">
+                            <Thumb Name="thumbVertical" ZIndex="5"/>
+                        </Track>
                     </Grid>
+                    <RepeatButton Name="PART_LineDownButton" ZIndex="1" Width="25"  Height="18" HorizontalAlignment="Center" Classes="ScrollBarRepeatButtonVerticalBottom" Grid.Row="2" Grid.Column="2" Focusable="False" MinHeight="{DynamicResource ScrollBarThickness}"/>
                 </Grid>
             </ControlTemplate>
         </Setter>

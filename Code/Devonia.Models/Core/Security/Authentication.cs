@@ -157,7 +157,7 @@ namespace Devonia.Models.Core.Security
                             try
                             {
                                 await config.UpdateConfigurationAsync();
-                                await notificationService.ShowAsync("Your password has been changed to " + User.Username + "!\nChange it to a secure password as soon as you log in!", "LEYA - Success");
+                                await notificationService.ShowAsync("Your password has been changed to " + User.Username + "!\nChange it to a secure password as soon as you log in!", "Devonia - Success");
                             }
                             catch (Exception)
                             {

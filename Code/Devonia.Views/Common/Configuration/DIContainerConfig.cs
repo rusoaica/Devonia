@@ -9,10 +9,9 @@ using Devonia.Infrastructure.Configuration;
 using Devonia.Infrastructure.Dialog;
 using Devonia.Infrastructure.Logging;
 using Devonia.Infrastructure.Notification;
+using Devonia.Models.Core.Options;
 using Devonia.Models.Core.Security;
 using Devonia.ViewModels.Common.Clipboard;
-using Devonia.ViewModels.Common.Dialogs.FileBrowser;
-using Devonia.ViewModels.Common.Dialogs.FolderBrowser;
 using Devonia.ViewModels.Common.Dialogs.MessageBox;
 using Devonia.ViewModels.Common.Dispatcher;
 using Devonia.ViewModels.Common.ViewFactory;
@@ -24,6 +23,7 @@ using Devonia.Views.Common.Dialogs;
 using Devonia.Views.Common.Dialogs.MessageBox;
 using Devonia.Views.Common.Dispatcher;
 using Devonia.Views.Common.UIFactory;
+using Devonia.Views.Main;
 using Devonia.Views.Register;
 using Devonia.Views.Startup;
 using Newtonsoft.Json;
@@ -50,6 +50,22 @@ namespace Devonia.Views.Common.Configuration
                    .InterceptedBy(typeof(LoggerInterceptor))
 //#endif
                    .SingleInstance();
+
+            builder.RegisterType<AppOptions>()
+                   .As<IAppOptions>()
+//#if !DEBUG
+                   .EnableInterfaceInterceptors()
+                   .InterceptedBy(typeof(LoggerInterceptor))
+//#endif
+                   .SingleInstance();
+
+            builder.RegisterType<OptionsInterface>()
+                   .As<IOptionsInterface>()
+//#if !DEBUG
+                   .EnableInterfaceInterceptors()
+                   .InterceptedBy(typeof(LoggerInterceptor))
+//#endif
+                   .SingleInstance();
             #endregion
 
             #region view models 
@@ -60,8 +76,6 @@ namespace Devonia.Views.Common.Configuration
             builder.RegisterType<ChangePasswordVM>().As<IChangePasswordVM>().InstancePerDependency();
             builder.RegisterType<MainWindowVM>().As<IMainWindowVM>().InstancePerDependency();
             //builder.RegisterType<SystemVM>().As<ISystemVM>().InstancePerDependency();
-            builder.RegisterType<FolderBrowserDialogVM>().As<IFolderBrowserDialogVM>().InstancePerDependency();
-            builder.RegisterType<FileBrowserDialogVM>().As<IFileBrowserDialogVM>().InstancePerDependency();
             #endregion
 
             #region infrastructure
@@ -76,38 +90,12 @@ namespace Devonia.Views.Common.Configuration
                     (propertyInfo, context) => propertyInfo.ParameterType == typeof(IDispatcher),
                     (propertyInfo, context) => context.Resolve<IDispatcher>()))
                 .As<INotificationService>().InstancePerDependency();
-
-            builder.RegisterType<FolderBrowserService>()
-                .WithParameter(new ResolvedParameter(
-                    (propertyInfo, context) => propertyInfo.ParameterType == typeof(IDispatcher),
-                    (propertyInfo, context) => context.Resolve<IDispatcher>()))
-                .WithParameter(
-                    (propertyInfo, context) => propertyInfo.ParameterType == typeof(Func<IFolderBrowserDialogVM>),
-                    (propertyInfo, context) =>
-                    {
-                        IComponentContext componentContext = context.Resolve<IComponentContext>();
-                        return new Func<IFolderBrowserDialogVM>(() => componentContext.Resolve<IFolderBrowserDialogVM>());
-                    })
-                .As<IFolderBrowserService>().InstancePerDependency();
-
-            builder.RegisterType<FileBrowserService>()
-                .WithParameter(new ResolvedParameter(
-                    (propertyInfo, context) => propertyInfo.ParameterType == typeof(IDispatcher),
-                    (propertyInfo, context) => context.Resolve<IDispatcher>()))
-                .WithParameter(
-                    (propertyInfo, context) => propertyInfo.ParameterType == typeof(Func<IFileBrowserDialogVM>),
-                    (propertyInfo, context) =>
-                    {
-                        IComponentContext componentContext = context.Resolve<IComponentContext>();
-                        return new Func<IFileBrowserDialogVM>(() => componentContext.Resolve<IFileBrowserDialogVM>());
-                    })
-                .As<IFileBrowserService>().InstancePerDependency();
             #endregion
 
             #region views
             builder.RegisterType<StartupV>().OnActivating(e => e.Instance.DataContext = e.Context.Resolve<IStartupVM>()).As<IStartupView>().SingleInstance();
             builder.RegisterType<RegisterV>().OnActivating(e => e.Instance.DataContext = e.Context.Resolve<IRegisterVM>()).As<IRegisterView>().InstancePerDependency();
-            //builder.RegisterType<MainWindowV>().OnActivating(e => e.Instance.DataContext = e.Context.Resolve<IMainWindowVM>()).As<IMainWindowView>().InstancePerDependency();
+            builder.RegisterType<MainWindowV>().OnActivating(e => e.Instance.DataContext = e.Context.Resolve<IMainWindowVM>()).As<IMainWindowView>().InstancePerDependency();
             builder.RegisterType<RecoverPasswordV>().OnActivating(e => e.Instance.DataContext = e.Context.Resolve<IRecoverPasswordVM>()).As<IRecoverPasswordView>().InstancePerDependency();
             builder.RegisterType<ChangePasswordV>().OnActivating(e => e.Instance.DataContext = e.Context.Resolve<IChangePasswordVM>()).As<IChangePasswordView>().InstancePerDependency();
             #endregion

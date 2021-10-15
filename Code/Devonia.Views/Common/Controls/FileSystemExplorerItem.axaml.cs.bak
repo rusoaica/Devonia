@@ -1,0 +1,260 @@
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Input;
+using Avalonia.Markup.Xaml;
+using Avalonia.Media;
+using Devonia.Infrastructure.Enums;
+using System;
+using System.ComponentModel;
+using System.Drawing;
+using System.Runtime.CompilerServices;
+using Microsoft.CodeAnalysis;
+using Brushes = Avalonia.Media.Brushes;
+using FontStyle = Avalonia.Media.FontStyle;
+
+namespace Devonia.Views.Common.Controls
+{
+    public class FileSystemExplorerItem : UserControl, INotifyPropertyChanged
+    {
+        public event PropertyChangedEventHandler PropertyChanged;
+        private bool isWindowLoaded;
+
+        public bool IsFolder { get; set; }
+        private string path;
+        public string Path
+        {
+            get { return path; }
+            set { path = value; Notify(); }
+        }
+
+        private string iconSource = "file.png";
+        public string IconSource
+        {
+            get { return iconSource; }
+            set { iconSource = value; Notify(); }
+        }
+
+        private Typeface currentTypeFace;
+        public Typeface CurrentTypeFace
+        {
+            get { return currentTypeFace; }
+            set { currentTypeFace = value; Notify(); }
+        }
+        
+        private Layouts layout = Layouts.List;
+        public Layouts Layout
+        {
+            get { return layout; }
+            set { layout = value; ArrangeElements(); }
+        }
+
+        private double iconSize = 16;
+        internal double IconSize
+        {
+            get { return iconSize; }
+            private set { iconSize = value; Notify(); }
+        }
+
+        private Thickness textMargin;
+        internal Thickness TextMargin
+        {
+            get { return textMargin; }
+            private set { textMargin = value; Notify(); }
+        }
+        
+        private string text;
+        public string Text
+        {
+            get { return text; }
+            set { SetAndRaise(TextProperty, ref text, value); }
+        }
+
+        /// <summary>
+        /// Defines the <see cref="Text"/> property.
+        /// </summary>
+        public static readonly DirectProperty<FileSystemExplorerItem, string> TextProperty =
+            AvaloniaProperty.RegisterDirect<FileSystemExplorerItem, string>(nameof(Text), e => e.Text, (e, v) => e.Text = v);
+        
+        private bool isSelected;
+        public bool IsSelected
+        {
+            get { return isSelected; }
+            set
+            { 
+                isSelected = value;
+                Foreground = value ? foregroundSelectionColor : foregroundColor;
+                ItemsBorderColorFirst = showBorder ? value ? selectionBorderColor : itemsBorderColorFirst : Brushes.Transparent; 
+                ItemsBorderColorSecond = showBorder ? value ? selectionBorderColor : itemsBorderColorSecond : Brushes.Transparent; 
+                Background = value ? selectionBackgroundColor : showBorder ? backgroundColor : Brushes.Transparent;
+            }
+        }
+
+        private bool showBorder;
+        public bool ShowBorder
+        {
+            get { return showBorder; }
+            set
+            {
+                showBorder = value; 
+                ItemsBorderColorFirst = value ? isSelected ? selectionBorderColor : itemsBorderColorFirst : Brushes.Transparent; 
+                ItemsBorderColorSecond = value ? isSelected ? selectionBorderColor : itemsBorderColorSecond : Brushes.Transparent; 
+                Background = value ? isSelected ? selectionBackgroundColor : backgroundColor : Brushes.Transparent; 
+            }
+        }
+        
+        private IBrush foregroundColor;
+        public IBrush ForegroundColor
+        {
+            get { return foregroundColor; }
+            set
+            {
+                foregroundColor = value;
+                Foreground = isSelected ? value : foregroundSelectionColor;
+            }
+        }
+
+        private IBrush foregroundSelectionColor;
+        public IBrush ForegroundSelectionColor
+        {
+            get { return foregroundSelectionColor; }
+            set
+            {
+                foregroundSelectionColor = value;
+                Foreground = isSelected ? value : foregroundColor;
+            }
+        }
+        
+        private IBrush itemsBorderColorFirst;
+        public IBrush ItemsBorderColorFirst
+        {
+            get { return itemsBorderColorFirst; }
+            set
+            {
+                itemsBorderColorFirst = showBorder ? isSelected ? selectionBorderColor : value : Brushes.Transparent; 
+                Notify();
+            }
+        }
+        
+        private IBrush itemsBorderColorSecond;
+        public IBrush ItemsBorderColorSecond
+        {
+            get { return itemsBorderColorSecond; }
+            set
+            {
+                itemsBorderColorSecond = showBorder ? isSelected ? selectionBorderColor : value : Brushes.Transparent; 
+                Notify();
+            }
+        }
+        
+        private IBrush selectionBorderColor;
+        public IBrush SelectionBorderColor
+        {
+            get { return selectionBorderColor; }
+            set
+            {
+                SetAndRaise(SelectionBorderColorProperty, ref selectionBorderColor, value); 
+                //BorderBrush = isSelected ? selectionBorderColor : showBorder ? borderColor : Brushes.Transparent; 
+            }
+        }
+        
+        /// <summary>
+        /// Defines the <see cref="SelectionBorderColor"/> property.
+        /// </summary>
+        public static readonly DirectProperty<FileSystemExplorerItem, IBrush> SelectionBorderColorProperty =
+            AvaloniaProperty.RegisterDirect<FileSystemExplorerItem, IBrush>(nameof(SelectionBorderColor), e => e.SelectionBorderColor, (e, v) => e.SelectionBorderColor = v);
+        
+        private IBrush backgroundColor;
+        public IBrush BackgroundColor
+        {
+            get { return backgroundColor; }
+            set 
+            { 
+                SetAndRaise(BackgroundColorProperty, ref backgroundColor, value);
+                Background = isSelected ? selectionBackgroundColor : backgroundColor; 
+            }
+        }
+        
+        /// <summary>
+        /// Defines the <see cref="BackgroundColor"/> property.
+        /// </summary>
+        public static readonly DirectProperty<FileSystemExplorerItem, IBrush> BackgroundColorProperty =
+            AvaloniaProperty.RegisterDirect<FileSystemExplorerItem, IBrush>(nameof(BackgroundColor), e => e.BackgroundColor, (e, v) => e.BackgroundColor = v);
+        
+        private IBrush selectionBackgroundColor;
+        public IBrush SelectionBackgroundColor
+        {
+            get { return selectionBackgroundColor; }
+            set
+            {
+                SetAndRaise(SelectionBackgroundColorProperty, ref selectionBackgroundColor, value);       
+                Background = isSelected ? selectionBackgroundColor : backgroundColor;
+            }
+        }
+        
+        /// <summary>
+        /// Defines the <see cref="SelectionBackgroundColor"/> property.
+        /// </summary>
+        public static readonly DirectProperty<FileSystemExplorerItem, IBrush> SelectionBackgroundColorProperty =
+            AvaloniaProperty.RegisterDirect<FileSystemExplorerItem, IBrush>(nameof(SelectionBackgroundColor), e => e.SelectionBackgroundColor, (e, v) => e.SelectionBackgroundColor = v);
+
+        
+        
+        
+        public FileSystemExplorerItem() 
+        {
+            AvaloniaXamlLoader.Load(this);
+            DataContext = this;
+            Layout = layout;
+        }
+
+        private void ArrangeElements()
+        {
+            switch (Layout)
+            {
+                case Layouts.List:
+                case Layouts.Details:
+                    TextMargin = new Thickness(IconSize + 3, 0, 0, 0);
+                    break;
+                case Layouts.Icons:
+                    IconSize = Bounds.Width;
+                    IconSize = Width;
+                    TextMargin = new Thickness(0, IconSize + 3, 0, 0);
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Notifies the UI about a bound property's value being changed
+        /// </summary>
+        /// <param name="propertyName">The property that had the value changed</param>
+        public void Notify([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        /// <summary>
+        /// Handles control's Initialized event
+        /// </summary>
+        private void UserControl_Initialized(object? sender, EventArgs e)
+        {
+            isWindowLoaded = true;
+        }
+        
+        /// <summary>
+        /// Handles control's PointerPressed event
+        /// </summary>
+        private void Control_OnPointerPressed(object? sender, PointerPressedEventArgs e)
+        {
+            IsSelected = true;
+        }
+        
+        /// <summary>
+        /// Handles control's SizeChanged event
+        /// </summary>
+        private void UserControl_SizeChanged()
+        {
+            if (isWindowLoaded)
+                ArrangeElements();
+        }
+    }
+}

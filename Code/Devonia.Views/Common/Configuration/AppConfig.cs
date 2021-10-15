@@ -21,7 +21,7 @@ namespace Devonia.Views.Common.Configuration
 
         #region =============================================================== PROPERTIES ==================================================================================
         public List<UserConfigEntity> Users { get; set; } = new List<UserConfigEntity>();
-        public DialogsConfigEntity Dialogs { get; set; } = new DialogsConfigEntity(); 
+        public ExplorerConfigEntity Explorer { get; set; } = new ExplorerConfigEntity(); 
         public ApplicationConfigEntity Application { get; set; } = new ApplicationConfigEntity();
         public MiscellaneousConfigEntity Miscellaneous { get; set; } = new MiscellaneousConfigEntity();
         public AuthenticationConfigEntity Authentication { get; set; } = new AuthenticationConfigEntity();
