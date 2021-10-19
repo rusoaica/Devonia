@@ -10,7 +10,12 @@
         xmlns:converter="clr-namespace:Devonia.Views.Common.Converters"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="Devonia.Views.Main.MainWindowV"
-        Title="{Binding WindowTitle}" Classes="styledWindow" Icon="avares://Devonia/Assets/icon.ico" HasSystemDecorations="False" WindowStartupLocation="CenterScreen" Width="1000" Height="800" MinWidth="1024" MinHeight="768" Opened="Window_Opened" PositionChanged="Window_PositionChanged" KeyUp="Window_KeyUp" KeyDown="Window_KeyDown">
+        Title="{Binding WindowTitle}" Classes="styledWindow" Icon="avares://Devonia/Assets/icon.ico" HasSystemDecorations="False" WindowStartupLocation="CenterScreen" Width="1000" Height="800" MinWidth="1024" MinHeight="768" 
+        Opened="Window_Opened" 
+        PositionChanged="Window_PositionChanged" 
+        KeyUp="Window_KeyUp" 
+        KeyDown="Window_KeyDown"
+        PointerPressed="Window_OnPointerPressed">
   <i:Interaction.Behaviors>
     <ia:EventTriggerBehavior EventName="Opened">
       <ia:InvokeCommandAction Command="{Binding ViewOpenedAsync_Command}"/>
@@ -34,86 +39,68 @@
     </Grid>
     <Border Margin="10,31,10,74" Classes="contentBorder" BoxShadow="3 3 5 1 #88000000"/>
 
-    <Grid Height="21" VerticalAlignment="Top" Margin="101,6,10,0">
+    
+    <Image Cursor="Hand" ToolTip.Tip="List Mode" Margin="10,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Tag="{x:Static enums:FileSystemExplorerLayouts.List}" Source="avares://Devonia/Assets/list.png" Height="20" Width="20" PointerReleased="ViewModes_OnPointerReleased">
+      <i:Interaction.Behaviors>
+        <ia:EventTriggerBehavior EventName="PointerReleased">
+          <ia:InvokeCommandAction Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.NavigateBackAsync_Command}"/>
+        </ia:EventTriggerBehavior>
+      </i:Interaction.Behaviors>
+    </Image>
+    <Image Cursor="Hand" ToolTip.Tip="Details Mode" Margin="40,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Tag="{x:Static enums:FileSystemExplorerLayouts.Details}" Source="avares://Devonia/Assets/details.png" Height="20" Width="20" PointerReleased="ViewModes_OnPointerReleased">
+      <i:Interaction.Behaviors>
+        <ia:EventTriggerBehavior EventName="PointerReleased">
+          <ia:InvokeCommandAction Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.NavigateBackAsync_Command}"/>
+        </ia:EventTriggerBehavior>
+      </i:Interaction.Behaviors>
+    </Image>
+    <Image Cursor="Hand" ToolTip.Tip="Icons Mode" Margin="70,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Tag="{x:Static enums:FileSystemExplorerLayouts.Icons}" Source="avares://Devonia/Assets/icons.png" Height="17" Width="17" PointerReleased="ViewModes_OnPointerReleased">
+      <i:Interaction.Behaviors>
+        <ia:EventTriggerBehavior EventName="PointerReleased">
+          <ia:InvokeCommandAction Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.NavigateBackAsync_Command}"/>
+        </ia:EventTriggerBehavior>
+      </i:Interaction.Behaviors>
+    </Image>
+    
+    <Grid Height="21" VerticalAlignment="Top" Margin="170,3,10,0">
       <Grid.ColumnDefinitions>
         <ColumnDefinition />
         <ColumnDefinition Width="26"/>
         <ColumnDefinition Width="26"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
-      <AutoCompleteBox Items="{Binding SourceSearchDirectories}" ValueMemberBinding="{Binding Value}" SelectedItem="{Binding SearchDirectoriesSelectedItem}" Classes="autoCompleteBox" Margin="0" Height="20" Grid.Column="0" VerticalAlignment="Top" MinimumPrefixLength="0" MaxDropDownHeight="400" IsTextCompletionEnabled="True" FontSize="14">
-        <AutoCompleteBox.ItemTemplate>
-          <DataTemplate>
-            <Grid>
-              <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="200" />
-                <ColumnDefinition Width="500" />
-              </Grid.ColumnDefinitions>
-              <TextBlock Text="{Binding Text}" Foreground="{DynamicResource textForeground}"/>
-              <TextBlock Text="{Binding Value}" Foreground="Gray" HorizontalAlignment="Right" Grid.Column="1" />
-            </Grid>
-          </DataTemplate>
-        </AutoCompleteBox.ItemTemplate>
-        <AutoCompleteBox.KeyBindings>
-          <KeyBinding Gesture="Enter" Command="{Binding SearchDirectoriesKeyUpAsync_Command}" />
-        </AutoCompleteBox.KeyBindings>
-        <i:Interaction.Behaviors>
-          <ia:EventTriggerBehavior EventName="DropDownClosing">
-            <ia:InvokeCommandAction Command="{Binding SearchDirectoriesDropDownClosingAsync_Command}"/>
-          </ia:EventTriggerBehavior>
-        </i:Interaction.Behaviors>
-      </AutoCompleteBox>
+      <controls:PathNavigator x:Name="txtNavigator" VerticalAlignment="Top" Margin="0" LocationChanged="PathNavigator_OnLocationChanged"/>
       <CheckBox IsChecked="{Binding IsFavoritePath}" ToolTip.Tip="Favorite Directory" Classes="favorite" Cursor="Hand" Grid.Column="1" Height="18" Width="20" Checked="Favorite_CheckedChanged" Unchecked="Favorite_CheckedChanged"/>
       <CheckBox IsChecked="{Binding IsPreviewPanelVisible, Mode=TwoWay}" ToolTip.Tip="Preview" Classes="preview" Height="15" Width="20" Cursor="Hand" Grid.Column="2" Checked="TogglePreviewPanel_CheckChanged" Unchecked="TogglePreviewPanel_CheckChanged"/>
       <Button Command="{Binding ShowNewFolderDialog_Command}" Content="New Folder" Classes="abortButton" IsVisible="{Binding ShowNewFolderButton}" Grid.Column="3" Height="21" Width="90" Margin="3,0,0,0" FontSize="12" VerticalAlignment="Top" Click="ShowNewFolderModalBox"/>
     </Grid>
-
-    <Image Cursor="Hand" ToolTip.Tip="List Mode" Margin="10,6,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Tag="{x:Static enums:FileSystemExplorerLayouts.List}" Source="avares://Devonia/Assets/list.png" Height="20" Width="20" PointerReleased="ViewModes_OnPointerReleased">
-      <i:Interaction.Behaviors>
-        <ia:EventTriggerBehavior EventName="PointerReleased">
-          <ia:InvokeCommandAction Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.NavigateBackAsync_Command}"/>
-        </ia:EventTriggerBehavior>
-      </i:Interaction.Behaviors>
-    </Image><Image Cursor="Hand" ToolTip.Tip="Details Mode" Margin="40,6,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Tag="{x:Static enums:FileSystemExplorerLayouts.Details}" Source="avares://Devonia/Assets/details.png" Height="20" Width="20" PointerReleased="ViewModes_OnPointerReleased">
+    
+    <Image Cursor="Hand" ToolTip.Tip="Back" Margin="100,8,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Source="avares://Devonia/Assets/Previous-icon.png" Height="20" Width="20">
       <i:Interaction.Behaviors>
         <ia:EventTriggerBehavior EventName="PointerReleased">
           <ia:InvokeCommandAction Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.NavigateBackAsync_Command}"/>
         </ia:EventTriggerBehavior>
       </i:Interaction.Behaviors>
     </Image>
-    <Image Cursor="Hand" ToolTip.Tip="Icons Mode" Margin="70,6,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Tag="{x:Static enums:FileSystemExplorerLayouts.Icons}" Source="avares://Devonia/Assets/icons.png" Height="17" Width="17" PointerReleased="ViewModes_OnPointerReleased">
+    <Image Cursor="Hand" ToolTip.Tip="Forward" Margin="122,8,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Source="avares://Devonia/Assets/Next-icon.png" Height="20" Width="20">
       <i:Interaction.Behaviors>
         <ia:EventTriggerBehavior EventName="PointerReleased">
-          <ia:InvokeCommandAction Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.NavigateBackAsync_Command}"/>
+          <ia:InvokeCommandAction Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.NavigateForwardAsync_Command}"/>
         </ia:EventTriggerBehavior>
       </i:Interaction.Behaviors>
     </Image>
-    <!-- <Image Cursor="Hand" ToolTip.Tip="Back" Margin="10,6,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Source="avares://Devonia/Assets/Previous-icon.png" Height="20" Width="20"> -->
-    <!--   <i:Interaction.Behaviors> -->
-    <!--     <ia:EventTriggerBehavior EventName="PointerReleased"> -->
-    <!--       <ia:InvokeCommandAction Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.NavigateBackAsync_Command}"/> -->
-    <!--     </ia:EventTriggerBehavior> -->
-    <!--   </i:Interaction.Behaviors> -->
-    <!-- </Image> -->
-    <!-- <Image Cursor="Hand" ToolTip.Tip="Forward" Margin="32,6,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Source="avares://Devonia/Assets/Next-icon.png" Height="20" Width="20"> -->
-    <!--   <i:Interaction.Behaviors> -->
-    <!--     <ia:EventTriggerBehavior EventName="PointerReleased"> -->
-    <!--       <ia:InvokeCommandAction Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.NavigateForwardAsync_Command}"/> -->
-    <!--     </ia:EventTriggerBehavior> -->
-    <!--   </i:Interaction.Behaviors> -->
-    <!-- </Image> -->
-    <!-- <Image Cursor="Hand" ToolTip.Tip="Up one level" Margin="54,6,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Source="avares://Devonia/Assets/Previous-icon.png" Height="20" Width="20"> -->
-    <!--   <Image.RenderTransform> -->
-    <!--     <TransformGroup> -->
-    <!--       <RotateTransform Angle="90"/> -->
-    <!--     </TransformGroup> -->
-    <!--   </Image.RenderTransform> -->
-    <!--   <i:Interaction.Behaviors> -->
-    <!--     <ia:EventTriggerBehavior EventName="PointerReleased"> -->
-    <!--       <ia:InvokeCommandAction Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.NavigateUpAsync_Command}"/> -->
-    <!--     </ia:EventTriggerBehavior> -->
-    <!--   </i:Interaction.Behaviors> -->
-    <!-- </Image> -->
+    <Image Cursor="Hand" ToolTip.Tip="Up one level" Margin="144,8,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Source="avares://Devonia/Assets/Previous-icon.png" Height="20" Width="20">
+      <Image.RenderTransform>
+        <TransformGroup>
+          <RotateTransform Angle="90"/>
+        </TransformGroup>
+      </Image.RenderTransform>
+      <i:Interaction.Behaviors>
+        <ia:EventTriggerBehavior EventName="PointerReleased">
+          <ia:InvokeCommandAction Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.NavigateUpAsync_Command}"/>
+        </ia:EventTriggerBehavior>
+      </i:Interaction.Behaviors>
+    </Image>
     <Grid Margin="10,31,10,74" x:Name="grdContainer">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="3*" MinWidth="75"/>
@@ -183,6 +170,18 @@
         <Image Source="{Binding ImageFilePreview, Converter={StaticResource BitmapValueConverter}}" IsVisible="{Binding IsImageFile}" Margin="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Stretch="Uniform" />
       </Grid>
     </Grid>
+    
+    <ListBox x:Name="lstNavigationDirectories" Background="{DynamicResource contentBackground}" VerticalAlignment="Top" HorizontalAlignment="Left" IsVisible="False" Classes="ListBox" VirtualizationMode="Simple"
+              ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+      <i:Interaction.Behaviors>
+        <iac:NthChildBehavior />
+      </i:Interaction.Behaviors>
+      <ListBox.ItemsPanel>
+        <ItemsPanelTemplate>
+          <WrapPanel Orientation="Vertical" Background="{DynamicResource contentBackground}"/>
+        </ItemsPanelTemplate>
+      </ListBox.ItemsPanel>
+    </ListBox>
     
     <Grid Background="{DynamicResource ModalGridBackground}" IsVisible="False" Margin="0" Grid.RowSpan="3" Grid.ColumnSpan="2" Opacity="0.6" x:Name="modalGrid"/>
     <Border Name="grdNewFolder" IsVisible="False" Background="{DynamicResource containerBackground}" BoxShadow="50 50 50 25 #CC000000" VerticalAlignment="Center" HorizontalAlignment="Center" Width="440" Height="168">

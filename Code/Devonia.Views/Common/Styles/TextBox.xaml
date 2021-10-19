@@ -79,7 +79,31 @@
     <Style Selector="TextBox[IsReadOnly=True]">
         <Setter Property="Background" Value="{StaticResource WindowBackColor}"/>
     </Style>
-
     <!--END TEXTBOX-->
 
+    
+    
+    
+    <Style Selector="TextBox.flatTextBox">
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Grid Background="{TemplateBinding Background}">
+                    <TextPresenter Name="PART_TextPresenter" Margin="5,0,0,0"
+                                   VerticalAlignment="Center"
+                                   HorizontalAlignment="Stretch"
+                                   Text="{TemplateBinding Text, Mode=TwoWay}"
+                                   CaretIndex="{TemplateBinding CaretIndex}"
+                                   SelectionStart="{TemplateBinding SelectionStart}"
+                                   SelectionEnd="{TemplateBinding SelectionEnd}"
+                                   TextAlignment="{TemplateBinding TextAlignment}"
+                                   TextWrapping="{TemplateBinding TextWrapping}"
+                                   PasswordChar="{TemplateBinding PasswordChar}"
+                                   SelectionBrush="{TemplateBinding SelectionBrush}"
+                                   SelectionForegroundBrush="{TemplateBinding SelectionForegroundBrush}"
+                                   CaretBrush="{TemplateBinding CaretBrush}"/>
+                </Grid>
+            </ControlTemplate>
+        </Setter>
+    </Style>
 </Styles>

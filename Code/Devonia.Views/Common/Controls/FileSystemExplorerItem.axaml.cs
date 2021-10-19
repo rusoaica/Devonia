@@ -1,76 +1,60 @@
+/// Written by: Yulia Danilova
+/// Creation Date: 19th of October, 2021
+/// Purpose: Code behind for the file system explorer item templated control
+#region ========================================================================= USING =====================================================================================
 using System;
-using System.ComponentModel;
-using System.Linq;
-using System.Runtime.CompilerServices;
+using System.Collections.Generic;
 using Avalonia;
-using Avalonia.Controls;
-using Avalonia.Controls.Primitives;
-using Avalonia.Controls.Shapes;
+using System.Linq;
 using Avalonia.Input;
-using Avalonia.Layout;
-using Avalonia.Markup.Xaml;
 using Avalonia.Media;
-using Avalonia.Media.Imaging;
+using Avalonia.Layout;
+using Avalonia.Controls;
 using Avalonia.VisualTree;
+using Avalonia.Markup.Xaml;
+using System.ComponentModel;
+using Avalonia.Media.Imaging;
+using Avalonia.Controls.Shapes;
 using Devonia.Infrastructure.Enums;
+using Avalonia.Controls.Primitives;
+using System.Runtime.CompilerServices;
+#endregion
 
 namespace Devonia.Views.Common.Controls
 {
     public class FileSystemExplorerItem : TemplatedControl
     {
-        private string[] sizes = { "B", "KB", "MB", "GB", "TB" };
+        #region ============================================================== FIELD MEMBERS ================================================================================
+        private Image imgIcon;
+        private Line[] borders;
+        private Panel pnlContainer;
+        private Label[] lblContents;
         private bool isWindowLoaded;
+        private readonly string[] sizes = { "B", "KB", "MB", "GB", "TB" };
+        #endregion
 
-        private FileSystemItemTypes fileSystemItemType; //~
-        public FileSystemItemTypes FileSystemItemType
-        {
-            get { return fileSystemItemType; }
-            set
-            {
-                fileSystemItemType = value;
-                // if (imgIcon != null)
-                // {
-                //     if (!string.IsNullOrEmpty(iconSource))
-                //         imgIcon.Source = new Bitmap(iconSource);
-                //     else
-                //         imgIcon.Source = Application.Current.Resources[value == FileSystemItemTypes.Folder ? "FolderBitmap" : "FileBitmap"] as Bitmap;
-                // }
-            }
-        }
-
-        public string Path { get; set; }
-        public DateTime DateModified { get; set; }
-        public string Type { get; set; }
+        #region ================================================================ PROPERTIES =================================================================================
         public long Size { get; set; }
+        public string Path { get; set; }
+        public string Type { get; set; }
+        public string IconSource { get; set; }
+        public bool ShowBorder { get; set; }
+        internal double IconSize { get; private set; } = 16;
+        public DateTime DateModified { get; set; }
+        public IBrush ForegroundColor { get; set; }
+        public IBrush BackgroundColor { get; set; }
+        public IBrush SelectionBorderColor { get; set; }
+        public IBrush SelectionBackgroundColor { get; set; }
+        public IBrush ForegroundSelectionColor { get; set; }
+        public FileSystemItemTypes FileSystemItemType { get; set; }
 
-        private string iconSource;
-        public string IconSource
-        {
-            get { return iconSource; }
-            set
-            {
-                iconSource = value;
-                // if (imgIcon != null)
-                //     imgIcon.Source = new Bitmap(value);
-            }
-        }
-
-        private Typeface currentTypeFace; //~
+        private Typeface currentTypeFace;
         public Typeface CurrentTypeFace
         {
             get { return currentTypeFace; }
-            set
-            {
-                currentTypeFace = value;
-                // if (lblContent != null)
-                // {
-                //     lblContent.FontFamily = value.FontFamily;
-                //     lblContent.FontStyle = value.Style;
-                //     lblContent.FontWeight = value.Weight;
-                // }
-            }
+            set { currentTypeFace = value; }
         }
-        
+
         private FileSystemExplorerLayouts layout = FileSystemExplorerLayouts.List;
         public FileSystemExplorerLayouts Layout
         {
@@ -83,14 +67,7 @@ namespace Devonia.Views.Common.Controls
             }
         }
 
-        private double iconSize = 16;
-        internal double IconSize
-        {
-            get { return iconSize; }
-            private set { iconSize = value;  }
-        }
-
-        private Thickness textMargin; //~
+        private Thickness textMargin;
         internal Thickness TextMargin
         {
             get { return textMargin; }
@@ -101,79 +78,38 @@ namespace Devonia.Views.Common.Controls
                      lblContents[0].Margin = value;
             }
         }
-        
-        private string text; //~
+
+        private string text; 
         public string Text
         {
             get { return lblContents?[0].Content?.ToString() ?? text; }
-            set
-            {
-                text = value;
-                // if (lblContent != null)
-                //     lblContent.Content = value;
-            }
+            set { text = value; }
         }
 
-        
         private bool isSelected;
+
         public bool IsSelected
         {
             get { return isSelected; }
             set
             { 
                 isSelected = value;
-                ItemsBorderColorFirst = showBorder ? value ? selectionBorderColor : itemsBorderColorFirst : Brushes.Transparent; 
-                ItemsBorderColorSecond = showBorder ? value ? selectionBorderColor : itemsBorderColorSecond : Brushes.Transparent; 
+                ItemsBorderColorFirst = ShowBorder ? value ? SelectionBorderColor : itemsBorderColorFirst : Brushes.Transparent; 
+                ItemsBorderColorSecond = ShowBorder ? value ? SelectionBorderColor : itemsBorderColorSecond : Brushes.Transparent; 
                 if (pnlContainer != null)
-                    pnlContainer.Background = value ? selectionBackgroundColor : showBorder ? backgroundColor : Brushes.Transparent;
+                    pnlContainer.Background = value ? SelectionBackgroundColor : ShowBorder ? BackgroundColor : Brushes.Transparent;
                 if (lblContents != null)
-                    lblContents[0].Foreground = value ? foregroundSelectionColor : foregroundColor;
+                    lblContents[0].Foreground = value ? ForegroundSelectionColor : ForegroundColor;
             }
         }
 
-        private bool showBorder;
-        public bool ShowBorder
-        {
-            get { return showBorder; }
-            set
-            {
-                showBorder = value; 
-                // ItemsBorderColorFirst = value ? isSelected ? selectionBorderColor : itemsBorderColorFirst : Brushes.Transparent; 
-                // ItemsBorderColorSecond = value ? isSelected ? selectionBorderColor : itemsBorderColorSecond : Brushes.Transparent; 
-                // if (pnlContainer != null)
-                //     pnlContainer.Background = value ? isSelected ? selectionBackgroundColor : backgroundColor : Brushes.Transparent; 
-            }
-        }
-        
-        private IBrush foregroundColor;
-        public IBrush ForegroundColor
-        {
-            get { return foregroundColor; }
-            set
-            {
-                foregroundColor = value;
-                //Foreground = isSelected ? value : foregroundSelectionColor;
-            }
-        }
-
-        private IBrush foregroundSelectionColor;
-        public IBrush ForegroundSelectionColor
-        {
-            get { return foregroundSelectionColor; }
-            set
-            {
-                foregroundSelectionColor = value;
-                //Foreground = isSelected ? value : foregroundColor;
-            }
-        }
-        
         private IBrush itemsBorderColorFirst;
         public IBrush ItemsBorderColorFirst
         {
             get { return itemsBorderColorFirst; }
             set
             {
-                itemsBorderColorFirst = showBorder ? isSelected ? selectionBorderColor : value : Brushes.Transparent; 
+                itemsBorderColorFirst = ShowBorder ? isSelected ? SelectionBorderColor : value : Brushes.Transparent; 
             }
         }
         
@@ -183,92 +119,8 @@ namespace Devonia.Views.Common.Controls
             get { return itemsBorderColorSecond; }
             set
             {
-                itemsBorderColorSecond = showBorder ? isSelected ? selectionBorderColor : value : Brushes.Transparent; 
+                itemsBorderColorSecond = ShowBorder ? isSelected ? SelectionBorderColor : value : Brushes.Transparent; 
             }
-        }
-        
-        private IBrush selectionBorderColor;
-        public IBrush SelectionBorderColor
-        {
-            get { return selectionBorderColor; }
-            set
-            {
-                selectionBorderColor = value; 
-                //BorderBrush = isSelected ? selectionBorderColor : showBorder ? borderColor : Brushes.Transparent; 
-            }
-        }
-        
-        private IBrush backgroundColor;
-        public IBrush BackgroundColor
-        {
-            get { return backgroundColor; }
-            set 
-            { 
-                backgroundColor = value;
-                // if (pnlContainer != null)
-                //     pnlContainer.Background = isSelected ? selectionBackgroundColor : backgroundColor; 
-            }
-        }
-        
-        private IBrush selectionBackgroundColor;
-        public IBrush SelectionBackgroundColor
-        {
-            get { return selectionBackgroundColor; }
-            set
-            {
-                selectionBackgroundColor = value;  
-                // if (pnlContainer != null)
-                //     pnlContainer.Background = isSelected ? selectionBackgroundColor : backgroundColor;
-            }
-        }
-        
-        private Panel pnlContainer;
-        private Label[] lblContents;
-        private Image imgIcon;
-        private Line[] borders;
-      
-        public FileSystemExplorerItem() 
-        {
-            DataContext = this;
-            Layout = layout;
-            PointerPressed += Control_OnPointerPressed;
-            TemplateApplied += OnTemplateApplied;
-        }
-
-        ~FileSystemExplorerItem()
-        {
-            PointerPressed -= Control_OnPointerPressed;
-            TemplateApplied -= OnTemplateApplied;
-        }
-        
-        private string CalculateHumanReadableSize()
-        {
-            if (Size == 0)
-                return null;
-            int order = 0;
-            double length = Size;
-            while (length >= 1024 && order < sizes.Length - 1) 
-            {
-                order++;
-                length = length / 1024;
-            }
-            return String.Format("{0:0.00} {1}", length, sizes[order]);
-        }
-
-        private void OnTemplateApplied(object? sender, TemplateAppliedEventArgs e)
-        {
-            var children = this.GetVisualDescendants().ToList();
-            pnlContainer = children.OfType<Panel>().First();
-            lblContents = children.OfType<Label>().ToArray();
-            imgIcon = children.OfType<Image>().First();
-            borders = children.OfType<Line>().ToArray();
-            
-            BoundsProperty.Changed.AddClassHandler<Window>((s, e) => UserControl_SizeChanged());
-
-            // create separate methods for settings all initial properties, and updating just text, icon and layout
-            InitializeItem();
-            ArrangeElements();
-            isWindowLoaded = true;
         }
 
         private bool isSelectionHovered;
@@ -278,57 +130,107 @@ namespace Devonia.Views.Common.Controls
             set
             {
                 isSelectionHovered = value;
-                if (value && !isSelected)
-                    pnlContainer.Background = Brushes.Red;
-                else
-                    pnlContainer.Background = isSelected ? selectionBackgroundColor : showBorder ? backgroundColor : Brushes.Transparent;
+                if (pnlContainer != null)
+                {
+                    if (value && !isSelected)
+                        pnlContainer.Background = Brushes.Red;
+                    else
+                        pnlContainer.Background = isSelected ? SelectionBackgroundColor : ShowBorder ? BackgroundColor : Brushes.Transparent;
+                }
             }
         }
+        #endregion
 
+        #region ================================================================== CTOR =====================================================================================
+        /// <summary>
+        /// Default C-tor
+        /// </summary>
+        public FileSystemExplorerItem() 
+        {
+            DataContext = this;
+            Layout = layout;
+            TemplateApplied += OnTemplateApplied;
+        }
+
+        /// <summary>
+        /// Destuctor
+        /// </summary>
+        ~FileSystemExplorerItem()
+        {
+            TemplateApplied -= OnTemplateApplied;
+        }
+        #endregion
+        
+        #region ================================================================= METHODS ===================================================================================
+        /// <summary>
+        /// Calculates the size of the current file system explorer item, in human readable form
+        /// </summary>
+        /// <returns>A string formatted size of the current file system explorer item</returns>
+        private string CalculateHumanReadableSize()
+        {
+            // size can be 0 (ex: directories or 0 byte files)
+            if (Size == 0 && FileSystemItemType != FileSystemItemTypes.File)
+                return null;
+            int order = 0;
+            double length = Size;
+            // keep dividing by 1024 (three order of magnitude) until the result is smaller than 1024
+            // that is, get the highest order of magnitude for Size, which is expressed in bytes, for readability purposes
+            while (length >= 1024 && order < sizes.Length - 1) 
+            {
+                order++;
+                length = length / 1024;
+            }
+            return String.Format("{0:0.00} {1}", length, sizes[order]);
+        }
+
+        /// <summary>
+        /// Sets the properties needed for the initial display of the file system explorer item
+        /// </summary>
         public void InitializeItem()
         {
-            pnlContainer.Background = isSelected ? selectionBackgroundColor : showBorder ? backgroundColor : Brushes.Transparent;
-            lblContents[0].Content = text;
-            lblContents[1].Content = DateModified;
-            ToolTip.SetTip(this, Path); 
-            ToolTip.SetTip(lblContents[1], DateTime.Now.Subtract(DateModified)); // TODO: convert to human readable form!
-            lblContents[2].Content = Type;
-            lblContents[3].Content = CalculateHumanReadableSize();
+            // when selected, items have mandatory background color; otherwise, if border is disabled, they are transparent
+            pnlContainer.Background = isSelected ? SelectionBackgroundColor : ShowBorder ? BackgroundColor : Brushes.Transparent;
             for (int i = 0; i < 4; i++)
             {
-                lblContents[i].Foreground = isSelected ? foregroundSelectionColor : foregroundColor;
+                lblContents[i].Foreground = isSelected ? ForegroundSelectionColor : ForegroundColor;
                 lblContents[i].FontFamily = currentTypeFace.FontFamily;
                 lblContents[i].FontStyle = currentTypeFace.Style;
                 lblContents[i].FontWeight = currentTypeFace.Weight;
-                borders[i].Stroke = isSelected ? selectionBorderColor : i % 2 == 0 ? itemsBorderColorFirst : itemsBorderColorSecond;
-                borders[i].IsVisible = showBorder;
+                borders[i].Stroke = isSelected ? SelectionBorderColor : i % 2 == 0 ? itemsBorderColorFirst : itemsBorderColorSecond;
+                borders[i].IsVisible = ShowBorder;
             }
-            if (!string.IsNullOrEmpty(iconSource))
-                imgIcon.Source = new Bitmap(iconSource);
-            else
-                imgIcon.Source = Application.Current.Resources[fileSystemItemType == FileSystemItemTypes.Folder ? "FolderBitmap" : "FileBitmap"] as Bitmap;
+            UpdateItem();
         }
 
+        /// <summary>
+        /// Updates the displayed values of an existing file system explorer item
+        /// </summary>
         public void UpdateItem()
         {
+            // only things that can change after an item is created are displayed text, properties and icon
             if (lblContents != null)
             {
                 lblContents[0].Content = text;
                 lblContents[1].Content = DateModified;
-                ToolTip.SetTip(this, Path); 
-                ToolTip.SetTip(lblContents[1], DateTime.Now.Subtract(DateModified)); // ? convert to human readable form!
                 lblContents[2].Content = Type;
                 lblContents[3].Content = CalculateHumanReadableSize();
+                ToolTip.SetTip(this, Path); 
+                // would be nice to display the time since it was last modified or created (ex: "3 days, 5 hours ago") 
+                ToolTip.SetTip(lblContents[1], DateTime.Now.Subtract(DateModified)); // TODO: convert to human readable form!
             }
+            // check if the current file system explorer item has a custom icon assigned, and if not, use a preselected one, depending on its type
             if (imgIcon != null)
             {
-                if (!string.IsNullOrEmpty(iconSource))
-                    imgIcon.Source = new Bitmap(iconSource);
+                if (!string.IsNullOrEmpty(IconSource))
+                    imgIcon.Source = new Bitmap(IconSource);
                 else
-                    imgIcon.Source = Application.Current.Resources[fileSystemItemType == FileSystemItemTypes.Folder ? "FolderBitmap" : "FileBitmap"] as Bitmap;
+                    imgIcon.Source = Application.Current.Resources[FileSystemItemType == FileSystemItemTypes.Folder ? "FolderBitmap" : "FileBitmap"] as Bitmap;
             }
         }
-        
+
+        /// <summary>
+        /// Aranges the position and size of the elements of the item, based on the current layout
+        /// </summary>
         private void ArrangeElements()
         {
             switch (Layout)
@@ -368,14 +270,25 @@ namespace Devonia.Views.Common.Controls
                     break;
             }
         }
+
+        #endregion
         
+        #region ============================================================= EVENT HANDLERS ================================================================================
         /// <summary>
-        /// Handles control's PointerPressed event
+        /// Handles templated control's TemplateApplied event
         /// </summary>
-        private void Control_OnPointerPressed(object? sender, PointerPressedEventArgs e)
+        private void OnTemplateApplied(object? sender, TemplateAppliedEventArgs e)
         {
-            //IsSelected = !isSelected;
-            //e.Handled = true;
+            List<IVisual> children = this.GetVisualDescendants().ToList();
+            imgIcon = children.OfType<Image>().First();
+            borders = children.OfType<Line>().ToArray();
+            pnlContainer = children.OfType<Panel>().First();
+            lblContents = children.OfType<Label>().ToArray();
+            // subscribe to the event risen when the size of the control changes
+            BoundsProperty.Changed.AddClassHandler<Window>((s, e) => UserControl_SizeChanged());
+            InitializeItem();
+            ArrangeElements();
+            isWindowLoaded = true;
         }
         
         /// <summary>
@@ -386,5 +299,6 @@ namespace Devonia.Views.Common.Controls
             if (isWindowLoaded)
                 ArrangeElements();
         }
+        #endregion
     }
 }

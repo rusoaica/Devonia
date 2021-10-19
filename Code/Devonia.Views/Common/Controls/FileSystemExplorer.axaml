@@ -7,7 +7,8 @@
              x:Class="Devonia.Views.Common.Controls.FileSystemExplorer" Focusable="True" 
              PointerWheelChanged="UserControl_PointerWheelChanged"
              PointerMoved="UserControl_OnPointerMoved"
-             PointerReleased="UserControl_OnPointerReleased">
+             PointerReleased="UserControl_OnPointerReleased"
+             DoubleTapped="UserControl_OnDoubleTapped">
     <Grid>
         <Grid x:Name="grdDetails" Height="25" VerticalAlignment="Top" Margin="0,0,40,0">
             <Button x:Name="btnName" Padding="0" HorizontalAlignment="Stretch" Margin="0,0,550,0" Tag="{x:Static enums:SortingItems.Name}" Click="BtnSort_OnClick">
@@ -16,7 +17,7 @@
                         <Image.Source>
                             <DrawingImage>
                                 <DrawingImage.Drawing>
-                                    <GeometryDrawing Brush="Red" Geometry="{StaticResource SortDescendingBitmap}" />
+                                    <GeometryDrawing Brush="Red" Geometry="{StaticResource SortDescendingGeometry}" />
                                 </DrawingImage.Drawing>
                             </DrawingImage>
                         </Image.Source>
@@ -30,7 +31,7 @@
                         <Image.Source>
                             <DrawingImage>
                                 <DrawingImage.Drawing>
-                                    <GeometryDrawing Brush="Red" Geometry="{StaticResource SortDescendingBitmap}" />
+                                    <GeometryDrawing Brush="Red" Geometry="{StaticResource SortDescendingGeometry}" />
                                 </DrawingImage.Drawing>
                             </DrawingImage>
                         </Image.Source>
@@ -44,7 +45,7 @@
                         <Image.Source>
                             <DrawingImage>
                                 <DrawingImage.Drawing>
-                                    <GeometryDrawing Brush="Red" Geometry="{StaticResource SortDescendingBitmap}" />
+                                    <GeometryDrawing Brush="Red" Geometry="{StaticResource SortDescendingGeometry}" />
                                 </DrawingImage.Drawing>
                             </DrawingImage>
                         </Image.Source>
@@ -58,7 +59,7 @@
                         <Image.Source>
                             <DrawingImage>
                                 <DrawingImage.Drawing>
-                                    <GeometryDrawing Brush="Red" Geometry="{StaticResource SortDescendingBitmap}" />
+                                    <GeometryDrawing Brush="Red" Geometry="{StaticResource SortDescendingGeometry}" />
                                 </DrawingImage.Drawing>
                             </DrawingImage>
                         </Image.Source>

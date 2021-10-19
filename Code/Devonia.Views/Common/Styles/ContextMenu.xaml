@@ -1,0 +1,82 @@
+<Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <Style Selector="ContextMenu">
+        <Design.PreviewWith>
+            <Border Background="{DynamicResource SystemAccentColor}"
+                    Margin="16"
+                    Padding="48"
+                    Width="400"
+                    Height="200">
+                <Border.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem Header="Standard _Menu Item" />
+                        <MenuItem Header="Disabled"
+                                  IsEnabled="False" />
+                        <Separator />
+                        <MenuItem Header="Menu with _Submenu">
+                            <MenuItem Header="Submenu _1" />
+                            <MenuItem Header="Submenu _2" />
+                        </MenuItem>
+                        <MenuItem Header="Menu Item with _Icon" />
+                        <MenuItem Header="Menu Item with _Checkbox">
+                            <MenuItem.Icon>
+                                <CheckBox BorderThickness="0"
+                                          IsHitTestVisible="False"
+                                          IsChecked="True" />
+                            </MenuItem.Icon>
+                        </MenuItem>
+                    </ContextMenu>
+                </Border.ContextMenu>
+                <TextBlock Text="Defined in XAML" />
+            </Border>
+        </Design.PreviewWith>
+
+        <Style.Resources>
+            <!-- Added missing resource -->
+            <Thickness x:Key="MenuFlyoutScrollerMargin">0,4,0,4</Thickness>
+        </Style.Resources>
+
+        <Setter Property="Background" Value="{DynamicResource ListviewDarkBg}" />
+        <Setter Property="BorderBrush" Value="{DynamicResource MenuFlyoutPresenterBorderBrush}" />
+        <Setter Property="BorderThickness" Value="0" />
+        <Setter Property="MaxWidth" Value="{DynamicResource FlyoutThemeMaxWidth}" />
+        <Setter Property="MinHeight" Value="{DynamicResource MenuFlyoutThemeMinHeight}" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="HorizontalAlignment" Value="Stretch" />
+        <Setter Property="TextBlock.FontSize" Value="{DynamicResource ControlContentThemeFontSize}" />
+        <Setter Property="TextBlock.FontWeight" Value="Normal" />
+        <Setter Property="WindowManagerAddShadowHint" Value="True" />
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border Background="{TemplateBinding Background}"
+                        BorderBrush="{TemplateBinding BorderBrush}"
+                        BorderThickness="{TemplateBinding BorderThickness}"
+                        Padding="{TemplateBinding Padding}"
+                        MaxWidth="{TemplateBinding MaxWidth}"
+                        MinHeight="{TemplateBinding MinHeight}"
+                        HorizontalAlignment="{TemplateBinding HorizontalAlignment}">
+                    <Grid>
+                        <ScrollViewer Classes="menuscroller">
+                            <ItemsPresenter Name="PART_ItemsPresenter"
+                                            Items="{TemplateBinding Items}"
+                                            ItemsPanel="{TemplateBinding ItemsPanel}"
+                                            ItemTemplate="{TemplateBinding ItemTemplate}"
+                                            Margin="{DynamicResource MenuFlyoutScrollerMargin}"
+                                            KeyboardNavigation.TabNavigation="Continue"
+                                            Grid.IsSharedSizeScope="True" />
+                        </ScrollViewer>
+                        <Grid>
+                            <Line StartPoint="0,0" EndPoint="1,0" Stroke="{DynamicResource BorderUnlit}" Stretch="Fill"
+                                  StrokeThickness="1" HorizontalAlignment="Center" VerticalAlignment="Top" />
+                            <Line StartPoint="0,1" EndPoint="1,1" Stroke="{DynamicResource BorderLit}" Stretch="Fill"
+                                  StrokeThickness="2" HorizontalAlignment="Center" VerticalAlignment="Bottom" />
+                            <Line StartPoint="0,0" EndPoint="0,1" Stroke="{DynamicResource BorderUnlit}" Stretch="Fill"
+                                  StrokeThickness="1" HorizontalAlignment="Left" VerticalAlignment="Center" />
+                            <Line StartPoint="1,0" EndPoint="1,1" Stroke="{DynamicResource BorderLit}" Stretch="Fill"
+                                  StrokeThickness="2" HorizontalAlignment="Right" VerticalAlignment="Center" />
+                        </Grid>
+                    </Grid>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+</Styles>

@@ -22,7 +22,9 @@ using System.Linq;
 using Devonia.Models.Common.Models.Common;
 using Devonia.Views.Common.Controls;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
+using Avalonia.Controls.Presenters;
 using Avalonia.Media;
 
 #endregion
@@ -41,9 +43,11 @@ namespace Devonia.Views.Main
         private readonly GridSplitter spPreview;
         private readonly Border grdNewFolder;
         private readonly TextBox txtNewFolderName;
+        private readonly ListBox lstNavigationDirectories;
         private readonly BrushConverter brushConverter = new();
         private FileSystemExplorer fileExplorerControl;
 
+        private readonly PathNavigator navigator;
         #endregion
 
         #region ================================================================== CTOR =====================================================================================
@@ -70,6 +74,7 @@ namespace Devonia.Views.Main
             this.AttachDevTools();
             this.appConfig = appConfig;
 #endif
+            navigator = this.FindControl<PathNavigator>("txtNavigator");
             fileExplorerControl = this.FindControl<FileSystemExplorer>("lstDirectories");
             grdPreview = this.FindControl<Grid>("grdPreview");
             grdContainer = this.FindControl<Grid>("grdContainer");
@@ -77,17 +82,41 @@ namespace Devonia.Views.Main
             grdNewFolder = this.FindControl<Border>("grdNewFolder");
             modalGrid = this.FindControl<Grid>("modalGrid");
             txtNewFolderName = this.FindControl<TextBox>("txtNewFolderName");
+            lstNavigationDirectories = this.FindControl<ListBox>("lstNavigationDirectories");
+            
             // set the position of the grid splitter to the last position saved in application's configuration file
             grdContainer.ColumnDefinitions[0].Width = new GridLength(appConfig.Explorer.NavigationPanelWidth, GridUnitType.Star);
             grdContainer.ColumnDefinitions[2].Width = new GridLength(appConfig.Explorer.DirectoriesPanelWidth, GridUnitType.Star);
             grdContainer.ColumnDefinitions[4].Width = new GridLength(appConfig.Explorer.PreviewPanelWidth, GridUnitType.Star);
             BoundsProperty.Changed.AddClassHandler<Window>((s, e) => Window_SizeChanged());
+            
+            navigator.PathExpanded += NavigatorOnPathExpanded;
+        }
+
+        private void NavigatorOnPathExpanded(PathNavigatorItem obj, double offset)
+        {
+            lstNavigationDirectories.IsVisible = obj.IsExpanded;
+            lstNavigationDirectories.Margin =  new Thickness(obj.TransformedBounds.Value.Clip.Left, obj.TransformedBounds.Value.Clip.Top - 12,0,0);
+            string path = navigator.GetInternalPath(obj);
+            IEnumerable<ListBoxItem> folders = Directory.GetDirectories(path).Select(dir =>
+            {
+                ListBoxItem item = new ListBoxItem()
+                {
+                    Content = dir.Contains(Path.DirectorySeparatorChar) ? dir.Substring(dir.LastIndexOf(Path.DirectorySeparatorChar) + 1) : dir,
+                    Tag = dir
+                };
+                item.Tapped += (sender, args) => navigator.NavigateToPath(item.Tag.ToString());
+                return item;
+            });
+            lstNavigationDirectories.Items = folders;
+            lstNavigationDirectories.Width = folders.Count() > 0 ? folders.Select(items => MeasureString(items.Content.ToString()).Width).Max() + 
+                                             (folders.Count() * 19 + 8 < Bounds.Height - 100 ? 12 : 35) : 100; // change to widest folder inside
+            lstNavigationDirectories.Height = folders.Count() > 0 ? folders.Count() * 19 + 8 < Bounds.Height - 100 ? folders.Count() * 19 + 8 : Bounds.Height - 100 : 19;
         }
 
         #endregion
 
         #region ================================================================= METHODS ===================================================================================
-
         /// <summary>
         /// Shows the current window as a modal dialog
         /// </summary>
@@ -96,6 +125,22 @@ namespace Devonia.Views.Main
             return await ShowDialog<bool?>(StartupV.Instance);
         }
 
+        /// <summary>
+        /// Measures the size of <paramref name="candidate"/> with a specific font
+        /// </summary>
+        /// <param name="candidate">The text to measure</param>
+        /// <returns>The size of <paramref name="candidate"/></returns>
+        private Size MeasureString(string candidate)
+        {
+            FormattedText formattedText = new FormattedText(
+                candidate, 
+                new Typeface(FontFamily, FontStyle, FontWeight), 
+                FontSize, 
+                TextAlignment.Left, 
+                TextWrapping.NoWrap, 
+                Bounds.Size);
+            return new Size(formattedText.Bounds.Width, formattedText.Bounds.Height);
+        }
         #endregion
 
         #region ============================================================= EVENT HANDLERS ================================================================================
@@ -132,14 +177,15 @@ namespace Devonia.Views.Main
             fileExplorerControl.ItemsHorizontalSpacing = 10;
             fileExplorerControl.ItemsVerticalSpacing = 1;
 
-            await Task.Delay(2000);
+            fileExplorerControl.FolderBrowsed += FileExplorer_OnFolderBrowsed;
+            //await Task.Delay(2000);
             fileExplorerControl.isWindowLoaded = true;
             // fileExplorerControl.Items = new AvaloniaList<FileSystemEntity>(Directory
             //     .GetFiles("/mnt/STORAGE/MULTIMEDIA/MUSIC/", "*", SearchOption.AllDirectories)
             //     .Select(path => new FileSystemEntity() {Path = path}).OrderBy(e => e.Path).Take(2000));
-            (DataContext as MainWindowVM).IsProgressBarVisible = true;
-            await fileExplorerControl.NavigateToPath("/mnt/STORAGE/MULTIMEDIA/MUSIC/");
-            (DataContext as MainWindowVM).IsProgressBarVisible = false;
+            //(DataContext as MainWindowVM).IsProgressBarVisible = true;
+            //await fileExplorerControl.NavigateToPath("/mnt/STORAGE/MULTIMEDIA/MUSIC/");
+            //(DataContext as MainWindowVM).IsProgressBarVisible = false;
             //fileExplorerControl.Focus();
             //await Task.Delay(3000);
             //fileExplorerControl.Layout = Layouts.Icons;
@@ -152,6 +198,12 @@ namespace Devonia.Views.Main
             //     .GetFiles("/mnt/STORAGE/MULTIMEDIA/MUSIC/", "*", SearchOption.AllDirectories)
             //     .Select(path => new FileSystemEntity() {Path = path, IconSource = "file.png"}).OrderBy(e => e.Path)
             //     .Take(200));
+            navigator.NavigateToPath("/mnt/STORAGE/MULTIMEDIA/MUSIC/");
+        }
+
+        private void FileExplorer_OnFolderBrowsed(string path)
+        {
+            navigator.NavigateToPath(path);
         }
 
         /// <summary>
@@ -341,6 +393,21 @@ namespace Devonia.Views.Main
         private void ViewModes_OnPointerReleased(object? sender, PointerReleasedEventArgs e)
         {
             fileExplorerControl.Layout = (FileSystemExplorerLayouts) (sender as Image).Tag;
+        }
+
+        private async Task PathNavigator_OnLocationChanged(string path)
+        {
+            (DataContext as MainWindowVM).IsProgressBarVisible = true;
+            await fileExplorerControl.NavigateToPath(path); // TODO: replace with current tab's file explorer
+            (DataContext as MainWindowVM).IsProgressBarVisible = false;
+
+        }
+
+        private void Window_OnPointerPressed(object? sender, PointerPressedEventArgs e)
+        {
+            // when clicking anywhere in the window, close the directories drop down list, if it was expanded
+            lstNavigationDirectories.IsVisible = false;
+            navigator.CollapseAllExpanders();
         }
     }
 }

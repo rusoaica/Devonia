@@ -28,6 +28,7 @@ namespace Devonia.Views.Common.Controls
     public class FileSystemExplorer : UserControl, INotifyPropertyChanged
     {
         #region ============================================================== FIELD MEMBERS ================================================================================
+        public event Action<string> FolderBrowsed;
         public event PropertyChangedEventHandler PropertyChanged;
        
         private readonly Canvas container;
@@ -48,12 +49,13 @@ namespace Devonia.Views.Common.Controls
         private FileSystemEntity[] virtualizedItems;
 
         private SortingItems currentSortBy = SortingItems.Name;
-        private bool isSortedDescending = true; // gets inversed upon initialization!
+        private bool isSortedDescending; 
         private List<FileSystemEntity> temp;
         Point mouseDownPoint;
         Point mousePoint;
         Rectangle selectionRectangle = new Rectangle();
         private FileSystemExplorerItem lastSelectedItem;
+        private DateTime lastClickTime;
         #endregion
         
         #region ============================================================ BINDING PROPERTIES =============================================================================
@@ -517,9 +519,9 @@ namespace Devonia.Views.Common.Controls
         private void SortItems(SortingItems sortBy)
         {
             // when sorting by the same currently sorted item, just change sorting direction
-            if (currentSortBy == sortBy)
-                isSortedDescending = !isSortedDescending;
-            else
+            //if (currentSortBy == sortBy)
+                //isSortedDescending = !isSortedDescending;
+            //else
                 currentSortBy = sortBy;
             
             Func<IOrderedEnumerable<FileSystemEntity>,Func<FileSystemEntity,object>,IOrderedEnumerable<FileSystemEntity>> orderDelegate = isSortedDescending ? 
@@ -545,7 +547,7 @@ namespace Devonia.Views.Common.Controls
             imgModified.IsVisible = false;
             GeometryDrawing geometryDrawing = new GeometryDrawing()
             {
-                Geometry = Application.Current.Resources[isSortedDescending ? "SortDescendingBitmap" : "SortAscendingBitmap"] as Geometry,
+                Geometry = Application.Current.Resources[isSortedDescending ? "SortDescendingGeometry" : "SortAscendingGeometry"] as Geometry,
                 Brush = Brushes.Red
             };
             DrawingImage drawingImage = new DrawingImage() { Drawing = geometryDrawing };
@@ -1063,7 +1065,6 @@ namespace Devonia.Views.Common.Controls
                 try
                 {
                     FileSystemInfo info = null;
-                    
                     temp.AddRange(Directory.GetDirectories(path, "*", SearchOption.TopDirectoryOnly)
                         .Select(path => new FileSystemEntity()
                         {
@@ -1072,7 +1073,7 @@ namespace Devonia.Views.Common.Controls
                             FileSystemItemType = FileSystemItemTypes.Folder,
                             Name = path.Contains(Path.DirectorySeparatorChar) ? path.Substring(path.LastIndexOf(Path.DirectorySeparatorChar) + 1) : path,
                         }));
-                    temp.AddRange(Directory.GetFiles(path, "*", SearchOption.AllDirectories)
+                    temp.AddRange(Directory.GetFiles(path, "*", SearchOption.TopDirectoryOnly)
                         .Select(path =>
                         {
                             info = new FileInfo(path);
@@ -1149,9 +1150,7 @@ namespace Devonia.Views.Common.Controls
         /// </summary>
         private void UserControl_OnPointerPressed(object? sender, PointerPressedEventArgs e)
         {
-            Trace.WriteLine("pressed");
             isMouseDown = true;
-            
             mousePoint = mouseDownPoint = e.GetPosition(container);
         }
     
@@ -1182,13 +1181,17 @@ namespace Devonia.Views.Common.Controls
                 }
             }
         }
-        
+
         /// <summary>
         /// Handles control's PointerReleased event
         /// </summary>
         private void UserControl_OnPointerReleased(object? sender, PointerReleasedEventArgs e)
         {
             isMouseDown = false;
+            // clicks on items should be at least one second apart, otherwise it is double click
+            if (DateTime.Now.Subtract(lastClickTime) < TimeSpan.FromSeconds(1))
+                return;
+            lastClickTime = DateTime.Now;
             // if neither Control or Shift keys are pressed and a selection rectangle is present, deselect the items that were not inside it
             if (!IsCtrlPressed && !IsShiftPressed && selectionRectangle.Width > 0 && selectionRectangle.Bounds.Height > 0)
                 container.Children.OfType<FileSystemExplorerItem>()
@@ -1325,11 +1328,31 @@ namespace Devonia.Views.Common.Controls
         /// </summary>
         private void BtnSort_OnClick(object? sender, RoutedEventArgs e)
         {
+            // when sorting by the same currently sorted item, just change sorting direction
+            if (currentSortBy == (SortingItems)(sender as Button).Tag)
+                isSortedDescending = !isSortedDescending;
             SortItems((SortingItems)(sender as Button).Tag);
             UpdateSortAdorners();
             Items = new AvaloniaList<FileSystemEntity>(temp);
             Initialize();
         }
         #endregion
+
+        private async void UserControl_OnDoubleTapped(object? sender, RoutedEventArgs e)
+        {
+            // check if the mouse was clicked over an item
+            var clickedItem = container.Children.OfType<FileSystemExplorerItem>()
+                .Where(item => item.Bounds.Contains((e as TappedEventArgs).GetPosition(container)))
+                .FirstOrDefault();
+            // a folder was double clicked, browse it
+            if (clickedItem != null && clickedItem.FileSystemItemType == FileSystemItemTypes.Folder)
+                FolderBrowsed?.Invoke(clickedItem.Path);
+            else if (clickedItem != null && clickedItem.FileSystemItemType == FileSystemItemTypes.File)
+            {
+                // TODO: handle file launching in cross platform way
+            }
+            e.Handled = true;
+        }
+
     }
 }

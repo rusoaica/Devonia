@@ -104,6 +104,10 @@
     <AvaloniaResource Include="Assets\icons.png" />
     <None Remove="Assets\list.png" />
     <AvaloniaResource Include="Assets\list.png" />
+    <AvaloniaXaml Remove="Common\Styles\ContextMenu.axaml" />
+    <AvaloniaResource Include="Common\Styles\ContextMenu.xaml" />
+    <AvaloniaXaml Remove="Common\Styles\MenuItem.axaml" />
+    <AvaloniaResource Include="Common\Styles\MenuItem.xaml" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Autofac" Version="6.2.0" />

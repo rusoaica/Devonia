@@ -1,0 +1,21 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             mc:Ignorable="d" MinWidth="50"
+             x:Class="Devonia.Views.Common.Controls.PathNavigatorItem" PointerEnter="NavigatorItem_OnPointerEnter" PointerLeave="NavigatorItem_OnPointerLeave">
+    <StackPanel Orientation="Horizontal">
+        <Label x:Name="lblText" Content="Path" Foreground="{DynamicResource textForeground}" VerticalAlignment="Stretch" HorizontalAlignment="Left" Margin="0" VerticalContentAlignment="Center" PointerReleased="NavigatorItem_OnPointerReleased"/>
+        <Panel x:Name="pnlRootExpander" Cursor="Hand" Width="15" Margin="1,0,0,0" VerticalAlignment="Stretch" HorizontalAlignment="Left" PointerReleased="Expander_OnPointerReleased">
+            <Image x:Name="imgIcon" Cursor="Hand" Margin="0" VerticalAlignment="Center" HorizontalAlignment="Center" Height="10" Width="10">
+                <Image.Source>
+                    <DrawingImage>
+                        <DrawingImage.Drawing>
+                            <GeometryDrawing Brush="#777" Geometry="{StaticResource RightArrowGeometry}" />
+                        </DrawingImage.Drawing>
+                    </DrawingImage>
+                </Image.Source>    
+            </Image>
+        </Panel>
+    </StackPanel>
+</UserControl>
