@@ -8,3 +8,4 @@ Code/Devonia.Views/obj/*
 Code/Devonia.Views.Avalonia/obj/*
 Build/*
 .git/*
+*.directory

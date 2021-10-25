@@ -34,6 +34,8 @@ namespace Devonia.Views.Common.Controls
         #endregion
 
         #region ================================================================ PROPERTIES =================================================================================
+
+        public int VirtualId { get; set; }
         public long Size { get; set; }
         public string Path { get; set; }
         public string Type { get; set; }

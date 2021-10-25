@@ -177,6 +177,7 @@ namespace Devonia.Views.Main
             fileExplorerControl.ItemsHorizontalSpacing = 10;
             fileExplorerControl.ItemsVerticalSpacing = 1;
 
+            //fileExplorerControl.AutosizeWidth = false;
             fileExplorerControl.FolderBrowsed += FileExplorer_OnFolderBrowsed;
             //await Task.Delay(2000);
             fileExplorerControl.isWindowLoaded = true;

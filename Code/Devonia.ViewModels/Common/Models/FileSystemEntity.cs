@@ -11,12 +11,14 @@ namespace Devonia.ViewModels.Common.Models
     {
         #region =============================================================== PROPERTIES ==================================================================================
         public FileSystemItemTypes FileSystemItemType { get; set; }
+        public int VirtualId { get; set; }
         public string Path { get; set; }
         public long Size { get; set; }
         public DateTime Date { get; set; }
         public string Name { get; set; }
         public string Extension { get; set; }
         public string IconSource { get; set; }
+        public bool IsSelected { get; set; }
         #endregion
     }
 }
