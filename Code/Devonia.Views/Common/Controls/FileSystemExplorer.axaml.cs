@@ -1,116 +1,73 @@
-using Avalonia;
-using Avalonia.Collections;
-using Avalonia.Controls;
-using Avalonia.Controls.Primitives;
-using Avalonia.Input;
-using Avalonia.Markup.Xaml;
-using Avalonia.Media;
-using Devonia.Infrastructure.Enums;
-using Devonia.ViewModels.Common.Models;
+/// Written by: Yulia Danilova
+/// Creation Date: 04th of October, 2021
+/// Purpose: Code behind for the file system explorer user control
+#region ========================================================================= USING =====================================================================================
 using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
+using Avalonia;
 using System.IO;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
-using System.Timers;
-using Avalonia.Interactivity;
-using Devonia.Models.Common.Extensions;
 using SkiaSharp;
+using System.Linq;
+using System.Timers;
+using Avalonia.Input;
+using Avalonia.Media;
+using Avalonia.Controls;
+using System.Diagnostics;
+using Avalonia.Collections;
+using Avalonia.Markup.Xaml;
+using System.ComponentModel;
 using Path = System.IO.Path;
+using System.Threading.Tasks;
+using Avalonia.Interactivity;
+using System.Collections.Generic;
+using Devonia.Infrastructure.Enums;
+using Avalonia.Controls.Primitives;
+using System.Runtime.CompilerServices;
+using Devonia.ViewModels.Common.Models;
+using Devonia.Models.Common.Extensions;
+#endregion
 
 namespace Devonia.Views.Common.Controls
 {
-
-    public class FileSystemExplorer : UserControl, INotifyPropertyChanged
+    public class FileSystemExplorer : UserControl
     {
         #region ============================================================== FIELD MEMBERS ================================================================================
-
-        
-        // Selection bounds
-       
         public event Action<string> FolderBrowsed;
-        public new event PropertyChangedEventHandler? PropertyChanged;
-       
-        private readonly Canvas container;
-        private readonly Grid grdDetails;
+        public bool isWindowLoaded;
+        
         private readonly Image imgName;
         private readonly Image imgSize;
         private readonly Image imgType;
         private readonly Image imgModified;
+        private readonly Grid grdDetails;
+        private readonly Canvas container;
+        private readonly ScrollBar scrVertical;
+        private readonly ScrollBar scrHorizontal;
         private readonly TextBox txtRename = new TextBox();
-
-        private readonly System.Timers.Timer scrollingTimer = new System.Timers.Timer(100);
-        public bool isWindowLoaded;
         private bool isMouseDown;
+        private bool scrollForward;
+        private bool wentOffScreen;
         private bool isInRenameMode;
+        private bool isSortedDescending; 
+        private bool isSelectionNearEdge;
+        private bool isInverseSelectionRectangle;
         private int currentIndex;
         private int numberOfVisibleItems;
         private int numberOfVerticalItems;
         private int numberOfHorizontalItems;
-        private FileSystemEntity[] virtualizedItems;
+        private int selectionStartIndex = -1;
 
-        private SortingItems currentSortBy = SortingItems.Name;
-        private bool isSortedDescending; 
-        private List<FileSystemEntity> temp;
-        Point mouseDownPoint;
-        Point mousePoint;
-        Avalonia.Controls.Shapes.Rectangle selectionRectangle = new Avalonia.Controls.Shapes.Rectangle();
+        private string closestControlPath;
         private string lastSelectedItemPath;
+        private List<FileSystemEntity> temp;
+        private FileSystemEntity[] virtualizedItems;
+        
+        private Point offset;
+        private Point mouseDownPoint;
+        private Point mouseMovePoint;
+        private Point constantMouseDown;
         private DateTime lastClickTime;
-        #endregion
-        
-        #region ============================================================ BINDING PROPERTIES =============================================================================
-        private double verticalScrollBarMaximumValue;
-        public double VerticalScrollBarMaximumValue 
-        { 
-            get { return verticalScrollBarMaximumValue; } 
-            set { verticalScrollBarMaximumValue = value; Notify(); } 
-        }
-        
-        private double horizontalScrollBarMaximumValue;
-        public double HorizontalScrollBarMaximumValue 
-        { 
-            get { return horizontalScrollBarMaximumValue; } 
-            set { horizontalScrollBarMaximumValue = value; Notify(); } 
-        }
-        
-        private double verticalScrollBarValue;
-        public double VerticalScrollBarValue 
-        { 
-            get { return verticalScrollBarValue; } 
-            set { verticalScrollBarValue = value; Notify(); } 
-        }
-        
-        private double horizontalScrollBarValue;
-        public double HorizontalScrollBarValue 
-        { 
-            get { return horizontalScrollBarValue; } 
-            set { horizontalScrollBarValue = value; Notify(); } 
-        }
-        
-        private double scrollbarThumbSize = 100;
-        public double ScrollbarThumbSize 
-        { 
-            get { return scrollbarThumbSize; } 
-            set { scrollbarThumbSize = value; Notify(); } 
-        }
-        
-        private ScrollBarVisibility isVerticalScrollBarEnabled = ScrollBarVisibility.Disabled;
-        public ScrollBarVisibility IsVerticalScrollBarEnabled 
-        { 
-            get { return isVerticalScrollBarEnabled; } 
-            set { isVerticalScrollBarEnabled = value; Notify(); } 
-        }
-        
-        private ScrollBarVisibility isHorizontalScrollBarEnabled = ScrollBarVisibility.Disabled;
-        public ScrollBarVisibility IsHorizontalScrollBarEnabled 
-        { 
-            get { return isHorizontalScrollBarEnabled; } 
-            set { isHorizontalScrollBarEnabled = value; Notify(); } 
-        }
+        private SortingItems currentSortBy = SortingItems.Name;
+        private Avalonia.Controls.Shapes.Rectangle selectionRectangle = new Avalonia.Controls.Shapes.Rectangle();
         #endregion
 
         #region ================================================================ PROPERTIES =================================================================================
@@ -182,7 +139,6 @@ namespace Devonia.Views.Common.Controls
                 Initialize();
             }
         }
-
         #endregion
         
         #region ========================================================== DEPENDENCY PROPERTIES ============================================================================
@@ -220,8 +176,7 @@ namespace Devonia.Views.Common.Controls
         /// </summary>
         public static readonly DirectProperty<FileSystemExplorer, double> ItemsWidthProperty =
             AvaloniaProperty.RegisterDirect<FileSystemExplorer, double>(nameof(ItemsWidth), e => e.ItemsWidth, (e, v) => e.ItemsWidth = v);
-        
-        
+
         private IBrush itemsSelectionForegroundColor;
         public IBrush ItemsSelectionForegroundColor
         {
@@ -238,7 +193,6 @@ namespace Devonia.Views.Common.Controls
         /// </summary>
         public static readonly DirectProperty<FileSystemExplorer, IBrush> ItemsSelectionForegroundColorProperty =
             AvaloniaProperty.RegisterDirect<FileSystemExplorer, IBrush>(nameof(ItemsSelectionForegroundColor), e => e.ItemsSelectionForegroundColor, (e, v) => e.ItemsSelectionForegroundColor = v);
-
         
         private IBrush itemsForegroundColor;
         public IBrush ItemsForegroundColor
@@ -273,8 +227,7 @@ namespace Devonia.Views.Common.Controls
         /// </summary>
         public static readonly DirectProperty<FileSystemExplorer, IBrush> ItemsBorderColorFirstProperty =
             AvaloniaProperty.RegisterDirect<FileSystemExplorer, IBrush>(nameof(ItemsBorderColorFirst), e => e.ItemsBorderColorFirst, (e, v) => e.ItemsBorderColorFirst = v);
-        
-        
+
         private IBrush itemsBorderColorSecond;
         public IBrush ItemsBorderColorSecond
         {
@@ -416,16 +369,16 @@ namespace Devonia.Views.Common.Controls
         {
             AvaloniaXamlLoader.Load(this);
             DataContext = this;
-            container = this.FindControl<Canvas>("container");
-            grdDetails = this.FindControl<Grid>("grdDetails");
             imgName = this.FindControl<Image>("imgName");
             imgSize = this.FindControl<Image>("imgSize");
             imgType = this.FindControl<Image>("imgType");
             imgModified = this.FindControl<Image>("imgModified");
-            //BoundsProperty.Changed.AddClassHandler<Window>((s, e) => UserControl_SizeChanged());
+            container = this.FindControl<Canvas>("container");
+            grdDetails = this.FindControl<Grid>("grdDetails");
+            scrVertical = this.FindControl<ScrollBar>("scrVertical");
+            scrHorizontal = this.FindControl<ScrollBar>("scrHorizontal");
 
             txtRename.ZIndex = 1;
-            container.PropertyChanged += FileSystemExploer_PropertyChanged;
             txtRename.IsVisible = false;
             txtRename.Padding = new Thickness(0);
             txtRename.KeyDown += RenameTextBox_KeyDown;
@@ -436,62 +389,17 @@ namespace Devonia.Views.Common.Controls
             selectionRectangle.StrokeThickness = 1;
             selectionRectangle.Fill = (SolidColorBrush)new BrushConverter().ConvertFromString("#770078D7"); // TODO: take from app config
             selectionRectangle.Stroke = (SolidColorBrush)new BrushConverter().ConvertFromString("#FF0078D7");
-
-            selectionRectangle.PropertyChanged += (s, e) =>
-            {
-                if (e.Property == BoundsProperty)
-                {
-                    Rect oldBounds = (Rect) e.OldValue;
-                    Rect newBounds = (Rect) e.NewValue;
-
-                    if (!wentOffScreen)
-                    {
-                        if (newBounds.Position.X < oldBounds.Position.X)
-                        {
-                            //selectionDirection = SelectionDirection.Left;
-                        }
-                        else if (newBounds.Position.X > oldBounds.Position.X)
-                        {
-                            //selectionDirection = SelectionDirection.Right;
-                        }
-                    }
-
-                    if (!wentOffScreen)
-                    {
-                        // // determine direction only when mouse is moving, after starting selection, when selection rect is less than 10 pixels
-                        // if (layout == FileSystemExplorerLayouts.List && selectionRectangle.Bounds.Width < 10)
-                        //     isInverseSelectionRectangle = mouseDownPoint.X > mousePoint.X;
-                        // else if ((layout == FileSystemExplorerLayouts.Details || layout == FileSystemExplorerLayouts.Details) && selectionRectangle.Bounds.Height < 10)
-                        //     isInverseSelectionRectangle = mouseDownPoint.Y > mousePoint.Y;
-                        // Trace.WriteLine("is inverse rectangle " + isInverseSelectionRectangle);
-                    }
-                    
-                    //Trace.WriteLine("direction: " + selectionDirection);
-                }
-            };
-            
             container.Children.Add(txtRename);
             container.Children.Add(selectionRectangle);
-            
-            scrollingTimer.Elapsed += ScrollingTimerOnElapsed;
+            container.PropertyChanged += FileSystemExploer_PropertyChanged;
         }
         #endregion
 
         #region ================================================================= METHODS ===================================================================================
-        /// <summary>
-        /// Notifies the UI about a bound property's value being changed
-        /// </summary>
-        /// <param name="propertyName">The property that had the value changed</param>
-        public void Notify([CallerMemberName] string propertyName = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-
         private void ApplyGlobalTemplate()
         {
             // settings from appsettings.json, for any location
-            
-            
+
             // item selection bg/border color
             // item bg/border color (file and folder)
             // show items border
@@ -515,6 +423,11 @@ namespace Devonia.Views.Common.Controls
             }
         }
 
+        /// <summary>
+        /// Renames the selected item(s)
+        /// </summary>
+        /// <param name="clickedItem">Option item that initiated the rename</param>
+        /// <exception cref="InvalidOperationException">Exception thrown when renaming is performed and no items are selected</exception>
         public void RenameItem(FileSystemExplorerItem clickedItem = null)
         {
             // rename mode
@@ -555,24 +468,192 @@ namespace Devonia.Views.Common.Controls
             }
         }
         
+        #region selection
+        /// <summary>
+        /// Marks all items as deselected 
+        /// </summary>
+        /// <param name="updateVisualSelection">Indicates whether to update the visual selection status of the virtualized items displayed in the UI or not</param>
+        public void DeselectAll(bool updateVisualSelection = true)
+        {
+            Items.ForEach(item => item.IsSelected = false);
+            if (updateVisualSelection)
+                UpdateVisualItemSelection();
+        }
+        
+        /// <summary>
+        /// Marks all items as selected
+        /// </summary>
+        public void SelectAll()
+        {
+            Items.ForEach(item => item.IsSelected = true);
+            UpdateVisualItemSelection();
+        }
+
+        /// <summary>
+        /// Inverts the selection status of all items
+        /// </summary>
+        public void InvertSelection()
+        {
+            Items.ForEach(item => item.IsSelected = !item.IsSelected);
+            UpdateVisualItemSelection();
+        }
+
+        /// <summary>
+        /// Updates the rectangle used for mouse selections
+        /// </summary>
+        private void UpdateSelectionRectangle()
+        {
+            // selection rectangle can go "before" or "after" the rectangle's origin point, take absolute values for width and height, as well as "ending" coordinate
+            selectionRectangle.Width = Math.Abs(mouseDownPoint.X - mouseMovePoint.X);
+            selectionRectangle.Height = Math.Abs(mouseDownPoint.Y - mouseMovePoint.Y);
+            Canvas.SetLeft(selectionRectangle, Math.Min(mouseDownPoint.X, mouseMovePoint.X));
+            Canvas.SetTop(selectionRectangle, Math.Min(mouseDownPoint.Y, mouseMovePoint.Y));
+            // get a rectangle from above coordinates, in canvas units (ensures no measurements are performed after, that could alter the values)!
+            Rect selectionArea = new Rect(Canvas.GetLeft(selectionRectangle), Canvas.GetTop(selectionRectangle), selectionRectangle.Width, selectionRectangle.Height);
+            // mark items inside selection as "hovered", the others as "unhovered"
+            if (selectionRectangle.Width > 0 && selectionRectangle.Height > 0)
+            {
+                container.Children.OfType<FileSystemExplorerItem>()
+                    .Where(item => !selectionArea.Intersects(new Rect(Canvas.GetLeft(item), Canvas.GetTop(item), item.Width, item.Height)))
+                    .ForEach(item => item.IsSelectionHovered = false).ToArray();
+                container.Children.OfType<FileSystemExplorerItem>()
+                    .Where(item => selectionArea.Intersects(new Rect(Canvas.GetLeft(item), Canvas.GetTop(item), item.Width, item.Height)))
+                    .ForEach(item => item.IsSelectionHovered = true).ToArray();
+            }
+            // only determine if the mouse selection rectangle is reversed when the item near which the selection originated is still within the visible items
+            // (once scrolled off-screen, or virtualized, the selection direction cannot change)
+            if (!wentOffScreen)
+            {
+                int startingElementColumnId = 0;
+                int endingElementColumnId = 0;
+                double selectionStartOffset = 0;
+                double selectionEndOffset = 0;
+                int iteratedColumnIndex = selectionStartIndex;
+                double remainingPixels = layout == FileSystemExplorerLayouts.List ? mouseDownPoint.X : mouseDownPoint.Y;
+                if (layout == FileSystemExplorerLayouts.List)
+                {
+                    // store pixels from left edge of container to the selection's rectangle origin position 
+                    double consumedWidth = 0;
+                    // get the dynamic width of columns that fit between left edge of container and the selection's rectangle origin position
+                    while (remainingPixels > 0)
+                    {
+                        double currentColWidth = GetWidestElementInColumn(iteratedColumnIndex * numberOfVerticalItems) + itemsHorizontalSpacing;
+                        // check if the current column's width still fits in the remaining pixels
+                        if (remainingPixels > currentColWidth)
+                        {
+                            // current column fit, add its width to used space and subtract it from remaining pixels
+                            consumedWidth += currentColWidth;
+                            remainingPixels -= currentColWidth;
+                            // prepare to check if next column's width fits
+                            iteratedColumnIndex++;
+                        }
+                        else break; // no more columns fit in the remaining pixels
+                    }
+                    // calculate how many columns fit from container's left edge to the selection's rectangle origin
+                    int fittingItemsHorizontally = autosizeWidth ? iteratedColumnIndex - selectionStartIndex : (int)(constantMouseDown.X / (itemsWidth + itemsHorizontalSpacing));
+                    // store the id of the first element in the column just before the rectangle's selection origin
+                    startingElementColumnId = selectionStartIndex + fittingItemsHorizontally - 1; 
+                    // store the extra pixels between the origin of the above column and the rectangle's selection origin
+                    selectionStartOffset = autosizeWidth ? mouseDownPoint.X - consumedWidth : (constantMouseDown.X / (itemsWidth + itemsHorizontalSpacing)) - fittingItemsHorizontally;
+                    
+                    // store pixels from left edge of container to the current mouse position
+                    remainingPixels = mouseMovePoint.X;
+                    iteratedColumnIndex = currentIndex;
+                    consumedWidth = 0;
+                    // get the dynamic width of columns that fit between left edge of container and the mouse cursor
+                    while (remainingPixels > 0)
+                    {
+                        double currentColWidth = GetWidestElementInColumn(iteratedColumnIndex * numberOfVerticalItems) + itemsHorizontalSpacing;
+                        if (remainingPixels > currentColWidth)
+                        {
+                            consumedWidth += currentColWidth;
+                            remainingPixels -= currentColWidth;
+                            iteratedColumnIndex++;
+                        }
+                        else break;
+                    }
+                    // calculate how many columns fit from container's left edge to the current mouse position
+                    fittingItemsHorizontally = autosizeWidth ? iteratedColumnIndex - currentIndex : (int)(mouseMovePoint.X / (itemsWidth + itemsHorizontalSpacing));
+                    // store the id of the first element in the column just before the current mouse position
+                    endingElementColumnId = currentIndex + fittingItemsHorizontally - 1; 
+                    // store the extra pixels between the origin of the above column and the current mouse position
+                    selectionEndOffset = autosizeWidth ? mouseMovePoint.X - consumedWidth : (mouseMovePoint.X / (itemsWidth + itemsHorizontalSpacing)) - fittingItemsHorizontally;
+                }
+                else
+                {
+                    double consumedHeight = 0;
+                    while (remainingPixels > 0)
+                    {
+                        if (remainingPixels > (layout == FileSystemExplorerLayouts.Details ? itemsHeight : itemsWidth + 20))
+                        {
+                            consumedHeight += (layout == FileSystemExplorerLayouts.Details ? itemsHeight : itemsWidth + 20);
+                            remainingPixels -= (layout == FileSystemExplorerLayouts.Details ? itemsHeight : itemsWidth + 20);
+                            iteratedColumnIndex++;
+                        }
+                        else break;
+                    }
+                    int fittingItemsVertically = (int)(constantMouseDown.Y / ((layout == FileSystemExplorerLayouts.Details ? itemsHeight : itemsWidth + 20) + itemsVerticalSpacing));
+                    startingElementColumnId = selectionStartIndex + fittingItemsVertically - 1; 
+                    selectionStartOffset = (constantMouseDown.Y / ((layout == FileSystemExplorerLayouts.Details ? itemsHeight : itemsWidth + 20) + itemsVerticalSpacing)) - fittingItemsVertically;
+                    remainingPixels = mouseMovePoint.Y;
+                    iteratedColumnIndex = currentIndex;
+                    consumedHeight = 0;
+                    while (remainingPixels > 0)
+                    {
+                        if (remainingPixels > (layout == FileSystemExplorerLayouts.Details ? itemsHeight : itemsWidth + 20))
+                        {
+                            consumedHeight += (layout == FileSystemExplorerLayouts.Details ? itemsHeight : itemsWidth + 20);
+                            remainingPixels -= (layout == FileSystemExplorerLayouts.Details ? itemsHeight : itemsWidth + 20);
+                            iteratedColumnIndex++;
+                        }
+                        else break;
+                    }
+                    fittingItemsVertically = (int)(mouseMovePoint.Y / ((layout == FileSystemExplorerLayouts.Details ? itemsHeight : itemsWidth + 20) + itemsVerticalSpacing));
+                    endingElementColumnId = currentIndex + fittingItemsVertically - 1; 
+                    selectionEndOffset = (mouseMovePoint.Y / ((layout == FileSystemExplorerLayouts.Details ? itemsHeight : itemsWidth + 20) + itemsVerticalSpacing)) - fittingItemsVertically;
+                }
+                // determine if the selection rectangle goes backwards or not
+                if (startingElementColumnId > endingElementColumnId)
+                    isInverseSelectionRectangle = true;
+                else if (startingElementColumnId < endingElementColumnId)
+                    isInverseSelectionRectangle = false;
+                else // selection rectangle starts and ends over same item, check by offset
+                    isInverseSelectionRectangle = selectionStartOffset > selectionEndOffset;
+            }
+        }
+        
+        /// <summary>
+        /// Updates the selection state of the visible items based on their non-virtualized origin
+        /// </summary>
+        private void UpdateVisualItemSelection()
+        {
+            FileSystemExplorerItem[] visibleItems = container.Children.OfType<FileSystemExplorerItem>().ToArray();
+            visibleItems.ForEach(item => item.IsSelected = Items[item.VirtualId].IsSelected);
+        }
+        #endregion
+        
+        /// <summary>
+        /// Sorts the collection of items by <paramref name="sortBy"/>, in Details layout
+        /// </summary>
+        /// <param name="sortBy">The criteria to use when sorting the collection of items</param>
         private void SortItems(SortingItems sortBy)
         {
-            // when sorting by the same currently sorted item, just change sorting direction
-            //if (currentSortBy == sortBy)
-                //isSortedDescending = !isSortedDescending;
-            //else
-                currentSortBy = sortBy;
-            
-            Func<IOrderedEnumerable<FileSystemEntity>,Func<FileSystemEntity,object>,IOrderedEnumerable<FileSystemEntity>> orderDelegate = isSortedDescending ? 
+            // store the currently applied sort criteria
+            currentSortBy = sortBy;
+            // create a sorting delegate that can be applied on the colletion
+            Func<IOrderedEnumerable<FileSystemEntity>, Func<FileSystemEntity, object>, IOrderedEnumerable<FileSystemEntity>> orderDelegate = isSortedDescending ? 
                     Enumerable.ThenByDescending : Enumerable.ThenBy;
-
-            IOrderedEnumerable<FileSystemEntity> sortedByExten = temp.OrderByDescending(e => e.Extension == null);
+            // group the collection of items by folders and files 
+            IOrderedEnumerable<FileSystemEntity> sortedByExtension = temp.OrderByDescending(e => e.Extension == null);
+            // assign an incrementing id to each sorted element, later used as virtual id in virtualized collection
+            // (virtual id is assigned here because sorting is applied every time the items collection is modified in any way)
             int id = 0;
-            temp = orderDelegate(sortedByExten, x =>
+            // run the collection items through the sorting delegate, with the provided sorting criteria 
+            temp = orderDelegate(sortedByExtension, x =>
                 currentSortBy == SortingItems.Name ? x.Name :
                 currentSortBy == SortingItems.Size ? x.Size :
                 currentSortBy == SortingItems.Type ? x.Extension :
-                currentSortBy == SortingItems.Date ? x.Date : null).ForEach(e => e.VirtualId = id++).ToList(); // virtualId = id of each item inside whole collection
+                currentSortBy == SortingItems.Date ? x.Date : null).ForEach(e => e.VirtualId = id++).ToList(); 
         }
         
         /// <summary>
@@ -621,37 +702,35 @@ namespace Devonia.Views.Common.Controls
             switch (Layout)
             {
                 case FileSystemExplorerLayouts.List:
-                    HorizontalScrollBarValue = currentIndex;
-                    IsVerticalScrollBarEnabled = ScrollBarVisibility.Disabled;
-                    IsHorizontalScrollBarEnabled = ScrollBarVisibility.Visible;
+                    scrHorizontal.Value = currentIndex;
+                    scrVertical.Visibility = ScrollBarVisibility.Disabled;
+                    scrHorizontal.Visibility = ScrollBarVisibility.Visible;
                     // scroll bar only makes sense when not all items fit on visible area
                     if (numberOfVisibleItems < Items.Count)
-                        HorizontalScrollBarMaximumValue = Items.Count / numberOfVerticalItems;
+                        scrHorizontal.Maximum = Items.Count / numberOfVerticalItems;
                     else
-                        HorizontalScrollBarMaximumValue = 0;
-                    ScrollbarThumbSize = (numberOfHorizontalItems / (HorizontalScrollBarMaximumValue + numberOfHorizontalItems)) * container.Bounds.Width;
+                        scrHorizontal.Maximum = 0;
+                    scrHorizontal.ViewportSize = (numberOfHorizontalItems / (scrHorizontal.Maximum + numberOfHorizontalItems)) * container.Bounds.Width;
                     break;
                 case FileSystemExplorerLayouts.Icons:
-                    VerticalScrollBarValue = currentIndex;
-                    IsVerticalScrollBarEnabled = ScrollBarVisibility.Visible;
-                    IsHorizontalScrollBarEnabled = ScrollBarVisibility.Disabled;
-                    // scroll bar only makes sense when not all items fit on visible area
+                    scrVertical.Value = currentIndex;
+                    scrVertical.Visibility = ScrollBarVisibility.Visible;
+                    scrHorizontal.Visibility = ScrollBarVisibility.Disabled;
                     if (numberOfVisibleItems < Items.Count)
-                        VerticalScrollBarMaximumValue = Items.Count / numberOfHorizontalItems;
+                        scrVertical.Maximum = Items.Count / numberOfHorizontalItems;
                     else
-                        VerticalScrollBarMaximumValue = 0;
-                    ScrollbarThumbSize = (numberOfVerticalItems / (VerticalScrollBarMaximumValue + numberOfVerticalItems)) * container.Bounds.Height;
+                        scrVertical.Maximum = 0;
+                    scrVertical.ViewportSize = (numberOfVerticalItems / (scrVertical.Maximum + numberOfVerticalItems)) * container.Bounds.Height;
                     break;
                 case FileSystemExplorerLayouts.Details:
-                    VerticalScrollBarValue = currentIndex;
-                    IsVerticalScrollBarEnabled = ScrollBarVisibility.Visible;
-                    IsHorizontalScrollBarEnabled = ScrollBarVisibility.Disabled;
-                    // in details view, each scroll step means 3 items
+                    scrVertical.Value = currentIndex;
+                    scrVertical.Visibility = ScrollBarVisibility.Visible;
+                    scrHorizontal.Visibility = ScrollBarVisibility.Disabled;
                     if (numberOfVisibleItems < Items.Count) // also add one extra unit if there is a remainder of less than three items at the end
-                        VerticalScrollBarMaximumValue = (Items.Count - numberOfVerticalItems) / 3 + ((Items.Count - numberOfVerticalItems) % 3 > 0 ? 1 : 0);
+                        scrVertical.Maximum = (Items.Count - numberOfVerticalItems) / 3 + ((Items.Count - numberOfVerticalItems) % 3 > 0 ? 1 : 0);
                     else
-                        VerticalScrollBarMaximumValue = 0; // scroll bar only makes sense when not all items fit on visible area
-                    ScrollbarThumbSize = (numberOfVerticalItems / (VerticalScrollBarMaximumValue + numberOfVerticalItems)) * container.Bounds.Height;
+                        scrVertical.Maximum = 0; 
+                    scrVertical.ViewportSize = (numberOfVerticalItems / (scrVertical.Maximum + numberOfVerticalItems)) * container.Bounds.Height;
                     break;
             }
         }
@@ -692,172 +771,154 @@ namespace Devonia.Views.Common.Controls
         /// <summary>
         /// Updates displayed info on already created file system items
         /// </summary>
-        private async Task RecycleUIElements()
+        private void RecycleUIElements()
         {
             double xCoordinate = 0, yCoordinate = 0;
             int currentColumn = 0;
             // determine the width of the first column
             double widestItem = autosizeWidth && layout == FileSystemExplorerLayouts.List ? GetWidestElementInColumn(currentIndex * numberOfVerticalItems) : itemsWidth;
             bool controlExists = false;
+            // get a list of visible items (the virtualized part of the whole list)
             FileSystemExplorerItem[] visibleItems = container.Children.OfType<FileSystemExplorerItem>().ToArray();
-            // iterate all visible items
-            try
+            for (int i = 0; i < numberOfVisibleItems; i++)
             {
-                for (int i = 0; i < numberOfVisibleItems; i++)
+                
+                FileSystemExplorerItem item = null;
+                switch (Layout)
                 {
-                    
-                    FileSystemExplorerItem item = null;
-                    switch (Layout)
-                    {
-                        case FileSystemExplorerLayouts.List:
-                            if (i >= visibleItems.Length)
-                            {
-                                // when more columns fit when recycling items than they were initially created when drawn, add a new column
-                                item = new FileSystemExplorerItem();
-                                item.CurrentTypeFace = ItemsTypeFace;
-                                item.SelectionBackgroundColor = itemsSelectionBackgroundColor;
-                                item.SelectionBorderColor = itemsSelectionBorderColor;
-                                item.ShowBorder = showGrid;
-                                item.BackgroundColor = alternatesBackgroundColor ? i % 2 != 0 ? itemsBackgroundColorFirst : itemsBackgroundColorSecond : itemsBackgroundColorFirst;
-                                item.ForegroundColor = itemsForegroundColor;
-                                item.ForegroundSelectionColor = itemsSelectionForegroundColor;
-                                item.ItemsBorderColorFirst = itemsBorderColorFirst;
-                                item.ItemsBorderColorSecond = itemsBorderColorSecond;
-                                item.Height = itemsHeight;
-                                //item.FontSize = itemsFontSize;
-                                Canvas.SetTop(item, yCoordinate);
-                                item.Layout = layout;
-                                container.Children.Add(item);
-                            }
-                            else
-                            {
-                                try
-                                {
-                                    // re-use a previously drawn item
-                                    item = visibleItems[i];
-                                    item.IsVisible = true;
-                                }
-                                catch (Exception e)
-                                {
-                                    Console.WriteLine(e);
-                                    throw;
-                                }
-                            }
-
-                            Canvas.SetLeft(item, xCoordinate);
-                            item.Width = autosizeWidth ? widestItem : itemsWidth;
-                            // if the next item's Y coordinate will go beyond canvas's height, reset it and move to a new column 
-                            if (yCoordinate > (numberOfVerticalItems - 2) * (itemsHeight + itemsVerticalSpacing))
-                            {
-                                yCoordinate = 0;
-                                xCoordinate += (autosizeWidth ? widestItem : itemsWidth) + itemsHorizontalSpacing;
-                                // if automatic width is enabled, calculate which will be the widest element in the new column
-                                if (autosizeWidth)
-                                    widestItem = GetWidestElementInColumn((currentIndex + ++currentColumn) * numberOfVerticalItems);
-                            }
-                            else
-                                yCoordinate += itemsHeight + itemsVerticalSpacing;
-
-                            break;
-                        case FileSystemExplorerLayouts.Icons:
-                            if (i >= visibleItems.Length)
-                            {
-                                // when more columns fit when recycling items than they were initially created when drawn, add a new column
-                                item = new FileSystemExplorerItem();
-                                item.CurrentTypeFace = ItemsTypeFace;
-                                item.SelectionBackgroundColor = itemsSelectionBackgroundColor;
-                                item.SelectionBorderColor = itemsSelectionBorderColor;
-                                item.ShowBorder = showGrid;
-                                item.BackgroundColor = alternatesBackgroundColor ? i % 2 != 0 ? itemsBackgroundColorFirst : itemsBackgroundColorSecond : itemsBackgroundColorFirst;
-                                item.ForegroundColor = itemsForegroundColor;
-                                item.ForegroundSelectionColor = itemsSelectionForegroundColor;
-                                item.ItemsBorderColorFirst = itemsBorderColorFirst;
-                                item.ItemsBorderColorSecond = itemsBorderColorSecond;
-                                item.Height = itemsWidth + 20;
-                                item.Width = itemsWidth;
-                                // item.FontSize = itemsFontSize;
-                                Canvas.SetTop(item, yCoordinate);
-                                Canvas.SetLeft(item, xCoordinate);
-                                item.Layout = layout;
-                                container.Children.Add(item);
-                            }
-                            else
+                    case FileSystemExplorerLayouts.List:
+                        if (i >= visibleItems.Length)
+                        {
+                            // when more columns fit when recycling items than they were initially created when drawn, add a new column
+                            item = new FileSystemExplorerItem();
+                            item.CurrentTypeFace = ItemsTypeFace;
+                            item.SelectionBackgroundColor = itemsSelectionBackgroundColor;
+                            item.SelectionBorderColor = itemsSelectionBorderColor;
+                            item.ShowBorder = showGrid;
+                            item.BackgroundColor = alternatesBackgroundColor ? i % 2 != 0 ? itemsBackgroundColorFirst : itemsBackgroundColorSecond : itemsBackgroundColorFirst;
+                            item.ForegroundColor = itemsForegroundColor;
+                            item.ForegroundSelectionColor = itemsSelectionForegroundColor;
+                            item.ItemsBorderColorFirst = itemsBorderColorFirst;
+                            item.ItemsBorderColorSecond = itemsBorderColorSecond;
+                            item.Height = itemsHeight;
+                            //item.FontSize = itemsFontSize;
+                            Canvas.SetTop(item, yCoordinate);
+                            item.Layout = layout;
+                            container.Children.Add(item);
+                        }
+                        else
+                        {
+                            try
                             {
                                 // re-use a previously drawn item
                                 item = visibleItems[i];
                                 item.IsVisible = true;
                             }
-
-                            Canvas.SetTop(item, yCoordinate);
-                            // if the next item's X coordinate will go beyond canvas's width, reset it and move to a new row 
-                            if (xCoordinate > (numberOfHorizontalItems - 2) * (itemsWidth + itemsHorizontalSpacing))
+                            catch (Exception e)
                             {
-                                xCoordinate = 0;
-                                yCoordinate += itemsWidth + 20 + itemsVerticalSpacing;
+                                Console.WriteLine(e);
+                                throw;
                             }
-                            else
-                                xCoordinate += itemsWidth + itemsHorizontalSpacing;
-                            break;
-                        case FileSystemExplorerLayouts.Details:
+                        }
+                        Canvas.SetLeft(item, xCoordinate);
+                        item.Width = autosizeWidth ? widestItem : itemsWidth;
+                        // if the next item's Y coordinate will go beyond canvas's height, reset it and move to a new column 
+                        if (yCoordinate > (numberOfVerticalItems - 2) * (itemsHeight + itemsVerticalSpacing))
+                        {
+                            yCoordinate = 0;
+                            xCoordinate += (autosizeWidth ? widestItem : itemsWidth) + itemsHorizontalSpacing;
+                            // if automatic width is enabled, calculate which will be the widest element in the new column
+                            if (autosizeWidth)
+                                widestItem = GetWidestElementInColumn((currentIndex + ++currentColumn) * numberOfVerticalItems);
+                        }
+                        else
+                            yCoordinate += itemsHeight + itemsVerticalSpacing;
+
+                        break;
+                    case FileSystemExplorerLayouts.Icons:
+                        if (i >= visibleItems.Length)
+                        {
+                            // when more columns fit when recycling items than they were initially created when drawn, add a new column
+                            item = new FileSystemExplorerItem();
+                            item.CurrentTypeFace = ItemsTypeFace;
+                            item.SelectionBackgroundColor = itemsSelectionBackgroundColor;
+                            item.SelectionBorderColor = itemsSelectionBorderColor;
+                            item.ShowBorder = showGrid;
+                            item.BackgroundColor = alternatesBackgroundColor ? i % 2 != 0 ? itemsBackgroundColorFirst : itemsBackgroundColorSecond : itemsBackgroundColorFirst;
+                            item.ForegroundColor = itemsForegroundColor;
+                            item.ForegroundSelectionColor = itemsSelectionForegroundColor;
+                            item.ItemsBorderColorFirst = itemsBorderColorFirst;
+                            item.ItemsBorderColorSecond = itemsBorderColorSecond;
+                            item.Height = itemsWidth + 20;
+                            item.Width = itemsWidth;
+                            //item.FontSize = itemsFontSize;
+                            Canvas.SetTop(item, yCoordinate);
+                            Canvas.SetLeft(item, xCoordinate);
+                            item.Layout = layout;
+                            container.Children.Add(item);
+                        }
+                        else
+                        {
+                            // re-use a previously drawn item
                             item = visibleItems[i];
                             item.IsVisible = true;
-                            Canvas.SetTop(item, yCoordinate);
-                            item.Width = container.Bounds.Width - 15;
-                            yCoordinate += itemsHeight + itemsVerticalSpacing;
-                            break;
-                    }
-                    if (i < virtualizedItems.Length)
-                    {
-                        item.Type = virtualizedItems[i].FileSystemItemType == FileSystemItemTypes.File ? "File" : "Directory";
-                        item.DateModified = virtualizedItems[i].Date;
-                        item.Size = virtualizedItems[i].Size;
-                        item.Text = virtualizedItems[i].Name;
-                        item.IsSelected = virtualizedItems[i].IsSelected;
-                        item.VirtualId = virtualizedItems[i].VirtualId;
-                        item.Path = virtualizedItems[i].Path;
-                        item.FileSystemItemType = virtualizedItems[i].FileSystemItemType;
-                        item.IconSource = virtualizedItems[i].IconSource;
-                        item.UpdateItem();
-                    }
-                    else
-                        item.IsVisible = false; // when last column doesnt fill visual area, hide remainder of created items 
+                        }
 
-                    if (isMouseDown && item.Path == closestControlPath && item.IsVisible)
-                    {
-                        controlExists = true;
-                        mouseDownPoint =  new Point(Canvas.GetLeft(item), Canvas.GetTop(item)) + offset;
-                    }
+                        Canvas.SetTop(item, yCoordinate);
+                        // if the next item's X coordinate will go beyond canvas's width, reset it and move to a new row 
+                        if (xCoordinate > (numberOfHorizontalItems - 2) * (itemsWidth + itemsHorizontalSpacing))
+                        {
+                            xCoordinate = 0;
+                            yCoordinate += itemsWidth + 20 + itemsVerticalSpacing;
+                        }
+                        else
+                            xCoordinate += itemsWidth + itemsHorizontalSpacing;
+                        break;
+                    case FileSystemExplorerLayouts.Details:
+                        item = visibleItems[i];
+                        item.IsVisible = true;
+                        Canvas.SetTop(item, yCoordinate);
+                        item.Width = container.Bounds.Width - 15;
+                        yCoordinate += itemsHeight + itemsVerticalSpacing;
+                        break;
+                }
+                if (i < virtualizedItems.Length)
+                {
+                    item.Type = virtualizedItems[i].FileSystemItemType == FileSystemItemTypes.File ? "File" : "Directory";
+                    item.DateModified = virtualizedItems[i].Date;
+                    item.Size = virtualizedItems[i].Size;
+                    item.Text = virtualizedItems[i].Name;
+                    item.IsSelected = virtualizedItems[i].IsSelected;
+                    item.VirtualId = virtualizedItems[i].VirtualId;
+                    item.Path = virtualizedItems[i].Path;
+                    item.FileSystemItemType = virtualizedItems[i].FileSystemItemType;
+                    item.IconSource = virtualizedItems[i].IconSource;
+                    item.UpdateItem();
+                }
+                else
+                    item.IsVisible = false; // when last column doesnt fill visual area, hide remainder of created items 
+                // if the mouse button is pressed (a mouse selection is in progress), check whether the item near where the selection started is in the viewable area or not 
+                if (isMouseDown && closestControlPath != null && item.Path == closestControlPath && item.IsVisible)
+                {
+                    controlExists = true;
+                    // the control near which the mouse selection was started is visible, set the selection rectangle's origin point near it, with the original offset 
+                    mouseDownPoint =  new Point(Canvas.GetLeft(item), Canvas.GetTop(item)) + offset;
                 }
             }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
-
-            wentOffScreen = !controlExists;
-
-           
-            
+            // store whether the control near which the mouse selection started is within the visible items 
+            wentOffScreen = closestControlPath == null ? false : !controlExists;
             if (!controlExists && isMouseDown && selectionRectangle.Bounds.Width > 0)
             {
                 // when selection is near screen edge and scroll goes backward, the items of last column will go offscreen, and selection will get inverted, correct that!
                 // (but not when the selection beginning point is already off screen)
                 if (isSelectionNearEdge && !scrollForward && (layout == FileSystemExplorerLayouts.List ? mouseDownPoint.X : mouseDownPoint.Y) > 0)
                     isInverseSelectionRectangle = true;
-                    
-                    
+                // when the control near which the mouse selection originated is not within the visual items, the selection rectangle's origin goes "off screen"  
                 if (layout == FileSystemExplorerLayouts.List)
                     mouseDownPoint = new Point(isInverseSelectionRectangle ? container.Bounds.Position.X + container.Bounds.Width : 0, mouseDownPoint.Y);
                 else if (layout == FileSystemExplorerLayouts.Details || layout == FileSystemExplorerLayouts.Icons)
                     mouseDownPoint = new Point(mouseDownPoint.X, isInverseSelectionRectangle ? container.Bounds.Position.Y + container.Bounds.Height : 0);
-                
-                // different treatment when last column and inverse scroll 
-
-                
-                //mouseDownPoint = mouseDownPoint + offset;
             }
-            //Trace.WriteLine("recycle mouse " + mousePoint);
             if (isMouseDown)
                 UpdateSelectionRectangle();
             // if there are existing created items that are not displayed (ie: when displaying the last column, that doesn't fill all the available space), hide them  
@@ -968,7 +1029,7 @@ namespace Devonia.Views.Common.Controls
                     // move items to the left while the rightmost item doesn't go beyond first column 
                     if (currentIndex * numberOfVerticalItems < Items.Count - numberOfVerticalItems)
                     { 
-                        HorizontalScrollBarValue++;
+                        scrHorizontal.Value++;
                         currentIndex++;
                     }
                     else return; 
@@ -977,7 +1038,8 @@ namespace Devonia.Views.Common.Controls
                 {
                     if (currentIndex < Items.Count - numberOfVerticalItems + 1)
                     {
-                        VerticalScrollBarValue++;
+                        scrVertical.Value++;
+                        // in details view, each scroll moves 3 items)
                         if ((Items.Count - numberOfVerticalItems) - currentIndex > (layout == FileSystemExplorerLayouts.Details ? 3 : 1))
                             currentIndex += (layout == FileSystemExplorerLayouts.Details ? 3 : 1);
                         else
@@ -993,7 +1055,7 @@ namespace Devonia.Views.Common.Controls
                     // move items to the right while the current page is not the first page
                     if (currentIndex > 0)
                     {  
-                        HorizontalScrollBarValue--;
+                        scrHorizontal.Value--;
                         currentIndex--;
                     }
                     else return;
@@ -1002,12 +1064,12 @@ namespace Devonia.Views.Common.Controls
                 {
                     if (currentIndex > (layout == FileSystemExplorerLayouts.Details ? 3 : 1))
                     {
-                        VerticalScrollBarValue--;
+                        scrVertical.Value--;
                         currentIndex -= (layout == FileSystemExplorerLayouts.Details ? 3 : 1);
                     }
                     else
                     {
-                        VerticalScrollBarValue = 0;
+                        scrVertical.Value = 0;
                         currentIndex = 0;
                     }
                 }
@@ -1132,8 +1194,14 @@ namespace Devonia.Views.Common.Controls
             }    
         }
 
+        /// <summary>
+        /// Gets the files and folders located at <paramref name="path"/>
+        /// </summary>
+        /// <param name="path">The path for which to get the files and folders</param>
+        /// <exception cref="DirectoryNotFoundException">Exception thrown when <paramref name="path"/> does not exist</exception>
         public async Task NavigateToPath(string path)
         {
+            // if the provided path doesn't exist throw and exception
             if (!Directory.Exists(path))
                 throw new DirectoryNotFoundException();
             await Task.Run(() =>
@@ -1141,6 +1209,8 @@ namespace Devonia.Views.Common.Controls
                 temp = new List<FileSystemEntity>();
                 try
                 {
+                    // TODO: implement access rights checking!
+                    // get directories first
                     FileSystemInfo info = null;
                     temp.AddRange(Directory.GetDirectories(path, "*", SearchOption.TopDirectoryOnly)
                         .Select(path => new FileSystemEntity()
@@ -1150,6 +1220,7 @@ namespace Devonia.Views.Common.Controls
                             FileSystemItemType = FileSystemItemTypes.Folder,
                             Name = path.Contains(Path.DirectorySeparatorChar) ? path.Substring(path.LastIndexOf(Path.DirectorySeparatorChar) + 1) : path,
                         }));
+                    // get files and their properties too
                     temp.AddRange(Directory.GetFiles(path, "*", SearchOption.TopDirectoryOnly)
                         .Select(path =>
                         {
@@ -1160,11 +1231,12 @@ namespace Devonia.Views.Common.Controls
                                 Date = info.LastAccessTime,
                                 Size = (info as FileInfo).Length,
                                 FileSystemItemType = FileSystemItemTypes.File,
-                                IconSource = "/mnt/STORAGE/MULTIMEDIA/PHOTO/ICONS/anime.ico",
+                                //IconSource = "/mnt/STORAGE/MULTIMEDIA/PHOTO/ICONS/anime.ico",
                                 Name = path.Contains(Path.DirectorySeparatorChar) ? path.Substring(path.LastIndexOf(Path.DirectorySeparatorChar) + 1) : path,
                                 Extension = Path.GetExtension(path)
                             };
                         }));
+                    // sort items by name (default sorting criteria)
                     SortItems(SortingItems.Name);
                 }
                 catch (Exception e)
@@ -1193,12 +1265,10 @@ namespace Devonia.Views.Common.Controls
         /// </summary>
         private void UserControl_PointerWheelChanged(object? sender, PointerWheelEventArgs e)
         {
-            Stopwatch sw = new Stopwatch();
-            sw.Start();
             isInRenameMode = false;
             txtRename.IsVisible = false;
-            // either change items size or scroll items list
-            if (IsCtrlPressed && !isMouseDown) // only change items size if the mouse is not pressed (in selection mode)
+            // if a mouse selection is not in progress and the Control key is pressed, change items size
+            if (IsCtrlPressed && !isMouseDown)
             {
                 if (e.Delta.Y > 0)
                 {
@@ -1216,12 +1286,10 @@ namespace Devonia.Views.Common.Controls
                 }
                 Initialize();
             }
-            else if ((isMouseDown && mousePoint.X > 0 && mousePoint.Y > 0) || !isMouseDown) // when selecting, only scroll if mouse is over the file explorer control area
+            else if ((isMouseDown && mouseMovePoint.X > 0 && mouseMovePoint.Y > 0) || !isMouseDown) // when selecting, only scroll if mouse is over the file explorer control area
             {
                 scrollForward = e.Delta.Y < 0;
-                
-                
-                
+                // get the item control whose origin point is closest to the mouse down coordinate
                 var closestControl = container.Children.OfType<FileSystemExplorerItem>()
                                               .Where(item => item.IsVisible)
                                               .Select(item => new
@@ -1231,223 +1299,54 @@ namespace Devonia.Views.Common.Controls
                                                   Control = item
                                               })
                                               .Aggregate((p1, p2) => p1.Distance2 < p2.Distance2 ? p1 : p2);
+                // get the coordinates of the control closest to furthest edge (right, in list mode, bottom in the other modes)
                 int outterMostCoord = (int)container.Children.OfType<FileSystemExplorerItem>()
                                                     .Where(item => item.IsVisible)
                                                     .Select(item => layout == FileSystemExplorerLayouts.List ? Canvas.GetLeft(item) : Canvas.GetTop(item))
                                                     .Where(coord => coord <= (layout == FileSystemExplorerLayouts.List ? container.Bounds.Width : container.Bounds.Height))
                                                     .Max();
+                // if the mouse down coordinates are within the bounds of the above control, the selection was started near edge and needs to be stored
+                // (when scrolling backwards, the selection rectangle can get inversed while the control goes off-screen) 
                 if ((layout == FileSystemExplorerLayouts.List ? closestControl.Point.X : closestControl.Point.Y) >= outterMostCoord)
                     isSelectionNearEdge = true;
-
-                
                 FetchMoreData(e.Delta.Y < 0);
             }
-            sw.Stop();
-            //Trace.WriteLine("current index: " + currentIndex);
-            //Trace.WriteLine(sw.ElapsedMilliseconds);
         }
 
-        private bool scrollForward;
-        private bool isSelectionNearEdge;
-        private string closestControlPath;
-        private Point offset;
-        private int selectionStartIndex = -1;
-        private Point constantMouseDown;
-        private double scrollOffset;
-        private bool isInverseSelectionRectangle; // is rectangle starts before or after mouse cursor
-        private bool wentOffScreen;
-        private int divider = 10;
-        
-
-        public void DeselectAll(bool updateVisualSelection = true)
-        {
-            Items.ForEach(item => item.IsSelected = false);
-            if (updateVisualSelection)
-                UpdateVisualItemSelection();
-        }
-        
-        public void SelectAll()
-        {
-            Items.ForEach(item => item.IsSelected = true);
-            UpdateVisualItemSelection();
-        }
-
-        public void InvertSelection()
-        {
-            Items.ForEach(item => item.IsSelected = !item.IsSelected);
-            UpdateVisualItemSelection();
-        }
-
-        private void UpdateSelectionRectangle()
-        {
-            selectionRectangle.Width = Math.Abs(mouseDownPoint.X - mousePoint.X);
-            selectionRectangle.Height = Math.Abs(mouseDownPoint.Y - mousePoint.Y);
-            
-            Canvas.SetLeft(selectionRectangle, Math.Min(mouseDownPoint.X, mousePoint.X));
-            Canvas.SetTop(selectionRectangle, Math.Min(mouseDownPoint.Y, mousePoint.Y));
-
-            Rect selectionArea = new Rect(Canvas.GetLeft(selectionRectangle), Canvas.GetTop(selectionRectangle), selectionRectangle.Width, selectionRectangle.Height);
-            // mark items inside selection as "hovered"
-            if (selectionRectangle.Width > 0 && selectionRectangle.Height > 0)
-            {
-                container.Children.OfType<FileSystemExplorerItem>()
-                    .Where(item => !selectionArea.Intersects(new Rect(Canvas.GetLeft(item), Canvas.GetTop(item), item.Width, item.Height)))
-                    .ForEach(item => item.IsSelectionHovered = false).ToArray();
-                var selected = container.Children.OfType<FileSystemExplorerItem>()
-                    .Where(item => selectionArea.Intersects(new Rect(Canvas.GetLeft(item), Canvas.GetTop(item), item.Width, item.Height)))
-                    .ForEach(item => item.IsSelectionHovered = true).ToArray();
-            }
-            //Trace.WriteLine("sel width: " + selectionRectangle.Bounds.Width);
-            //if (!wentOffScreen)
-            // {
-            //     if (layout == FileSystemExplorerLayouts.List)
-            //         isInverseSelectionRectangle = mouseDownPoint.X < mousePoint.X;
-            //     else
-            //         isInverseSelectionRectangle = mouseDownPoint.Y > mousePoint.Y;
-            //     //Trace.WriteLine("is inverse rectangle " + isInverseSelectionRectangle);
-            // }
-            if (!wentOffScreen)
-            {
-                if (layout == FileSystemExplorerLayouts.List)
-                {
-                    // store pixels from left edge of container to the selection's rectangle origin position 
-                    double remainingPixels = mouseDownPoint.X;
-                    int iteratedColumnIndex = selectionStartIndex;
-                    double consumedWidth = 0;
-                    // get the dynamic width of columns that fit between left edge of container and the selection's rectangle origin position
-                    while (remainingPixels > 0)
-                    {
-                        double currentColWidth = GetWidestElementInColumn(iteratedColumnIndex * numberOfVerticalItems) + itemsHorizontalSpacing;
-                        // check if the current column's width still fits in the remaining pixels
-                        if (remainingPixels > currentColWidth)
-                        {
-                            // current column fit, add its width to used space and subtract it from remaining pixels
-                            consumedWidth += currentColWidth;
-                            remainingPixels -= currentColWidth;
-                            // prepare to check if next column's width fits
-                            iteratedColumnIndex++;
-                        }
-                        else break; // no more columns fit in the remaining pixels
-                    }
-                    // calculate how many columns fit from container's left edge to the selection's rectangle origin
-                    int fittingItemsHorizontally = autosizeWidth ? iteratedColumnIndex - selectionStartIndex : (int)(constantMouseDown.X / (itemsWidth + itemsHorizontalSpacing));
-                    // store the id of the first element in the column just before the rectangle's selection origin
-                    int startingElementColumnId = selectionStartIndex + fittingItemsHorizontally - 1; 
-                    // store the extra pixels between the origin of the above column and the rectangle's selection origin
-                    double selectionStartOffset = autosizeWidth ? mouseDownPoint.X - consumedWidth : (constantMouseDown.X / (itemsWidth + itemsHorizontalSpacing)) - fittingItemsHorizontally;
-                    
-                    // store pixels from left edge of container to the current mouse position
-                    remainingPixels = mousePoint.X;
-                    iteratedColumnIndex = currentIndex;
-                    consumedWidth = 0;
-                    // get the dynamic width of columns that fit between left edge of container and the mouse cursor
-                    while (remainingPixels > 0)
-                    {
-                        double currentColWidth = GetWidestElementInColumn(iteratedColumnIndex * numberOfVerticalItems) + itemsHorizontalSpacing;
-                        if (remainingPixels > currentColWidth)
-                        {
-                            consumedWidth += currentColWidth;
-                            remainingPixels -= currentColWidth;
-                            iteratedColumnIndex++;
-                        }
-                        else break;
-                    }
-                    // calculate how many columns fit from container's left edge to the current mouse position
-                    fittingItemsHorizontally = autosizeWidth ? iteratedColumnIndex - currentIndex : (int)(mousePoint.X / (itemsWidth + itemsHorizontalSpacing));
-                    // store the id of the first element in the column just before the current mouse position
-                    int endingElementColumnId = currentIndex + fittingItemsHorizontally - 1; 
-                    // store the extra pixels between the origin of the above column and the current mouse position
-                    double selectionEndOffset = autosizeWidth ? mousePoint.X - consumedWidth : (mousePoint.X / (itemsWidth + itemsHorizontalSpacing)) - fittingItemsHorizontally;
-                    // determine if the selection rectangle goes backwards or not
-                    if (startingElementColumnId > endingElementColumnId)
-                        isInverseSelectionRectangle = true;
-                    else if (startingElementColumnId < endingElementColumnId)
-                        isInverseSelectionRectangle = false;
-                    else
-                        isInverseSelectionRectangle = selectionStartOffset > selectionEndOffset;
-                }
-                else
-                {
-                    double remainingPixels = mouseDownPoint.Y;
-                    int iteratedColumnIndex = selectionStartIndex;
-                    double consumedHeight = 0;
-
-                    while (remainingPixels > 0)
-                    {
-                        if (remainingPixels > (layout == FileSystemExplorerLayouts.Details ? itemsHeight : itemsWidth + 20))
-                        {
-                            consumedHeight += (layout == FileSystemExplorerLayouts.Details ? itemsHeight : itemsWidth + 20);
-                            remainingPixels -= (layout == FileSystemExplorerLayouts.Details ? itemsHeight : itemsWidth + 20);
-                            iteratedColumnIndex++;
-                        }
-                        else break;
-                    }
-                    int fittingItemsVertically = (int)(constantMouseDown.Y / ((layout == FileSystemExplorerLayouts.Details ? itemsHeight : itemsWidth + 20) + itemsVerticalSpacing));
-                    int startingElementColumnId = selectionStartIndex + fittingItemsVertically - 1; 
-                    double selectionStartOffset = (constantMouseDown.Y / ((layout == FileSystemExplorerLayouts.Details ? itemsHeight : itemsWidth + 20) + itemsVerticalSpacing)) - fittingItemsVertically;
-
-                    remainingPixels = mousePoint.Y;
-                    iteratedColumnIndex = currentIndex;
-                    consumedHeight = 0;
-
-                    while (remainingPixels > 0)
-                    {
-                        if (remainingPixels > (layout == FileSystemExplorerLayouts.Details ? itemsHeight : itemsWidth + 20))
-                        {
-                            consumedHeight += (layout == FileSystemExplorerLayouts.Details ? itemsHeight : itemsWidth + 20);
-                            remainingPixels -= (layout == FileSystemExplorerLayouts.Details ? itemsHeight : itemsWidth + 20);
-                            iteratedColumnIndex++;
-                        }
-                        else break;
-                    }
-                    fittingItemsVertically = (int)(mousePoint.Y / ((layout == FileSystemExplorerLayouts.Details ? itemsHeight : itemsWidth + 20) + itemsVerticalSpacing));
-                    int endingElementColumnId = currentIndex + fittingItemsVertically - 1; 
-                    double selectionEndOffset = (mousePoint.Y / ((layout == FileSystemExplorerLayouts.Details ? itemsHeight : itemsWidth + 20) + itemsVerticalSpacing)) - fittingItemsVertically;
-
-
-                    if (startingElementColumnId > endingElementColumnId)
-                        isInverseSelectionRectangle = true;
-                    else if (startingElementColumnId < endingElementColumnId)
-                        isInverseSelectionRectangle = false;
-                    else
-                        isInverseSelectionRectangle = selectionStartOffset > selectionEndOffset;
-                }
-                Trace.WriteLine("inversed: " + isInverseSelectionRectangle);
-            }
-            
-        }
         /// <summary>
         /// Handles control's PointerPressed event
         /// </summary>
         private void UserControl_OnPointerPressed(object? sender, PointerPressedEventArgs e)
         {
-
-            GetLocationFromPoint(e.GetPosition(container));
-            
+            // a mouse selection can begin, store the origin's coordinates
             isMouseDown = true;
-            mousePoint = mouseDownPoint = constantMouseDown = e.GetPosition(container);
-            var closestControl = container.Children.OfType<FileSystemExplorerItem>()
-                .Where(item => item.IsVisible)
-                .Select(item => new
-                {
-                    Point = item.Bounds.Position,
-                    Distance2 = Math.Pow(item.Bounds.Position.X - mouseDownPoint.X, 2) +  Math.Pow(item.Bounds.Position.Y - mouseDownPoint.Y, 2),
-                    Control = item
-                })
-                .Aggregate((p1, p2) => p1.Distance2 < p2.Distance2 ? p1 : p2);
-            int outterMostCoord = (int)container.Children.OfType<FileSystemExplorerItem>()
-                .Where(item => item.IsVisible)
-                .Select(item => layout == FileSystemExplorerLayouts.List ? Canvas.GetLeft(item) : Canvas.GetTop(item))
-                .Where(coord => coord <= (layout == FileSystemExplorerLayouts.List ? container.Bounds.Width : container.Bounds.Height))
-                .Max();
-            if ((layout == FileSystemExplorerLayouts.List ? closestControl.Point.X : closestControl.Point.Y) >= outterMostCoord)
-                isSelectionNearEdge = true;
-            offset = mouseDownPoint - closestControl.Point;
-            closestControlPath = closestControl.Control.Path;
-            selectionStartIndex = currentIndex;
-            //Trace.WriteLine("selection start index: " + currentIndex);
-            //Trace.WriteLine("item: " + a.Point + " click: " + mouseDownPoint + " offset: " + offset);
-
+            mouseMovePoint = mouseDownPoint = constantMouseDown = e.GetPosition(container);
+            IEnumerable<FileSystemExplorerItem> visibleItems = container.Children.OfType<FileSystemExplorerItem>()
+                                                                                 .Where(item => item.IsVisible);
+            // if there are items in current location, store the closest item from the mouse down point and the distance between them
+            // (this is required for the virtualized selection rectangle)
+            if (visibleItems.Count() > 0)
+            {
+                var closestControl = visibleItems
+                                     .Select(item => new
+                                     {
+                                         Point = item.Bounds.Position,
+                                         Distance2 = Math.Pow(item.Bounds.Position.X - mouseDownPoint.X, 2) + Math.Pow(item.Bounds.Position.Y - mouseDownPoint.Y, 2),
+                                         Control = item
+                                     })
+                                     .Aggregate((p1, p2) => p1.Distance2 < p2.Distance2 ? p1 : p2);
+                int outterMostCoord = (int)visibleItems
+                                           .Select(item => layout == FileSystemExplorerLayouts.List ? Canvas.GetLeft(item) : Canvas.GetTop(item))
+                                           .Where(coord => coord <= (layout == FileSystemExplorerLayouts.List ? container.Bounds.Width : container.Bounds.Height))
+                                           .Max();
+                // a selection started near the outter most edge item on the scroll direction needs to be treated specially
+                // (selection rectangle can be inversed if scrolling backwards, while the item near which the selection origin's started might go off-screen)
+                if ((layout == FileSystemExplorerLayouts.List ? closestControl.Point.X : closestControl.Point.Y) >= outterMostCoord)
+                    isSelectionNearEdge = true;
+                offset = mouseDownPoint - closestControl.Point;
+                closestControlPath = closestControl.Control.Path;
+                selectionStartIndex = currentIndex;
+            }
         }
 
         /// <summary>
@@ -1457,41 +1356,20 @@ namespace Devonia.Views.Common.Controls
         {
             if (isMouseDown)
             {
-                divider++;
-                //bool hasScrolledOffScreen = false;
                 e.Device.Capture(container);
-                mousePoint = e.GetPosition(container);
-                
-               UpdateSelectionRectangle();
-
-               //return;
-               //if (divider % 10 == 0)
-                //{
-                //Trace.WriteLine("m: " + mousePoint.Y + " c " + container.Bounds.Height);
-                    if ((layout == FileSystemExplorerLayouts.Details || layout == FileSystemExplorerLayouts.Icons) && mousePoint.Y > container.Bounds.Height - 10)
-                    {
-                        FetchMoreData(true);
-                        scrollOffset++;
-                    }
-
-                    if ((layout == FileSystemExplorerLayouts.Details || layout == FileSystemExplorerLayouts.Icons) && mousePoint.Y < 10)
-                    {
-                        FetchMoreData(false);
-                        scrollOffset--;
-                    }
-
-                    if (layout == FileSystemExplorerLayouts.List && mousePoint.X > container.Bounds.Width - 10)
-                    {
-                        FetchMoreData(true);
-                        scrollOffset++;
-                    }
-
-                    if (layout == FileSystemExplorerLayouts.List && mousePoint.X < 10)
-                    {
-                        FetchMoreData(false);
-                        scrollOffset--;
-                    }
-                //}
+                // update the stored coordinates of the mouse
+                mouseMovePoint = e.GetPosition(container);
+                // update the selection rectangle with the new coordinates
+                UpdateSelectionRectangle();
+                // if the mouse is moved near edges, start automatic scrolling)
+                if ((layout == FileSystemExplorerLayouts.Details || layout == FileSystemExplorerLayouts.Icons) && mouseMovePoint.Y > container.Bounds.Height - 10)
+                    FetchMoreData(true);
+                if ((layout == FileSystemExplorerLayouts.Details || layout == FileSystemExplorerLayouts.Icons) && mouseMovePoint.Y < 10)
+                    FetchMoreData(false);
+                if (layout == FileSystemExplorerLayouts.List && mouseMovePoint.X > container.Bounds.Width - 10)
+                    FetchMoreData(true);
+                if (layout == FileSystemExplorerLayouts.List && mouseMovePoint.X < 10)
+                    FetchMoreData(false);
             }
         }
         
@@ -1501,9 +1379,16 @@ namespace Devonia.Views.Common.Controls
         private void UserControl_OnPointerReleased(object? sender, PointerReleasedEventArgs e)
         {
             isMouseDown = false;
+            closestControlPath = null;
             // clicks on items should be at least one second apart, otherwise it is double click
             if (DateTime.Now.Subtract(lastClickTime) < TimeSpan.FromSeconds(1))
+            {
+                // if it's double click, get rid of any started selection rectangle
+                selectionRectangle.Width = 0;
+                selectionRectangle.Height = 0;
                 return;
+            }
+            // update the stored time of the last click
             lastClickTime = DateTime.Now;
             // if neither Control or Shift keys are pressed and a selection rectangle is present, deselect all items before selecting just those inside the selection
             if (!IsCtrlPressed && !IsShiftPressed && selectionRectangle.Width > 0 && selectionRectangle.Bounds.Height > 0)
@@ -1511,19 +1396,21 @@ namespace Devonia.Views.Common.Controls
             // if there was a selection rectangle, mark the items inside it as selected
             if (selectionRectangle.Width > 0 && selectionRectangle.Bounds.Height > 0)
             {
+                // if the item near which the selection's rectangle originated is within the items on the screen,
+                // the selection is not virtualized and it is composed only of the items within the selection's rectangle
                 if (!wentOffScreen)
                 {
                     container.Children.OfType<FileSystemExplorerItem>()
-                        .Where(item => selectionRectangle.Bounds.Intersects(item.Bounds))
-                        .ForEach(item => item.IsSelected = true);
+                                      .Where(item => item.IsVisible && selectionRectangle.Bounds.Intersects(item.Bounds))
+                                      .ForEach(item => item.IsSelected = true);
                     Items.Where(item => container.Children.OfType<FileSystemExplorerItem>()
-                            .Where(item => item.IsSelected)
-                            .Any(i => i.Path == item.Path))
-                        .ForEach(item => item.IsSelected = true);
+                                                              .Where(item => item.IsSelected)
+                                                              .Any(i => i.Path == item.Path))
+                                                          .ForEach(item => item.IsSelected = true);
                 }
                 else
                 {
-                    //Trace.WriteLine("final index " + selectionStartIndex + constantMouseDown);
+                    // selection is virtualized
                     if (layout == FileSystemExplorerLayouts.Details)
                     {
                         // calculate how many items fit from 0 to the coordinates of the mouse down position
@@ -1532,15 +1419,19 @@ namespace Devonia.Views.Common.Controls
                         bool fitsIncompleteItem = fittingItems - (int)fittingItems > 0;
                         // get the id of the element located at the index of how many fitting items were calculated
                         // (in other words, the id of the item where the mouse cursor position was when selection started)
-                        int startingElementId = Items[selectionStartIndex + (int)fittingItems + (fitsIncompleteItem && selectionStartIndex + (int)fittingItems < Items.Count ? 1 : 0) - 1].VirtualId;
-                        //Trace.WriteLine("name: " + Items[startingElementId].Name + " id " + startingElementId + " fit:" + fittingItems + " mouse: " + constantMouseDown.Y + " " + fitsIncompleteItem);
-                       
+                        int startingElementId = 0;
+                        if (selectionStartIndex + (int)fittingItems + (fitsIncompleteItem ? 1 : 0) - 1 < items.Count)
+                            startingElementId = Items[selectionStartIndex + (int)fittingItems + (fitsIncompleteItem ? 1 : 0) - 1].VirtualId;
                         // calculate how many items fit from 0 to the coordinates of the current mouse position
-                        fittingItems = mousePoint.Y / (itemsHeight + itemsVerticalSpacing);
+                        fittingItems = mouseMovePoint.Y / (itemsHeight + itemsVerticalSpacing);
                         fitsIncompleteItem = fittingItems - (int)fittingItems > 0;
-                        int endingElementId = Items[currentIndex + (int)fittingItems + (fitsIncompleteItem ? 1 : 0) - 1].VirtualId;
-                        Items.Where(item => item.VirtualId >= Math.Min(startingElementId, endingElementId) && item.VirtualId <= Math.Max(startingElementId, endingElementId))
-                             .ForEach(item => item.IsSelected = true);
+                        int endingElementId = Items[items.Count - 1].VirtualId;
+                        if (currentIndex + (int)fittingItems + (fitsIncompleteItem ? 1 : 0) - 1 < items.Count)
+                            endingElementId = Items[currentIndex + (int)fittingItems + (fitsIncompleteItem ? 1 : 0) - 1].VirtualId;
+                        if (startingElementId != endingElementId || (startingElementId == endingElementId && container.Children.OfType<FileSystemExplorerItem>()
+                                                                                                                                .Where(item => item.Bounds.Contains(e.GetPosition(container))).Count() > 1))
+                            Items.Where(item => item.VirtualId >= Math.Min(startingElementId, endingElementId) && item.VirtualId <= Math.Max(startingElementId, endingElementId))
+                                 .ForEach(item => item.IsSelected = true);
                     }
                     else if (layout == FileSystemExplorerLayouts.Icons)
                     {
@@ -1550,11 +1441,11 @@ namespace Devonia.Views.Common.Controls
                         bool fitsIncompleteItem = fittingItemsVertically - (int)fittingItemsVertically > 0;
                         // get the id of the element located at the index of how many fitting items were calculated
                         // (in other words, the id of the item where the mouse cursor position was when selection started)
-                        int startingElementRowId = Items[selectionStartIndex + (int)fittingItemsVertically + (fitsIncompleteItem && selectionStartIndex + (int)fittingItemsVertically < Items.Count ? 1 : 0) - 1].VirtualId;
-                        //Trace.WriteLine("name: " + Items[startingElementId].Name + " id " + startingElementId + " fit:" + fittingItems + " mouse: " + constantMouseDown.Y + " " + fitsIncompleteItem);
-                       
+                        int startingElementRowId = 0;
+                        if (selectionStartIndex + (int)fittingItemsVertically + (fitsIncompleteItem ? 1 : 0) - 1 < items.Count)
+                            startingElementRowId = Items[selectionStartIndex + (int)fittingItemsVertically + (fitsIncompleteItem ? 1 : 0) - 1].VirtualId;
                         // calculate how many items fit from 0 to the coordinates of the current mouse position
-                        fittingItemsVertically = mousePoint.Y / (itemsWidth + 20 + itemsVerticalSpacing);
+                        fittingItemsVertically = mouseMovePoint.Y / (itemsWidth + 20 + itemsVerticalSpacing);
                         fitsIncompleteItem = fittingItemsVertically - (int)fittingItemsVertically > 0;
                         int endingElementRowId = currentIndex + (int)fittingItemsVertically + (fitsIncompleteItem ? 1 : 0) - 1;
                         // iterate from the row index of the selection starting point to the row index of the selection end point 
@@ -1575,18 +1466,42 @@ namespace Devonia.Views.Common.Controls
                     }
                     else if (layout == FileSystemExplorerLayouts.List)
                     {
-                        // TODO: does not take into account variable column width!!
-                        // calculate how many items fit from 0 to the coordinates of the mouse down position
-                        double fittingItemsHorizontally = constantMouseDown.X / (itemsWidth + itemsHorizontalSpacing);
-                        // check if an incomplete item fit in addition to the above count
-                        bool fitsIncompleteItem = fittingItemsHorizontally - (int)fittingItemsHorizontally > 0;
+                        // store pixels from left edge of container to the selection's rectangle origin position 
+                        double remainingPixels = constantMouseDown.X;
+                        int iteratedColumnIndex = selectionStartIndex;
+                        // get the dynamic width of columns that fit between left edge of container and the selection's rectangle origin position
+                        while (remainingPixels > 0)
+                        {
+                            double currentColWidth = autosizeWidth ? GetWidestElementInColumn(iteratedColumnIndex * numberOfVerticalItems) : itemsWidth;
+                            // check if the current column's width still fits in the remaining pixels
+                            if (remainingPixels > currentColWidth)
+                            {
+                                // current column fit, add its width to used space and subtract it from remaining pixels
+                                remainingPixels -= currentColWidth + itemsHorizontalSpacing;
+                                // prepare to check if next column's width fits
+                                iteratedColumnIndex++;
+                            }
+                            else break; // no more columns fit in the remaining pixels
+                        }
                         // get the id of the element located at the index of how many fitting items were calculated
                         // (in other words, the id of the item where the mouse cursor position was when selection started)
-                        int startingElementColumnId = Items[selectionStartIndex + (int)fittingItemsHorizontally + (fitsIncompleteItem && selectionStartIndex + (int)fittingItemsHorizontally < Items.Count ? 1 : 0) - 1].VirtualId;
-                        // calculate how many items fit from 0 to the coordinates of the current mouse position
-                        fittingItemsHorizontally = mousePoint.X / (itemsWidth + itemsHorizontalSpacing);
-                        fitsIncompleteItem = fittingItemsHorizontally - (int)fittingItemsHorizontally > 0;
-                        int endingElementColumnId = currentIndex + (int)fittingItemsHorizontally + (fitsIncompleteItem ? 1 : 0) - 1;
+                        int startingElementColumnId = iteratedColumnIndex - (isInverseSelectionRectangle ? 1 : 0); //selectionStartIndex + fittingItemsHorizontally;
+                        // store pixels from left edge of container to the current mouse position
+                        remainingPixels = mouseMovePoint.X;
+                        iteratedColumnIndex = currentIndex;
+                        // get the dynamic width of columns that fit between left edge of container and the mouse cursor
+                        while (remainingPixels > 0)
+                        {
+                            double currentColWidth = autosizeWidth ? GetWidestElementInColumn(iteratedColumnIndex * numberOfVerticalItems) : itemsWidth;
+                            if (remainingPixels > currentColWidth)
+                            {
+                                remainingPixels -= currentColWidth + itemsHorizontalSpacing;
+                                iteratedColumnIndex++;
+                            }
+                            else break;
+                        }
+                        // store the id of the first element in the column just before the current mouse position
+                        int endingElementColumnId = iteratedColumnIndex;
                         // iterate from the column index of the selection starting point to the column index of the selection end point 
                         for (int i = Math.Min(startingElementColumnId, endingElementColumnId); i <= Math.Max(startingElementColumnId, endingElementColumnId); i++)
                         {
@@ -1619,8 +1534,6 @@ namespace Devonia.Views.Common.Controls
                         .FirstOrDefault();
                     if (IsCtrlPressed)
                     {
-                        // if an item was clicked, store if it was already selected (why?!)
-                        // bool wasSelected = clickedItem?.IsSelected ?? false;
                         // if any item was clicked
                         if (clickedItem != null)
                             clickedItem.IsSelected = !clickedItem.IsSelected;
@@ -1640,7 +1553,7 @@ namespace Devonia.Views.Common.Controls
                             UpdateVisualItemSelection();
                         }
                     }
-                    else 
+                    else // no modifier keys pressed
                     {
                         if (clickedItem != null)
                         {
@@ -1680,19 +1593,8 @@ namespace Devonia.Views.Common.Controls
         }
 
         /// <summary>
-        /// Updates the selection state of the visible items based on their non-virtualized origin
+        /// Handles rename textbox's KeyDown event
         /// </summary>
-        private void UpdateVisualItemSelection()
-        {
-            FileSystemExplorerItem[] visibleItems = container.Children.OfType<FileSystemExplorerItem>().ToArray();
-            visibleItems.ForEach(item => item.IsSelected = Items[item.VirtualId].IsSelected);
-        }
-        
-        private void ScrollingTimerOnElapsed(object sender, ElapsedEventArgs e)
-        {
-            
-        }
-
         private void RenameTextBox_KeyDown(object? sender, KeyEventArgs e)
         {
             if (e.Key == Key.Escape)
@@ -1710,6 +1612,9 @@ namespace Devonia.Views.Common.Controls
             }
         }
 
+        /// <summary>
+        /// Handles rename textbox's LostFocus event
+        /// </summary>
         private void RenameTextBox_LostFocus(object? sender, RoutedEventArgs e)
         {
             // exit rename mode
@@ -1722,8 +1627,8 @@ namespace Devonia.Views.Common.Controls
         /// </summary>
         private void HorizontalScrollBar_OnScroll(object? sender, ScrollEventArgs e)
         {
-            HorizontalScrollBarValue = Math.Round(e.NewValue);
-            currentIndex = (int)horizontalScrollBarValue;
+            scrHorizontal.Value = Math.Round(e.NewValue);
+            currentIndex = (int)scrHorizontal.Value;
             numberOfVisibleItems = CalculateNumberOfVisibleItems();
             FetchDataChunk();
             RecycleUIElements();
@@ -1734,18 +1639,18 @@ namespace Devonia.Views.Common.Controls
         /// </summary>
         private void VerticalScrollBar_OnScroll(object? sender, ScrollEventArgs e)
         {
-            VerticalScrollBarValue = Math.Round(e.NewValue);
+            scrVertical.Value = Math.Round(e.NewValue);
             // scroll three more items from the current position (vertical scrollbar apply only on details and icons layouts)
-            if ((Items.Count - numberOfVerticalItems) / (layout == FileSystemExplorerLayouts.Details ? 3 : 1) > (int)verticalScrollBarValue)
-                currentIndex = (int)verticalScrollBarValue * (layout == FileSystemExplorerLayouts.Details ? 3 : 1);
+            if ((Items.Count - numberOfVerticalItems) / (layout == FileSystemExplorerLayouts.Details ? 3 : 1) > (int)scrVertical.Value)
+                currentIndex = (int)scrVertical.Value * (layout == FileSystemExplorerLayouts.Details ? 3 : 1);
             else // if there are less than three items left at the end of the list, add them too as an extra scroll unit
-                currentIndex = (int)verticalScrollBarValue * (layout == FileSystemExplorerLayouts.Details ? 3 : 1) - ((Items.Count - numberOfVerticalItems) % (layout == FileSystemExplorerLayouts.Details ? 3 : 1) > 0 ? 1 : 0);
+                currentIndex = (int)scrVertical.Value * (layout == FileSystemExplorerLayouts.Details ? 3 : 1) - ((Items.Count - numberOfVerticalItems) % (layout == FileSystemExplorerLayouts.Details ? 3 : 1) > 0 ? 1 : 0);
             FetchDataChunk();
             RecycleUIElements();
         }
 
         /// <summary>
-        /// Handles sort button's Click event 
+        /// Handles details layout header sort button's Click event 
         /// </summary>
         private void BtnSort_OnClick(object? sender, RoutedEventArgs e)
         {
@@ -1757,14 +1662,16 @@ namespace Devonia.Views.Common.Controls
             Items = new AvaloniaList<FileSystemEntity>(temp);
             Initialize();
         }
-        #endregion
 
+        /// <summary>
+        /// Handles control's DoubleTapped event
+        /// </summary>
         private async void UserControl_OnDoubleTapped(object? sender, RoutedEventArgs e)
         {
             // check if the mouse was clicked over an item
             var clickedItem = container.Children.OfType<FileSystemExplorerItem>()
-                .Where(item => item.Bounds.Contains((e as TappedEventArgs).GetPosition(container)))
-                .FirstOrDefault();
+                                                .Where(item => item.Bounds.Contains((e as TappedEventArgs).GetPosition(container)))
+                                                .FirstOrDefault();
             // a folder was double clicked, browse it
             if (clickedItem != null && clickedItem.FileSystemItemType == FileSystemItemTypes.Folder)
                 FolderBrowsed?.Invoke(clickedItem.Path);
@@ -1774,47 +1681,6 @@ namespace Devonia.Views.Common.Controls
             }
             e.Handled = true;
         }
-
-
-        public Location GetLocationFromPoint(Point position)
-        {
-
-            FileSystemExplorerItem control = container.Children.OfType<FileSystemExplorerItem>()
-                                                   .Where(item => Canvas.GetLeft(item) > position.X && Canvas.GetTop(item) > position.Y
-                                                                                                    && Canvas.GetRight(item) < position.X &&
-                                                                                                    Canvas.GetBottom(item) < position.Y).FirstOrDefault();
-            if (control != null)
-            {
-                int rowsCount = numberOfVerticalItems;
-                FileSystemEntity dtoItem = Items[control.VirtualId];
-                int column = control.VirtualId % rowsCount;
-                // so VirtualId is same like it's index 
-
-
-                // items = list of whole items of DTO
-                // item = UI control
-                // yes umm, the item has id right?
-                Trace.WriteLine("Column " + column);
-                return new Location(column, 0);
-            }
-
-            else
-            {
-                return null;
-            }
-        }
-        
-    }
-
-    public class Location
-    {
-        public int Column { get; set; }
-        public int Row { get; set; }
-
-        public Location(int column, int row)
-        {
-            Column = column;
-            Row = row;
-        }
+        #endregion
     }
 }

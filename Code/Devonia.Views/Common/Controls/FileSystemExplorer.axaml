@@ -69,7 +69,7 @@
             </Button>
         </Grid>
         <Canvas x:Name="container" Background="#55000000" Margin="0,25,25,25" ClipToBounds="True" PointerPressed="UserControl_OnPointerPressed"/>
-        <ScrollBar Orientation="Vertical" AllowAutoHide="False" ViewportSize="{Binding ScrollbarThumbSize}" HorizontalAlignment="Right" Maximum="{Binding VerticalScrollBarMaximumValue}" Value="{Binding VerticalScrollBarValue}" LargeChange="1" SmallChange="1" Visibility="{Binding IsVerticalScrollBarEnabled}" Margin="0,0,0,25" Scroll="VerticalScrollBar_OnScroll"/>
-        <ScrollBar Orientation="Horizontal" AllowAutoHide="False" ViewportSize="{Binding ScrollbarThumbSize}" VerticalAlignment="Bottom" Maximum="{Binding HorizontalScrollBarMaximumValue}" Value="{Binding HorizontalScrollBarValue}" LargeChange="1" SmallChange="1" Visibility="{Binding IsHorizontalScrollBarEnabled}" Margin="0,0,25,0" Scroll="HorizontalScrollBar_OnScroll"/>
+        <ScrollBar x:Name="scrVertical" Orientation="Vertical" AllowAutoHide="False" HorizontalAlignment="Right" LargeChange="1" SmallChange="1" Margin="0,0,0,25" Scroll="VerticalScrollBar_OnScroll"/>
+        <ScrollBar x:Name="scrHorizontal" Orientation="Horizontal" AllowAutoHide="False" VerticalAlignment="Bottom" LargeChange="1" SmallChange="1" Margin="0,0,25,0" Scroll="HorizontalScrollBar_OnScroll"/>
     </Grid>
 </UserControl>
