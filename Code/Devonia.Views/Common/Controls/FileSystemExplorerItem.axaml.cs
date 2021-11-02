@@ -100,7 +100,12 @@ namespace Devonia.Views.Common.Controls
                 if (pnlContainer != null)
                     pnlContainer.Background = value ? SelectionBackgroundColor : ShowBorder ? BackgroundColor : Brushes.Transparent;
                 if (lblContents != null)
+                {
                     lblContents[0].Foreground = value ? ForegroundSelectionColor : ForegroundColor;
+                    lblContents[1].Foreground = value ? ForegroundSelectionColor : ForegroundColor;
+                    lblContents[2].Foreground = value ? ForegroundSelectionColor : ForegroundColor;
+                    lblContents[3].Foreground = value ? ForegroundSelectionColor : ForegroundColor;
+                }
             }
         }
 
@@ -124,6 +129,16 @@ namespace Devonia.Views.Common.Controls
             }
         }
 
+        private IBrush selectionHoverItemsBackgroundColor;
+        public IBrush SelectionHoverItemsBackgroundColor
+        {
+            get { return selectionHoverItemsBackgroundColor; }
+            set
+            {
+                selectionHoverItemsBackgroundColor = value;
+            }
+        }
+        
         private bool isSelectionHovered;
         public bool IsSelectionHovered
         {
@@ -134,7 +149,7 @@ namespace Devonia.Views.Common.Controls
                 if (pnlContainer != null)
                 {
                     if (value && !isSelected)
-                        pnlContainer.Background = Brushes.Red;
+                        pnlContainer.Background = selectionHoverItemsBackgroundColor ?? Brushes.Red;
                     else
                         pnlContainer.Background = isSelected ? SelectionBackgroundColor : ShowBorder ? BackgroundColor : Brushes.Transparent;
                 }

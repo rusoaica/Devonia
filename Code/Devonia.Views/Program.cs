@@ -3,6 +3,7 @@
 /// Purpose: Application's entry point class
 #region ========================================================================= USING =====================================================================================
 using Avalonia;
+using Avalonia.Platform;
 #endregion
 
 namespace Devonia.Views

@@ -1,0 +1,157 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <Style Selector="TabControl">
+    <Setter Property="Margin" Value="0" />
+    <Setter Property="Padding" Value="{DynamicResource TabItemMargin}" />
+    <Setter Property="Background" Value="{DynamicResource TabControlBackground}" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}"
+                HorizontalAlignment="{TemplateBinding HorizontalAlignment}" VerticalAlignment="{TemplateBinding VerticalAlignment}">
+          <DockPanel>
+            <ItemsPresenter  Name="PART_ItemsPresenter" Items="{TemplateBinding Items}" ItemsPanel="{TemplateBinding ItemsPanel}" ItemTemplate="{TemplateBinding ItemTemplate}"
+                            DockPanel.Dock="{TemplateBinding TabStripPlacement}"/>
+            <ContentPresenter Name="PART_SelectedContentHost" Margin="{TemplateBinding Padding}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                              VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" Content="{TemplateBinding SelectedContent}" ContentTemplate="{TemplateBinding SelectedContentTemplate}" />
+          </DockPanel>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+
+  <Style Selector="TabControl[TabStripPlacement=Left] /template/ ItemsPresenter#PART_ItemsPresenter > WrapPanel">
+    <Setter Property="Orientation" Value="Vertical" />
+  </Style>
+  <Style Selector="TabControl[TabStripPlacement=Right] /template/ ItemsPresenter#PART_ItemsPresenter > WrapPanel">
+    <Setter Property="Orientation" Value="Vertical" />
+  </Style>
+  <Style Selector="TabControl[TabStripPlacement=Top] /template/ ItemsPresenter#PART_ItemsPresenter">
+    <Setter Property="Margin" Value="0,0,0,5" />
+  </Style>
+  
+  <Style Selector="TabItem">
+    <Setter Property="FontSize" Value="{DynamicResource TabItemHeaderFontSize}" />
+    <Setter Property="FontWeight" Value="{DynamicResource TabItemHeaderThemeFontWeight}" />
+    <Setter Property="Background" Value="{DynamicResource ListviewDarkBg}" />
+    <Setter Property="Foreground" Value="{DynamicResource WindowForeColor}" />
+    <Setter Property="Padding" Value="{DynamicResource TabItemHeaderMargin}" />
+    <Setter Property="Margin" Value="0" />
+    <Setter Property="MinHeight" Value="10" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Grid Name="PART_LayoutRoot">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto"/>
+            <ColumnDefinition Width="17"/>
+          </Grid.ColumnDefinitions>
+          <ContentPresenter Grid.Column="0" Padding="10,0,3,0" Name="PART_ContentPresenter" ContentTemplate="{TemplateBinding HeaderTemplate}" Content="{TemplateBinding Header}" HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            VerticalAlignment="{TemplateBinding VerticalContentAlignment}" TextBlock.FontFamily="{TemplateBinding FontFamily}" TextBlock.FontSize="{TemplateBinding FontSize}" TextBlock.FontWeight="{TemplateBinding FontWeight}" />
+          <Button ToolTip.Tip="Close Tab" Classes="flatButton" Grid.Column="1" Background="Transparent" BorderThickness="0" BorderBrush="Transparent" Name="PART_Close" Command="{Binding CloseExplorerPage_Command}" Width="15" Height="15" VerticalAlignment="Center" HorizontalAlignment="Left" Padding="0">
+            <Image Name="PART_CloseIcon" Width="15" Height="15"/>
+          </Button>
+          <Border Name="PART_BorderTop" BorderThickness="0,1,0,0" Grid.ColumnSpan="2"/>
+          <Border Name="PART_BorderLeft" BorderThickness="1,0,0,0" Grid.ColumnSpan="2"/>
+          <Border Name="PART_BorderRight" BorderThickness="0,0,1,0" Grid.ColumnSpan="2"/>
+          <Border Name="PART_BorderBottom" BorderThickness="0,0,0,1" Grid.ColumnSpan="2"/>
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+
+  <!-- Normal state -->
+  <Style Selector="TabItem /template/ Image#PART_CloseIcon">
+    <Setter Property="Source" Value="avares://Devonia/Assets/close_tab_unlit.png" />
+  </Style>
+  <Style Selector="TabItem /template/ Grid#PART_LayoutRoot">
+    <Setter Property="Background" Value="{Binding $parent[TabItem].Background}" />
+  </Style>
+  <Style Selector="TabItem:selected /template/ Border#PART_BorderTop">
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderUnlit}" />
+  </Style>
+  <Style Selector="TabItem:selected /template/ Border#PART_BorderLeft">
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderUnlit}" />
+  </Style>
+  <Style Selector="TabItem:selected /template/ Border#PART_BorderRight">
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderLit}" />
+  </Style>
+  <Style Selector="TabItem:selected /template/ Border#PART_BorderBottom">
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderLit}" />
+  </Style>
+  
+  <!-- Non selected state -->
+  <Style Selector="TabItem:not(:selected) /template/ Grid#PART_LayoutRoot">
+    <Setter Property="Background" Value="{Binding $parent[TabItem].Background}" />
+  </Style>
+  <Style Selector="TabItem:not(:selected) /template/ Border#PART_BorderTop">
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderLit}" />
+  </Style>
+  <Style Selector="TabItem:not(:selected) /template/ Border#PART_BorderLeft">
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderLit}" />
+  </Style>
+  <Style Selector="TabItem:not(:selected) /template/ Border#PART_BorderRight">
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderUnlit}" />
+  </Style>
+  <Style Selector="TabItem:not(:selected) /template/ Border#PART_BorderBottom">
+    <Setter Property="BorderBrush" Value="{DynamicResource BorderUnlit}" />
+  </Style>
+  
+  
+  <!-- Selected state -->
+  <Style Selector="TabItem:selected /template/ Grid#PART_LayoutRoot">
+    <Setter Property="Background" Value="{Binding $parent[TabItem].Background}" />
+  </Style>
+  <Style Selector="TabItem:selected /template/ Image#PART_CloseIcon">
+    <Setter Property="Source" Value="avares://Devonia/Assets/close_tab_lit.png" />
+  </Style>
+  <Style Selector="TabItem:selected">
+    <Setter Property="Background" Value="{DynamicResource ListviewLightBg}" />
+    <Setter Property="TextBlock.Foreground" Value="{DynamicResource textForeground}" />
+  </Style>
+
+  <!-- PointerOver state -->
+  <Style Selector="TabItem:pointerover /template/ Image#PART_CloseIcon">
+    <Setter Property="Source" Value="avares://Devonia/Assets/close_tab_lit.png" />
+  </Style>
+  <Style Selector="TabItem:pointerover /template/ Grid#PART_LayoutRoot">
+    <Setter Property="Background" Value="#404040" />
+    <Setter Property="TextBlock.Foreground" Value="{DynamicResource textForeground}" />
+  </Style>
+
+  <!-- Selected PointerOver state -->
+  <Style Selector="TabItem:selected:pointerover /template/ Grid#PART_LayoutRoot">
+    <Setter Property="Background" Value="{Binding $parent[TabItem].Background}" />
+    <Setter Property="TextBlock.Foreground" Value="{DynamicResource textForeground}" />
+  </Style>
+
+  <!-- Pressed state -->
+  <Style Selector="TabItem:pressed /template/ Grid#PART_LayoutRoot">
+    <Setter Property="Background" Value="{DynamicResource TabItemHeaderBackgroundUnselectedPressed}" />
+    <Setter Property="TextBlock.Foreground" Value="{DynamicResource TabItemHeaderForegroundUnselectedPressed}" />
+  </Style>
+
+  <!-- Selected Pressed state -->
+  <Style Selector="TabItem:pressed /template/ Grid#PART_LayoutRoot">
+    <Setter Property="Background" Value="{DynamicResource TabItemHeaderBackgroundSelectedPressed}" />
+    <Setter Property="TextBlock.Foreground" Value="{DynamicResource TabItemHeaderForegroundSelectedPressed}" />
+  </Style>
+
+  <!-- Disabled state -->
+  <Style Selector="TabItem:disabled /template/ Grid#PART_LayoutRoot">
+    <Setter Property="Background" Value="{DynamicResource TabItemHeaderBackgroundDisabled}" />
+    <Setter Property="TextBlock.Foreground" Value="{DynamicResource TabItemHeaderForegroundDisabled}" />
+  </Style>
+
+  <!-- TabStripPlacement States Group -->
+  <Style Selector="TabItem[TabStripPlacement=Left] /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Margin" Value="8,0,0,0" />
+  </Style>
+ 
+  <Style Selector="TabItem[TabStripPlacement=Right] /template/ ContentPresenter#PART_ContentPresenter">
+    <Setter Property="Margin" Value="0,0,8,0" />
+  </Style>
+  <Style Selector="TabItem[TabStripPlacement=Right]">
+    <Setter Property="HorizontalContentAlignment" Value="Right" />
+  </Style>
+</Styles>

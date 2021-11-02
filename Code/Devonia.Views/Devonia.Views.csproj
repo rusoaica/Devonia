@@ -108,6 +108,12 @@
     <AvaloniaResource Include="Common\Styles\ContextMenu.xaml" />
     <AvaloniaXaml Remove="Common\Styles\MenuItem.axaml" />
     <AvaloniaResource Include="Common\Styles\MenuItem.xaml" />
+    <AvaloniaXaml Remove="Common\Styles\TabControl.axaml" />
+    <AvaloniaResource Include="Common\Styles\TabControl.xaml" />
+    <None Remove="Assets\close_tab_unlit.png" />
+    <AvaloniaResource Include="Assets\close_tab_unlit.png" />
+    <None Remove="Assets\close_tab_lit.png" />
+    <AvaloniaResource Include="Assets\close_tab_lit.png" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Autofac" Version="6.2.0" />

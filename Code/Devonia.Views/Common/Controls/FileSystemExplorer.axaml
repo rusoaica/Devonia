@@ -10,8 +10,8 @@
              PointerReleased="UserControl_OnPointerReleased"
              DoubleTapped="UserControl_OnDoubleTapped">
     <Grid>
-        <Grid x:Name="grdDetails" Height="25" VerticalAlignment="Top" Margin="0,0,40,0">
-            <Button x:Name="btnName" Padding="0" HorizontalAlignment="Stretch" Margin="0,0,550,0" Tag="{x:Static enums:SortingItems.Name}" Click="BtnSort_OnClick">
+        <Grid x:Name="grdDetails" Height="25" VerticalAlignment="Top" Margin="0,0,40,0" >
+            <Button x:Name="btnName" Background="Transparent" Classes="flatButton" Padding="0" HorizontalAlignment="Stretch" Margin="0,0,550,0" Tag="{x:Static enums:SortingItems.Name}" Click="BtnSort_OnClick">
                 <Grid ColumnDefinitions="*,Auto,Auto,*">
                     <Image x:Name="imgName" Grid.Column="1" Width="10" Height="10" IsVisible="true" Margin="0,3,5,0">
                         <Image.Source>
@@ -25,7 +25,7 @@
                     <TextBlock Grid.Column="2" Text="Name"/>
                 </Grid>
             </Button>
-            <Button x:Name="btnSize" Width="150" Padding="0" HorizontalAlignment="Right" Margin="0,0,400,0" Tag="{x:Static enums:SortingItems.Size}" Click="BtnSort_OnClick">
+            <Button x:Name="btnSize" Background="Transparent" Classes="flatButton" Width="150" Padding="0" HorizontalAlignment="Right" Margin="0,0,400,0" Tag="{x:Static enums:SortingItems.Size}" Click="BtnSort_OnClick">
                 <Grid ColumnDefinitions="*,Auto,Auto,*">
                     <Image x:Name="imgSize" Grid.Column="1" Width="10" Height="10" IsVisible="true" Margin="0,3,5,0">
                         <Image.Source>
@@ -39,7 +39,7 @@
                     <TextBlock Grid.Column="2" Text="Size"/>
                 </Grid>
             </Button>
-            <Button x:Name="btnType" Width="150" Padding="0" HorizontalAlignment="Right" Margin="0,0,250,0" Tag="{x:Static enums:SortingItems.Type}" Click="BtnSort_OnClick">
+            <Button x:Name="btnType" Background="Transparent" Classes="flatButton" Width="150" Padding="0" HorizontalAlignment="Right" Margin="0,0,250,0" Tag="{x:Static enums:SortingItems.Type}" Click="BtnSort_OnClick">
                 <Grid ColumnDefinitions="*,Auto,Auto,*">
                     <Image x:Name="imgType" Grid.Column="1" Width="10" Height="10" IsVisible="true" Margin="0,3,5,0">
                         <Image.Source>
@@ -53,7 +53,7 @@
                     <TextBlock Grid.Column="2" Text="Type"/>
                 </Grid>
             </Button>
-            <Button x:Name="btnModified" Width="245" Padding="0" HorizontalAlignment="Right" Margin="0,0,5,0" Tag="{x:Static enums:SortingItems.Date}" Click="BtnSort_OnClick">
+            <Button x:Name="btnModified" Background="Transparent" Classes="flatButton" Width="245" Padding="0" HorizontalAlignment="Right" Margin="0,0,5,0" Tag="{x:Static enums:SortingItems.Date}" Click="BtnSort_OnClick">
                 <Grid ColumnDefinitions="*,Auto,Auto,*">
                     <Image x:Name="imgModified" Grid.Column="1" Width="10" Height="10" IsVisible="true" Margin="0,3,5,0">
                         <Image.Source>

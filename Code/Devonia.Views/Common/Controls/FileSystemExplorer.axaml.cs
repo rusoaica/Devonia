@@ -1,4 +1,4 @@
-/// Written by: Yulia Danilova
+/// Written by: Yulia Danilova, Sameh Salem
 /// Creation Date: 04th of October, 2021
 /// Purpose: Code behind for the file system explorer user control
 #region ========================================================================= USING =====================================================================================
@@ -24,6 +24,8 @@ using Avalonia.Controls.Primitives;
 using System.Runtime.CompilerServices;
 using Devonia.ViewModels.Common.Models;
 using Devonia.Models.Common.Extensions;
+using Devonia.ViewModels.Common.MVVM;
+using Devonia.ViewModels;
 #endregion
 
 namespace Devonia.Views.Common.Controls
@@ -31,9 +33,10 @@ namespace Devonia.Views.Common.Controls
     public class FileSystemExplorer : UserControl
     {
         #region ============================================================== FIELD MEMBERS ================================================================================
-        public event Action<string> FolderBrowsed;
-        public bool isWindowLoaded;
-        
+        public event EventHandler<string> FolderBrowsed;
+        public event EventHandler<string> LocationChanged;
+        public bool isWindowLoaded = true; // TODO: remove in production!
+
         private readonly Image imgName;
         private readonly Image imgSize;
         private readonly Image imgType;
@@ -47,7 +50,7 @@ namespace Devonia.Views.Common.Controls
         private bool scrollForward;
         private bool wentOffScreen;
         private bool isInRenameMode;
-        private bool isSortedDescending; 
+        private bool isSortedDescending;
         private bool isSelectionNearEdge;
         private bool isInverseSelectionRectangle;
         private int currentIndex;
@@ -58,9 +61,8 @@ namespace Devonia.Views.Common.Controls
 
         private string closestControlPath;
         private string lastSelectedItemPath;
-        private List<FileSystemEntity> temp;
         private FileSystemEntity[] virtualizedItems;
-        
+
         private Point offset;
         private Point mouseDownPoint;
         private Point mouseMovePoint;
@@ -68,55 +70,67 @@ namespace Devonia.Views.Common.Controls
         private DateTime lastClickTime;
         private SortingItems currentSortBy = SortingItems.Name;
         private Avalonia.Controls.Shapes.Rectangle selectionRectangle = new Avalonia.Controls.Shapes.Rectangle();
+        private readonly Stack<string> undoStack = new Stack<string>();
+        private readonly Stack<string> redoStack = new Stack<string>();
         #endregion
 
         #region ================================================================ PROPERTIES =================================================================================
-        private FileSystemExplorerLayouts layout = FileSystemExplorerLayouts.List;
-        public FileSystemExplorerLayouts Layout
+        public ExplorerPageVM? VM => DataContext as ExplorerPageVM;
+        #endregion
+
+        #region ========================================================== DEPENDENCY PROPERTIES ============================================================================
+        public static readonly DirectProperty<FileSystemExplorer, IAsyncCommand> NavigateUpCommandProperty =
+            AvaloniaProperty.RegisterDirect<FileSystemExplorer, IAsyncCommand>(nameof(NavigateUpCommand), o => o.NavigateUpCommand, (e, v) => { e.NavigateUpCommand = v; });
+
+        private IAsyncCommand navigateUpCommand;
+        public IAsyncCommand NavigateUpCommand
         {
-            get { return layout; }
-            set
-            {
-                layout = value;
-                Initialize();
-            }
+            get { return navigateUpCommand; }
+            set { SetAndRaise(NavigateUpCommandProperty, ref navigateUpCommand, value); }
         }
 
-        private bool showGrid;
-        public bool ShowGrid
+        public static readonly DirectProperty<FileSystemExplorer, IAsyncCommand> NavigateForwardCommandProperty =
+            AvaloniaProperty.RegisterDirect<FileSystemExplorer, IAsyncCommand>(nameof(NavigateForwardCommand), o => o.NavigateForwardCommand, (e, v) => { e.NavigateForwardCommand = v; });
+
+        private IAsyncCommand navigateForwardCommand;
+        public IAsyncCommand NavigateForwardCommand
         {
-            get { return showGrid; }
-            set
-            {
-                showGrid = value; 
-                DrawUIElements();
-            }
-        }
-        
-        private bool autosizeWidth = true;
-        public bool AutosizeWidth
-        {
-            get { return autosizeWidth; }
-            set
-            {
-                autosizeWidth = value;
-                Initialize();
-            }
-        }
-        
-        private bool alternatesBackgroundColor = true;
-        public bool AlternatesBackgroundColor
-        {
-            get { return alternatesBackgroundColor; }
-            set
-            {
-                alternatesBackgroundColor = value;
-                Initialize();
-            }
+            get { return navigateForwardCommand; }
+            set { SetAndRaise(NavigateForwardCommandProperty, ref navigateForwardCommand, value); }
         }
 
-        public bool IsCtrlPressed { get; set; }
-        public bool IsShiftPressed { get; set; }
+        public static readonly DirectProperty<FileSystemExplorer, IAsyncCommand> NavigateBackCommandProperty =
+            AvaloniaProperty.RegisterDirect<FileSystemExplorer, IAsyncCommand>(nameof(NavigateBackCommand), o => o.NavigateBackCommand, (e, v) => { e.NavigateBackCommand = v; });
+
+        private IAsyncCommand navigateBackCommand;
+        public IAsyncCommand NavigateBackCommand
+        {
+            get { return navigateBackCommand; }
+            set { SetAndRaise(NavigateBackCommandProperty, ref navigateBackCommand, value); }
+        }
+
+        public static readonly DirectProperty<FileSystemExplorer, string> CurrentPathProperty =
+            AvaloniaProperty.RegisterDirect<FileSystemExplorer, string>(nameof(CurrentPath), o => o.CurrentPath, async (e, v) =>
+            {
+                if (!string.IsNullOrEmpty(v))
+                {
+                    e.CurrentPath = v;
+                    await e.NavigateToPath(v);
+                }
+            });
+
+        private string currentPath = string.Empty;
+        public string CurrentPath
+        {
+            get { return currentPath; }
+            set 
+            {
+                if (!string.IsNullOrEmpty(currentPath) && (undoStack.Count == 0 || (undoStack.Count > 0 && undoStack.Peek() != currentPath)) && currentPath != value)
+                    undoStack.Push(currentPath);
+                VM!.SourceHistory = undoStack.ToList();
+                SetAndRaise(CurrentPathProperty, ref currentPath, value); 
+            }
+        }
 
         private Typeface itemsTypeFace = new Typeface(new FontFamily("Arial"));
         public Typeface ItemsTypeFace
@@ -124,10 +138,93 @@ namespace Devonia.Views.Common.Controls
             get { return itemsTypeFace; }
             set
             {
-                itemsTypeFace = value; 
+                SetAndRaise(ItemsTypeFaceProperty, ref itemsTypeFace, value);
                 Initialize();
             }
         }
+
+        /// <summary>
+        /// Defines the <see cref="ItemsTypeFace"/> property.
+        /// </summary>
+        public static readonly DirectProperty<FileSystemExplorer, Typeface> ItemsTypeFaceProperty =
+            AvaloniaProperty.RegisterDirect<FileSystemExplorer, Typeface>(nameof(ItemsTypeFace), e => e.ItemsTypeFace, (e, v) => { e.ItemsTypeFace = v; });
+
+        private bool autosizeWidth = true;
+        public bool AutosizeWidth
+        {
+            get { return autosizeWidth; }
+            set
+            {
+                SetAndRaise(AutosizeWidthProperty, ref autosizeWidth, value);
+                Initialize();
+            }
+        }
+
+        /// <summary>
+        /// Defines the <see cref="AutosizeWidth"/> property.
+        /// </summary>
+        public static readonly DirectProperty<FileSystemExplorer, bool> AutosizeWidthProperty =
+            AvaloniaProperty.RegisterDirect<FileSystemExplorer, bool>(nameof(AutosizeWidth), e => e.AutosizeWidth, (e, v) => { e.AutosizeWidth = v; });
+
+        private bool alternatesBackgroundColor = true;
+        public bool AlternatesBackgroundColor
+        {
+            get { return alternatesBackgroundColor; }
+            set
+            {
+                SetAndRaise(AlternatesBackgroundColorProperty, ref alternatesBackgroundColor, value);
+                Initialize();
+            }
+        }
+
+        /// <summary>
+        /// Defines the <see cref="AlternatesBackgroundColor"/> property.
+        /// </summary>
+        public static readonly DirectProperty<FileSystemExplorer, bool> AlternatesBackgroundColorProperty =
+            AvaloniaProperty.RegisterDirect<FileSystemExplorer, bool>(nameof(AlternatesBackgroundColor), e => e.AlternatesBackgroundColor, (e, v) => { e.AlternatesBackgroundColor = v; });
+
+        private bool isControlPressed = false;
+        public bool IsControlPressed
+        {
+            get { return isControlPressed; }
+            set { SetAndRaise(IsControlPressedProperty, ref isControlPressed, value); }
+        }
+
+        /// <summary>
+        /// Defines the <see cref="IsControlPressed"/> property.
+        /// </summary>
+        public static readonly DirectProperty<FileSystemExplorer, bool> IsControlPressedProperty =
+            AvaloniaProperty.RegisterDirect<FileSystemExplorer, bool>(nameof(IsControlPressed), e => e.IsControlPressed, (e, v) => { e.IsControlPressed = v; });
+
+        private bool isShiftPressed = false;
+        public bool IsShiftPressed
+        {
+            get { return isShiftPressed; }
+            set { SetAndRaise(IsShiftPressedProperty, ref isShiftPressed, value); }
+        }
+
+        /// <summary>
+        /// Defines the <see cref="IsShiftPressed"/> property.
+        /// </summary>
+        public static readonly DirectProperty<FileSystemExplorer, bool> IsShiftPressedProperty =
+            AvaloniaProperty.RegisterDirect<FileSystemExplorer, bool>(nameof(IsShiftPressed), e => e.IsShiftPressed, (e, v) => { e.IsShiftPressed = v; });
+
+        private bool showGrid;
+        public bool ShowGrid
+        {
+            get { return showGrid; }
+            set
+            {
+                SetAndRaise(ShowGridProperty, ref showGrid, value);
+                Initialize();
+            }
+        }
+
+        /// <summary>
+        /// Defines the <see cref="ShowGrid"/> property.
+        /// </summary>
+        public static readonly DirectProperty<FileSystemExplorer, bool> ShowGridProperty =
+            AvaloniaProperty.RegisterDirect<FileSystemExplorer, bool>(nameof(ShowGrid), e => e.ShowGrid, (e, v) => { e.ShowGrid = v; });
 
         private int itemsFontSize;
         public int ItemsFontSize
@@ -135,76 +232,132 @@ namespace Devonia.Views.Common.Controls
             get { return itemsFontSize; }
             set
             {
-                itemsFontSize = value;
+                SetAndRaise(ItemsFontSizeProperty, ref itemsFontSize, value);
                 Initialize();
             }
         }
-        #endregion
-        
-        #region ========================================================== DEPENDENCY PROPERTIES ============================================================================
+
+        /// <summary>
+        /// Defines the <see cref="ItemsFontSize"/> property.
+        /// </summary>
+        public static readonly DirectProperty<FileSystemExplorer, int> ItemsFontSizeProperty =
+            AvaloniaProperty.RegisterDirect<FileSystemExplorer, int>(nameof(ItemsFontSize), e => e.ItemsFontSize, (e, v) => { e.ItemsFontSize = v; });
+
         private double itemsHeight = 20;
         public double ItemsHeight
         {
             get { return itemsHeight; }
-            set 
-            { 
+            set
+            {
                 if (value < 3) return;
                 SetAndRaise(ItemsHeightProperty, ref itemsHeight, value);
                 Initialize();
             }
         }
-        
+
         /// <summary>
         /// Defines the <see cref="ItemsHeight"/> property.
         /// </summary>
         public static readonly DirectProperty<FileSystemExplorer, double> ItemsHeightProperty =
             AvaloniaProperty.RegisterDirect<FileSystemExplorer, double>(nameof(ItemsHeight), e => e.ItemsHeight, (e, v) => e.ItemsHeight = v);
 
+        private FileSystemExplorerLayouts layout = FileSystemExplorerLayouts.List;
+        public FileSystemExplorerLayouts Layout
+        {
+            get { return layout; }
+            set
+            {
+                SetAndRaise(LayoutProperty, ref layout, value);
+                Initialize();
+            }
+        }
+
+        /// <summary>
+        /// Defines the <see cref="Layout"/> property.
+        /// </summary>
+        public static readonly DirectProperty<FileSystemExplorer, FileSystemExplorerLayouts> LayoutProperty =
+            AvaloniaProperty.RegisterDirect<FileSystemExplorer, FileSystemExplorerLayouts>(nameof(Layout), e => e.Layout, (e, v) => e.Layout = v);
+
         private double itemsWidth = 75;
         public double ItemsWidth
         {
             get { return itemsWidth; }
-            set 
-            { 
+            set
+            {
                 SetAndRaise(ItemsWidthProperty, ref itemsWidth, value);
                 Initialize();
             }
         }
-        
+
         /// <summary>
         /// Defines the <see cref="ItemsWidth"/> property.
         /// </summary>
         public static readonly DirectProperty<FileSystemExplorer, double> ItemsWidthProperty =
             AvaloniaProperty.RegisterDirect<FileSystemExplorer, double>(nameof(ItemsWidth), e => e.ItemsWidth, (e, v) => e.ItemsWidth = v);
 
+        private IBrush selectionBackgroundColor;
+        public IBrush SelectionBackgroundColor
+        {
+            get { return selectionBackgroundColor; }
+            set
+            {
+                SetAndRaise(SelectionBackgroundColorProperty, ref selectionBackgroundColor, value);
+                selectionRectangle.Fill = value;
+            }
+        }
+
+        /// <summary>
+        /// Defines the <see cref="SelectionBackgroundColor"/> property.
+        /// </summary>
+        public static readonly DirectProperty<FileSystemExplorer, IBrush> SelectionBackgroundColorProperty =
+            AvaloniaProperty.RegisterDirect<FileSystemExplorer, IBrush>(nameof(SelectionBackgroundColor), e => e.SelectionBackgroundColor, (e, v) => e.SelectionBackgroundColor = v);
+
+        private IBrush selectionBorderColor;
+        public IBrush SelectionBorderColor
+        {
+            get { return selectionBorderColor; }
+            set
+            {
+
+                SetAndRaise(SelectionBorderColorProperty, ref selectionBorderColor, value);
+                selectionRectangle.Stroke = value;
+            }
+        }
+
+        /// <summary>
+        /// Defines the <see cref="SelectionBorderColor"/> property.
+        /// </summary>
+        public static readonly DirectProperty<FileSystemExplorer, IBrush> SelectionBorderColorProperty =
+            AvaloniaProperty.RegisterDirect<FileSystemExplorer, IBrush>(nameof(SelectionBorderColor), e => e.SelectionBorderColor, (e, v) => e.SelectionBorderColor = v);
+
         private IBrush itemsSelectionForegroundColor;
         public IBrush ItemsSelectionForegroundColor
         {
             get { return itemsSelectionForegroundColor; }
-            set 
-            { 
+            set
+            {
                 SetAndRaise(ItemsSelectionForegroundColorProperty, ref itemsSelectionForegroundColor, value);
                 DrawUIElements();
             }
         }
-        
+
         /// <summary>
         /// Defines the <see cref="ItemsSelectionForegroundColor"/> property.
         /// </summary>
         public static readonly DirectProperty<FileSystemExplorer, IBrush> ItemsSelectionForegroundColorProperty =
             AvaloniaProperty.RegisterDirect<FileSystemExplorer, IBrush>(nameof(ItemsSelectionForegroundColor), e => e.ItemsSelectionForegroundColor, (e, v) => e.ItemsSelectionForegroundColor = v);
-        
+
         private IBrush itemsForegroundColor;
         public IBrush ItemsForegroundColor
         {
             get { return itemsForegroundColor; }
-            set 
-            { 
+            set
+            {
                 SetAndRaise(ItemsForegroundColorProperty, ref itemsForegroundColor, value);
                 DrawUIElements();
             }
         }
-        
+
         /// <summary>
         /// Defines the <see cref="ItemsForegroundColor"/> property.
         /// </summary>
@@ -215,13 +368,13 @@ namespace Devonia.Views.Common.Controls
         public IBrush ItemsBorderColorFirst
         {
             get { return itemsBorderColorFirst; }
-            set 
-            { 
+            set
+            {
                 SetAndRaise(ItemsBorderColorFirstProperty, ref itemsBorderColorFirst, value);
                 DrawUIElements();
             }
         }
-        
+
         /// <summary>
         /// Defines the <see cref="ItemsBorderColorFirst"/> property.
         /// </summary>
@@ -232,13 +385,13 @@ namespace Devonia.Views.Common.Controls
         public IBrush ItemsBorderColorSecond
         {
             get { return itemsBorderColorSecond; }
-            set 
-            { 
+            set
+            {
                 SetAndRaise(ItemsBorderColorSecondProperty, ref itemsBorderColorSecond, value);
                 DrawUIElements();
             }
         }
-        
+
         /// <summary>
         /// Defines the <see cref="ItemsBorderColorSecond"/> property.
         /// </summary>
@@ -251,28 +404,28 @@ namespace Devonia.Views.Common.Controls
             get { return itemsSelectionBorderColor; }
             set
             {
-                SetAndRaise(temsSelectionBorderColorProperty, ref itemsSelectionBorderColor, value); 
+                SetAndRaise(ItemsSelectionBorderColorProperty, ref itemsSelectionBorderColor, value);
                 DrawUIElements();
             }
         }
-        
+
         /// <summary>
         /// Defines the <see cref="ItemsSelectionBorderColor"/> property.
         /// </summary>
-        public static readonly DirectProperty<FileSystemExplorer, IBrush> temsSelectionBorderColorProperty =
+        public static readonly DirectProperty<FileSystemExplorer, IBrush> ItemsSelectionBorderColorProperty =
             AvaloniaProperty.RegisterDirect<FileSystemExplorer, IBrush>(nameof(ItemsSelectionBorderColor), e => e.ItemsSelectionBorderColor, (e, v) => e.ItemsSelectionBorderColor = v);
-        
+
         private IBrush itemsBackgroundColorSecond;
         public IBrush ItemsBackgroundColorSecond
         {
             get { return itemsBackgroundColorSecond; }
-            set 
-            { 
+            set
+            {
                 SetAndRaise(ItemsBackgroundColorSecondProperty, ref itemsBackgroundColorSecond, value);
                 DrawUIElements();
             }
         }
-        
+
         /// <summary>
         /// Defines the <see cref="ItemsBackgroundColorSecond"/> property.
         /// </summary>
@@ -283,57 +436,74 @@ namespace Devonia.Views.Common.Controls
         public IBrush ItemsBackgroundColorFirst
         {
             get { return itemsBackgroundColorFirst; }
-            set 
-            { 
+            set
+            {
                 SetAndRaise(ItemsBackgroundColorFirstProperty, ref itemsBackgroundColorFirst, value);
                 DrawUIElements();
             }
         }
-        
+
         /// <summary>
         /// Defines the <see cref="ItemsBackgroundColorFirst"/> property.
         /// </summary>
         public static readonly DirectProperty<FileSystemExplorer, IBrush> ItemsBackgroundColorFirstProperty =
             AvaloniaProperty.RegisterDirect<FileSystemExplorer, IBrush>(nameof(ItemsBackgroundColorFirst), e => e.ItemsBackgroundColorFirst, (e, v) => e.ItemsBackgroundColorFirst = v);
-        
+
         private IBrush itemsSelectionBackgroundColor;
         public IBrush ItemsSelectionBackgroundColor
         {
             get { return itemsSelectionBackgroundColor; }
             set
             {
-                SetAndRaise(ItemsSelectionBackgroundColorProperty, ref itemsSelectionBackgroundColor, value);       
+                SetAndRaise(ItemsSelectionBackgroundColorProperty, ref itemsSelectionBackgroundColor, value);
                 DrawUIElements();
             }
         }
-        
+
         /// <summary>
         /// Defines the <see cref="ItemsSelectionBackgroundColor"/> property.
         /// </summary>
         public static readonly DirectProperty<FileSystemExplorer, IBrush> ItemsSelectionBackgroundColorProperty =
             AvaloniaProperty.RegisterDirect<FileSystemExplorer, IBrush>(nameof(ItemsSelectionBackgroundColor), e => e.ItemsSelectionBackgroundColor, (e, v) => e.ItemsSelectionBackgroundColor = v);
 
-        private AvaloniaList<FileSystemEntity> items = new AvaloniaList<FileSystemEntity>();
-        public AvaloniaList<FileSystemEntity> Items
+        private IBrush selectionHoverItemsBackgroundColor;
+        public IBrush SelectionHoverItemsBackgroundColor
+        {
+            get { return selectionHoverItemsBackgroundColor; }
+            set
+            {
+                SetAndRaise(SelectionHoverItemsBackgroundColorProperty, ref selectionHoverItemsBackgroundColor, value);
+                DrawUIElements();
+            }
+        }
+
+        /// <summary>
+        /// Defines the <see cref="SelectionHoverItemsBackgroundColor"/> property.
+        /// </summary>
+        public static readonly DirectProperty<FileSystemExplorer, IBrush> SelectionHoverItemsBackgroundColorProperty =
+            AvaloniaProperty.RegisterDirect<FileSystemExplorer, IBrush>(nameof(SelectionHoverItemsBackgroundColor), e => e.SelectionHoverItemsBackgroundColor, (e, v) => e.SelectionHoverItemsBackgroundColor = v);
+
+        private List<FileSystemEntity> items = new List<FileSystemEntity>();
+        public List<FileSystemEntity> Items
         {
             get { return items; }
-            set { SetAndRaise(ItemsProperty, ref items, value); Initialize(); }
+            private set { SetAndRaise(ItemsProperty, ref items, value); Initialize(); }
         }
 
         /// <summary>
         /// Defines the <see cref="Items"/> property.
         /// </summary>
-        public static readonly DirectProperty<FileSystemExplorer, AvaloniaList<FileSystemEntity>> ItemsProperty =
-            AvaloniaProperty.RegisterDirect<FileSystemExplorer, AvaloniaList<FileSystemEntity>>(nameof(Items), e => e.Items, (e, v) => e.Items = v);
-        
+        public static readonly DirectProperty<FileSystemExplorer, List<FileSystemEntity>> ItemsProperty =
+            AvaloniaProperty.RegisterDirect<FileSystemExplorer, List<FileSystemEntity>>(nameof(Items), e => e.Items, (e, v) => e.Items = v);
+
         private int itemsHorizontalSpacing = 10;
         public int ItemsHorizontalSpacing
         {
             get { return itemsHorizontalSpacing; }
             set
             {
-                SetAndRaise(ItemsHorizontalSpacingProperty, ref itemsHorizontalSpacing, value); 
-                Initialize(); 
+                SetAndRaise(ItemsHorizontalSpacingProperty, ref itemsHorizontalSpacing, value);
+                Initialize();
             }
         }
 
@@ -342,15 +512,15 @@ namespace Devonia.Views.Common.Controls
         /// </summary>
         public static readonly DirectProperty<FileSystemExplorer, int> ItemsHorizontalSpacingProperty =
             AvaloniaProperty.RegisterDirect<FileSystemExplorer, int>(nameof(ItemsHorizontalSpacing), e => e.ItemsHorizontalSpacing, (e, v) => e.ItemsHorizontalSpacing = v);
-        
+
         private int itemsVerticalSpacing = 1;
         public int ItemsVerticalSpacing
         {
             get { return itemsVerticalSpacing; }
             set
             {
-                SetAndRaise(ItemsVerticalSpacingProperty, ref itemsVerticalSpacing, value); 
-                Initialize(); 
+                SetAndRaise(ItemsVerticalSpacingProperty, ref itemsVerticalSpacing, value);
+                Initialize();
             }
         }
 
@@ -368,7 +538,7 @@ namespace Devonia.Views.Common.Controls
         public FileSystemExplorer()
         {
             AvaloniaXamlLoader.Load(this);
-            DataContext = this;
+            //DataContext = this;
             imgName = this.FindControl<Image>("imgName");
             imgSize = this.FindControl<Image>("imgSize");
             imgType = this.FindControl<Image>("imgType");
@@ -387,11 +557,13 @@ namespace Devonia.Views.Common.Controls
             selectionRectangle.Width = 0;
             selectionRectangle.Height = 0;
             selectionRectangle.StrokeThickness = 1;
-            selectionRectangle.Fill = (SolidColorBrush)new BrushConverter().ConvertFromString("#770078D7"); // TODO: take from app config
-            selectionRectangle.Stroke = (SolidColorBrush)new BrushConverter().ConvertFromString("#FF0078D7");
             container.Children.Add(txtRename);
             container.Children.Add(selectionRectangle);
             container.PropertyChanged += FileSystemExploer_PropertyChanged;
+
+            NavigateBackCommand = new AsyncCommand(async () => await NavigateBackAsync());
+            NavigateForwardCommand = new AsyncCommand(async () => await NavigateForwardAsync());
+            NavigateUpCommand = new AsyncCommand(async () => await NavigateUpAsync());
         }
         #endregion
 
@@ -405,22 +577,22 @@ namespace Devonia.Views.Common.Controls
             // show items border
             // font size/color/weight/etc
             // autosize width for list layout
+            ItemsTypeFace = new Typeface(new FontFamily("Arial"), FontStyle.Normal, FontWeight.Normal);
+            isWindowLoaded = true;
         }
-        
+
+        private readonly BrushConverter brushConverter = new();
+
         private void ApplyFolderTemplate()
         {
             // settings from database, for each location
-            
+
             // explorer background color/image
             // items size
             // show preview icon
             // icons layout
             // description
-            
-            foreach (FileSystemExplorerItem item in container.Children)
-            {
-                
-            }
+
         }
 
         /// <summary>
@@ -467,7 +639,7 @@ namespace Devonia.Views.Common.Controls
                 txtRename.Focus();
             }
         }
-        
+
         #region selection
         /// <summary>
         /// Marks all items as deselected 
@@ -479,7 +651,7 @@ namespace Devonia.Views.Common.Controls
             if (updateVisualSelection)
                 UpdateVisualItemSelection();
         }
-        
+
         /// <summary>
         /// Marks all items as selected
         /// </summary>
@@ -552,10 +724,10 @@ namespace Devonia.Views.Common.Controls
                     // calculate how many columns fit from container's left edge to the selection's rectangle origin
                     int fittingItemsHorizontally = autosizeWidth ? iteratedColumnIndex - selectionStartIndex : (int)(constantMouseDown.X / (itemsWidth + itemsHorizontalSpacing));
                     // store the id of the first element in the column just before the rectangle's selection origin
-                    startingElementColumnId = selectionStartIndex + fittingItemsHorizontally - 1; 
+                    startingElementColumnId = selectionStartIndex + fittingItemsHorizontally - 1;
                     // store the extra pixels between the origin of the above column and the rectangle's selection origin
                     selectionStartOffset = autosizeWidth ? mouseDownPoint.X - consumedWidth : (constantMouseDown.X / (itemsWidth + itemsHorizontalSpacing)) - fittingItemsHorizontally;
-                    
+
                     // store pixels from left edge of container to the current mouse position
                     remainingPixels = mouseMovePoint.X;
                     iteratedColumnIndex = currentIndex;
@@ -575,7 +747,7 @@ namespace Devonia.Views.Common.Controls
                     // calculate how many columns fit from container's left edge to the current mouse position
                     fittingItemsHorizontally = autosizeWidth ? iteratedColumnIndex - currentIndex : (int)(mouseMovePoint.X / (itemsWidth + itemsHorizontalSpacing));
                     // store the id of the first element in the column just before the current mouse position
-                    endingElementColumnId = currentIndex + fittingItemsHorizontally - 1; 
+                    endingElementColumnId = currentIndex + fittingItemsHorizontally - 1;
                     // store the extra pixels between the origin of the above column and the current mouse position
                     selectionEndOffset = autosizeWidth ? mouseMovePoint.X - consumedWidth : (mouseMovePoint.X / (itemsWidth + itemsHorizontalSpacing)) - fittingItemsHorizontally;
                 }
@@ -593,7 +765,7 @@ namespace Devonia.Views.Common.Controls
                         else break;
                     }
                     int fittingItemsVertically = (int)(constantMouseDown.Y / ((layout == FileSystemExplorerLayouts.Details ? itemsHeight : itemsWidth + 20) + itemsVerticalSpacing));
-                    startingElementColumnId = selectionStartIndex + fittingItemsVertically - 1; 
+                    startingElementColumnId = selectionStartIndex + fittingItemsVertically - 1;
                     selectionStartOffset = (constantMouseDown.Y / ((layout == FileSystemExplorerLayouts.Details ? itemsHeight : itemsWidth + 20) + itemsVerticalSpacing)) - fittingItemsVertically;
                     remainingPixels = mouseMovePoint.Y;
                     iteratedColumnIndex = currentIndex;
@@ -609,7 +781,7 @@ namespace Devonia.Views.Common.Controls
                         else break;
                     }
                     fittingItemsVertically = (int)(mouseMovePoint.Y / ((layout == FileSystemExplorerLayouts.Details ? itemsHeight : itemsWidth + 20) + itemsVerticalSpacing));
-                    endingElementColumnId = currentIndex + fittingItemsVertically - 1; 
+                    endingElementColumnId = currentIndex + fittingItemsVertically - 1;
                     selectionEndOffset = (mouseMovePoint.Y / ((layout == FileSystemExplorerLayouts.Details ? itemsHeight : itemsWidth + 20) + itemsVerticalSpacing)) - fittingItemsVertically;
                 }
                 // determine if the selection rectangle goes backwards or not
@@ -621,7 +793,7 @@ namespace Devonia.Views.Common.Controls
                     isInverseSelectionRectangle = selectionStartOffset > selectionEndOffset;
             }
         }
-        
+
         /// <summary>
         /// Updates the selection state of the visible items based on their non-virtualized origin
         /// </summary>
@@ -631,31 +803,36 @@ namespace Devonia.Views.Common.Controls
             visibleItems.ForEach(item => item.IsSelected = Items[item.VirtualId].IsSelected);
         }
         #endregion
-        
+
         /// <summary>
         /// Sorts the collection of items by <paramref name="sortBy"/>, in Details layout
         /// </summary>
-        /// <param name="sortBy">The criteria to use when sorting the collection of items</param>
-        private void SortItems(SortingItems sortBy)
+        /// <param name="sortBy">The criteria to use when sorting <paramref name="items"/></param>
+        /// <param name="items">The collection of items to be sorted</param>
+        private async Task<IEnumerable<FileSystemEntity>> SortItems(IEnumerable<FileSystemEntity> items, SortingItems sortBy)
         {
-            // store the currently applied sort criteria
-            currentSortBy = sortBy;
-            // create a sorting delegate that can be applied on the colletion
-            Func<IOrderedEnumerable<FileSystemEntity>, Func<FileSystemEntity, object>, IOrderedEnumerable<FileSystemEntity>> orderDelegate = isSortedDescending ? 
-                    Enumerable.ThenByDescending : Enumerable.ThenBy;
-            // group the collection of items by folders and files 
-            IOrderedEnumerable<FileSystemEntity> sortedByExtension = temp.OrderByDescending(e => e.Extension == null);
-            // assign an incrementing id to each sorted element, later used as virtual id in virtualized collection
-            // (virtual id is assigned here because sorting is applied every time the items collection is modified in any way)
-            int id = 0;
-            // run the collection items through the sorting delegate, with the provided sorting criteria 
-            temp = orderDelegate(sortedByExtension, x =>
-                currentSortBy == SortingItems.Name ? x.Name :
-                currentSortBy == SortingItems.Size ? x.Size :
-                currentSortBy == SortingItems.Type ? x.Extension :
-                currentSortBy == SortingItems.Date ? x.Date : null).ForEach(e => e.VirtualId = id++).ToList(); 
+            await Task.Run(() =>
+            {
+                // store the currently applied sort criteria
+                currentSortBy = sortBy;
+                // create a sorting delegate that can be applied on the colletion
+                Func<IOrderedEnumerable<FileSystemEntity>, Func<FileSystemEntity, object>, IOrderedEnumerable<FileSystemEntity>> orderDelegate = isSortedDescending ?
+                        Enumerable.ThenByDescending : Enumerable.ThenBy;
+                // group the collection of items by folders and files 
+                IOrderedEnumerable<FileSystemEntity> sortedByExtension = items.OrderByDescending(e => e.Extension == null);
+                // assign an incrementing id to each sorted element, later used as virtual id in virtualized collection
+                // (virtual id is assigned here because sorting is applied every time the items collection is modified in any way)
+                int id = 0;
+                // run the collection items through the sorting delegate, with the provided sorting criteria 
+                items = orderDelegate(sortedByExtension, x =>
+                    currentSortBy == SortingItems.Name ? x.Name :
+                    currentSortBy == SortingItems.Size ? x.Size :
+                    currentSortBy == SortingItems.Type ? x.Extension :
+                    currentSortBy == SortingItems.Date ? x.Date : null).ForEach(e => e.VirtualId = id++).ToList();
+            });
+            return items;
         }
-        
+
         /// <summary>
         /// Updates the geometry and visibility of the sorting button images
         /// </summary>
@@ -693,12 +870,13 @@ namespace Devonia.Views.Common.Controls
                 imgModified.IsVisible = true;
             }
         }
-        
+
         /// <summary>
         /// Re-displays the required scroll bars 
         /// </summary>
         private void CalculateScrollBars()
         {
+            // TODO: fix bug when in List layout mode, when items fit on two columns, and second columns is only partially visible, scrollbar is not shown
             switch (Layout)
             {
                 case FileSystemExplorerLayouts.List:
@@ -710,7 +888,7 @@ namespace Devonia.Views.Common.Controls
                         scrHorizontal.Maximum = Items.Count / numberOfVerticalItems;
                     else
                         scrHorizontal.Maximum = 0;
-                    scrHorizontal.ViewportSize = (numberOfHorizontalItems / (scrHorizontal.Maximum + numberOfHorizontalItems)) * container.Bounds.Width;
+                    scrHorizontal.ViewportSize = numberOfHorizontalItems / (scrHorizontal.Maximum + numberOfHorizontalItems) * container.Bounds.Width / 3;
                     break;
                 case FileSystemExplorerLayouts.Icons:
                     scrVertical.Value = currentIndex;
@@ -720,7 +898,7 @@ namespace Devonia.Views.Common.Controls
                         scrVertical.Maximum = Items.Count / numberOfHorizontalItems;
                     else
                         scrVertical.Maximum = 0;
-                    scrVertical.ViewportSize = (numberOfVerticalItems / (scrVertical.Maximum + numberOfVerticalItems)) * container.Bounds.Height;
+                    scrVertical.ViewportSize = numberOfVerticalItems / (scrVertical.Maximum + numberOfVerticalItems) * container.Bounds.Height / 3;
                     break;
                 case FileSystemExplorerLayouts.Details:
                     scrVertical.Value = currentIndex;
@@ -729,12 +907,12 @@ namespace Devonia.Views.Common.Controls
                     if (numberOfVisibleItems < Items.Count) // also add one extra unit if there is a remainder of less than three items at the end
                         scrVertical.Maximum = (Items.Count - numberOfVerticalItems) / 3 + ((Items.Count - numberOfVerticalItems) % 3 > 0 ? 1 : 0);
                     else
-                        scrVertical.Maximum = 0; 
-                    scrVertical.ViewportSize = (numberOfVerticalItems / (scrVertical.Maximum + numberOfVerticalItems)) * container.Bounds.Height;
+                        scrVertical.Maximum = 0;
+                    scrVertical.ViewportSize = numberOfVerticalItems / (scrVertical.Maximum + numberOfVerticalItems) * container.Bounds.Height / 3;
                     break;
             }
         }
-        
+
         /// <summary>
         /// Measures the size of <paramref name="candidate"/> with a specific font
         /// </summary>
@@ -745,7 +923,7 @@ namespace Devonia.Views.Common.Controls
             FormattedText formattedText = new FormattedText(candidate, itemsTypeFace, itemsFontSize, TextAlignment.Left, TextWrapping.NoWrap, container.Bounds.Size);
             return new Size(formattedText.Bounds.Width, formattedText.Bounds.Height);
         }
-        
+
         /// <summary>
         /// Measures the widest element in a column starting from <paramref name="startingIndex"/>
         /// </summary>
@@ -754,20 +932,32 @@ namespace Devonia.Views.Common.Controls
         private double GetWidestElementInColumn(int startingIndex)
         {
             double result = 0;
-            // if available, take a whole column from the provided info
-            if (startingIndex <= Items.Count - numberOfVerticalItems)
-                result = Items?.Skip(startingIndex)?
-                               .Take(numberOfVerticalItems)?
-                               .Max(e => MeasureString(e.Name).Width) + 10 ?? 0;
-            else // there is not an entire column available, get the remainder of items
-                result = Items?.Skip(Items.Count - (Items.Count % numberOfVerticalItems))?
-                               .Take(Items.Count % numberOfVerticalItems)?
-                               .Max(e => MeasureString(e.Name).Width) + 10 ?? 0; // + 10 = add extra space near string end
+            try
+            {
+
+                // if available, take a whole column from the provided info
+                if (startingIndex <= Items.Count - numberOfVerticalItems)
+                    result = Items?.Skip(startingIndex)?
+                                   .Take(numberOfVerticalItems)?
+                                   .Max(e => MeasureString(e.Name).Width) + 10 ?? 0;
+                else // there is not an entire column available, get the remainder of items
+                {
+                    result = Items?//.Skip(Items.Count - (Items.Count % numberOfVerticalItems))?
+                                   //.Take(Items.Count % numberOfVerticalItems)?
+                                   .Max(e => MeasureString(e.Name).Width) + 10 ?? 0; // + 10 = add extra space near string end
+                }
+            }
+            catch (Exception e)
+            {
+                // TODO: remove in production
+                Console.WriteLine(e);
+                throw;
+            }
             if (layout == FileSystemExplorerLayouts.List)
                 result += itemsHeight; // add icon's width (icon's width and height are equal to item's height) 
             return result;
         }
-        
+
         /// <summary>
         /// Updates displayed info on already created file system items
         /// </summary>
@@ -782,7 +972,6 @@ namespace Devonia.Views.Common.Controls
             FileSystemExplorerItem[] visibleItems = container.Children.OfType<FileSystemExplorerItem>().ToArray();
             for (int i = 0; i < numberOfVisibleItems; i++)
             {
-                
                 FileSystemExplorerItem item = null;
                 switch (Layout)
                 {
@@ -791,6 +980,7 @@ namespace Devonia.Views.Common.Controls
                         {
                             // when more columns fit when recycling items than they were initially created when drawn, add a new column
                             item = new FileSystemExplorerItem();
+                            item.SelectionHoverItemsBackgroundColor = selectionHoverItemsBackgroundColor;
                             item.CurrentTypeFace = ItemsTypeFace;
                             item.SelectionBackgroundColor = itemsSelectionBackgroundColor;
                             item.SelectionBorderColor = itemsSelectionBorderColor;
@@ -840,6 +1030,7 @@ namespace Devonia.Views.Common.Controls
                         {
                             // when more columns fit when recycling items than they were initially created when drawn, add a new column
                             item = new FileSystemExplorerItem();
+                            item.SelectionHoverItemsBackgroundColor = selectionHoverItemsBackgroundColor;
                             item.CurrentTypeFace = ItemsTypeFace;
                             item.SelectionBackgroundColor = itemsSelectionBackgroundColor;
                             item.SelectionBorderColor = itemsSelectionBorderColor;
@@ -902,7 +1093,7 @@ namespace Devonia.Views.Common.Controls
                 {
                     controlExists = true;
                     // the control near which the mouse selection was started is visible, set the selection rectangle's origin point near it, with the original offset 
-                    mouseDownPoint =  new Point(Canvas.GetLeft(item), Canvas.GetTop(item)) + offset;
+                    mouseDownPoint = new Point(Canvas.GetLeft(item), Canvas.GetTop(item)) + offset;
                 }
             }
             // store whether the control near which the mouse selection started is within the visible items 
@@ -926,7 +1117,7 @@ namespace Devonia.Views.Common.Controls
                 for (int j = virtualizedItems.Length; j < visibleItems.Length; j++)
                     visibleItems[j].IsVisible = false;
         }
-        
+
         /// <summary>
         /// Draws the file system items that fit in the visible area of the canvas
         /// </summary>
@@ -934,8 +1125,7 @@ namespace Devonia.Views.Common.Controls
         {
             foreach (FileSystemExplorerItem control in container.Children.OfType<FileSystemExplorerItem>().ToArray())
                 container.Children.Remove(control);
-             //container.Children.OfType<FileSystemExplorerItem>().ForEach(item => item.rem);
-            if (virtualizedItems == null || virtualizedItems.Length == 0) 
+            if (virtualizedItems == null || virtualizedItems.Length == 0)
                 return;
             double xCoordinate = 0, yCoordinate = 0;
             int currentColumn = 0;
@@ -945,6 +1135,7 @@ namespace Devonia.Views.Common.Controls
             for (int i = 0; i < numberOfVisibleItems; i++)
             {
                 FileSystemExplorerItem item = new FileSystemExplorerItem();
+                item.SelectionHoverItemsBackgroundColor = selectionHoverItemsBackgroundColor;
                 item.CurrentTypeFace = itemsTypeFace;
                 item.SelectionBackgroundColor = itemsSelectionBackgroundColor;
                 item.SelectionBorderColor = itemsSelectionBorderColor;
@@ -1007,6 +1198,7 @@ namespace Devonia.Views.Common.Controls
                     if (!string.IsNullOrEmpty(virtualizedItems[i].IconSource))
                         item.IconSource = virtualizedItems[i].IconSource;
                     item.FileSystemItemType = virtualizedItems[i].FileSystemItemType;
+                    item.IsSelected = virtualizedItems[i].IsSelected;
                 }
                 else
                     item.IsVisible = false; // when last column doesnt fill visual area, hide remainder of created items 
@@ -1022,17 +1214,17 @@ namespace Devonia.Views.Common.Controls
         private void FetchMoreData(bool fetchForward)
         {
             scrollForward = fetchForward;
-            if (fetchForward) 
+            if (fetchForward)
             {
                 if (layout == FileSystemExplorerLayouts.List)
                 {
                     // move items to the left while the rightmost item doesn't go beyond first column 
                     if (currentIndex * numberOfVerticalItems < Items.Count - numberOfVerticalItems)
-                    { 
+                    {
                         scrHorizontal.Value++;
                         currentIndex++;
                     }
-                    else return; 
+                    else return;
                 }
                 else if (layout == FileSystemExplorerLayouts.Details || layout == FileSystemExplorerLayouts.Icons)
                 {
@@ -1054,7 +1246,7 @@ namespace Devonia.Views.Common.Controls
                 {
                     // move items to the right while the current page is not the first page
                     if (currentIndex > 0)
-                    {  
+                    {
                         scrHorizontal.Value--;
                         currentIndex--;
                     }
@@ -1065,7 +1257,7 @@ namespace Devonia.Views.Common.Controls
                     if (currentIndex > (layout == FileSystemExplorerLayouts.Details ? 3 : 1))
                     {
                         scrVertical.Value--;
-                        currentIndex -= (layout == FileSystemExplorerLayouts.Details ? 3 : 1);
+                        currentIndex -= layout == FileSystemExplorerLayouts.Details ? 3 : 1;
                     }
                     else
                     {
@@ -1078,7 +1270,7 @@ namespace Devonia.Views.Common.Controls
             FetchDataChunk();
             RecycleUIElements();
         }
-        
+
         /// <summary>
         /// Gets the data portion that will be displayed in the UI
         /// </summary>
@@ -1122,58 +1314,58 @@ namespace Devonia.Views.Common.Controls
             switch (Layout)
             {
                 case FileSystemExplorerLayouts.List:
-                {
-                    double width = 0;
-                    // need to start from current index so that measurements reflect next columns
-                    int columns = currentIndex;
-                    // container.Bounds.Height 811 itemsHeight 20 itemsVerticalSpacing 1
-                    numberOfVerticalItems = (int)(container.Bounds.Height / (itemsHeight + itemsVerticalSpacing));
-                    // calculate number of columns in the visible area based on their visible measurement or the user provided width
-                    while (width < container.Bounds.Width)
                     {
-                        if (autosizeWidth)
-                            width += GetWidestElementInColumn(columns++ * numberOfVerticalItems);
-                        else
+                        double width = 0;
+                        // need to start from current index so that measurements reflect next columns
+                        int columns = currentIndex;
+                        // container.Bounds.Height 811 itemsHeight 20 itemsVerticalSpacing 1
+                        numberOfVerticalItems = (int)(container.Bounds.Height / (itemsHeight + itemsVerticalSpacing));
+                        // calculate number of columns in the visible area based on their visible measurement or the user provided width
+                        while (width < container.Bounds.Width)
                         {
-                            width += itemsWidth + itemsHorizontalSpacing;
-                            columns++;
+                            if (autosizeWidth)
+                                width += GetWidestElementInColumn(columns++ * numberOfVerticalItems);
+                            else
+                            {
+                                width += itemsWidth + itemsHorizontalSpacing;
+                                columns++;
+                            }
                         }
+                        // add one extra column that is only partially visible, if there is remainder space
+                        if (container.Bounds.Width - width > 0)
+                            columns++;
+                        // revert from current index based column count
+                        numberOfHorizontalItems = columns - currentIndex;
+                        break;
                     }
-                    // add one extra column that is only partially visible, if there is remainder space
-                    if (container.Bounds.Width - width > 0)
-                        columns++;
-                    // revert from current index based column count
-                    numberOfHorizontalItems = columns - currentIndex;
-                    break;
-                }
                 case FileSystemExplorerLayouts.Details:
-                {
-                    numberOfVerticalItems = (int)(container.Bounds.Height / (itemsHeight + itemsVerticalSpacing));
-                    if (container.Bounds.Height - (int)(container.Bounds.Height / (itemsHeight + itemsVerticalSpacing)) > 0)
-                        numberOfVerticalItems++;
-                    numberOfHorizontalItems = 1;
-                    break;
-                }
-                case FileSystemExplorerLayouts.Icons:
-                {
-                    double height = 0;
-                    // need to start from current index so that measurements reflect next columns
-                    int rows = currentIndex;
-                    numberOfHorizontalItems = (int)(container.Bounds.Width / (itemsWidth + itemsHorizontalSpacing));
-                    // calculate number of rows in the visible area based on their visible measurement or the user provided height
-                    // (in Icons layout, height is equal to width plus 20)
-                    while (height < container.Bounds.Height)
                     {
-                        height += itemsWidth + 20 + itemsVerticalSpacing;
-                        rows++;
+                        numberOfVerticalItems = (int)(container.Bounds.Height / (itemsHeight + itemsVerticalSpacing));
+                        if (container.Bounds.Height - (int)(container.Bounds.Height / (itemsHeight + itemsVerticalSpacing)) > 0)
+                            numberOfVerticalItems++;
+                        numberOfHorizontalItems = 1;
+                        break;
                     }
-                    // add one extra row that is only partially visible, if there is remainder space
-                    if (container.Bounds.Height - height > 0)
-                        rows++;
-                    // revert from current index based row count
-                    numberOfVerticalItems = rows - currentIndex;
-                    break;
-                }
+                case FileSystemExplorerLayouts.Icons:
+                    {
+                        double height = 0;
+                        // need to start from current index so that measurements reflect next columns
+                        int rows = currentIndex;
+                        numberOfHorizontalItems = (int)(container.Bounds.Width / (itemsWidth + itemsHorizontalSpacing));
+                        // calculate number of rows in the visible area based on their visible measurement or the user provided height
+                        // (in Icons layout, height is equal to width plus 20)
+                        while (height < container.Bounds.Height)
+                        {
+                            height += itemsWidth + 20 + itemsVerticalSpacing;
+                            rows++;
+                        }
+                        // add one extra row that is only partially visible, if there is remainder space
+                        if (container.Bounds.Height - height > 0)
+                            rows++;
+                        // revert from current index based row count
+                        numberOfVerticalItems = rows - currentIndex;
+                        break;
+                    }
             }
             return numberOfVerticalItems * numberOfHorizontalItems;
         }
@@ -1183,15 +1375,16 @@ namespace Devonia.Views.Common.Controls
         /// </summary>
         private void Initialize()
         {
-            if (isWindowLoaded && Items.Count > 0)
+            if (isWindowLoaded && Items?.Count > 0 && container.Bounds.Width > 0 && container.Bounds.Height > 0)
             {
+                currentIndex = 0;
                 numberOfVisibleItems = CalculateNumberOfVisibleItems();
                 FetchDataChunk();
                 CalculateScrollBars();
                 DrawUIElements();
                 grdDetails.IsVisible = layout == FileSystemExplorerLayouts.Details;
                 container.Margin = new Thickness(0, layout == FileSystemExplorerLayouts.Details ? 25 : 0, 25, 25);
-            }    
+            }
         }
 
         /// <summary>
@@ -1204,40 +1397,39 @@ namespace Devonia.Views.Common.Controls
             // if the provided path doesn't exist throw and exception
             if (!Directory.Exists(path))
                 throw new DirectoryNotFoundException();
-            await Task.Run(() =>
+            List<FileSystemEntity> temp = new List<FileSystemEntity>();
+            await Task.Run(async () =>
             {
-                temp = new List<FileSystemEntity>();
                 try
                 {
                     // TODO: implement access rights checking!
                     // get directories first
-                    FileSystemInfo info = null;
-                    temp.AddRange(Directory.GetDirectories(path, "*", SearchOption.TopDirectoryOnly)
-                        .Select(path => new FileSystemEntity()
-                        {
-                            Path = path,
-                            Date = new DirectoryInfo(path).LastAccessTime,
-                            FileSystemItemType = FileSystemItemTypes.Folder,
-                            Name = path.Contains(Path.DirectorySeparatorChar) ? path.Substring(path.LastIndexOf(Path.DirectorySeparatorChar) + 1) : path,
-                        }));
+                    var dirs = new DirectoryInfo(path).GetDirectories("*", SearchOption.TopDirectoryOnly)
+                                                      .AsParallel()
+                                                      .Select(di => new FileSystemEntity()
+                                                      {
+                                                          Path = di.FullName,
+                                                          Date = di.LastAccessTime,
+                                                          FileSystemItemType = FileSystemItemTypes.Folder,
+                                                          Name = di.Name,
+                                                      });
+                    temp.AddRange(dirs);
                     // get files and their properties too
-                    temp.AddRange(Directory.GetFiles(path, "*", SearchOption.TopDirectoryOnly)
-                        .Select(path =>
-                        {
-                            info = new FileInfo(path);
-                            return new FileSystemEntity()
-                            {
-                                Path = path,
-                                Date = info.LastAccessTime,
-                                Size = (info as FileInfo).Length,
-                                FileSystemItemType = FileSystemItemTypes.File,
-                                //IconSource = "/mnt/STORAGE/MULTIMEDIA/PHOTO/ICONS/anime.ico",
-                                Name = path.Contains(Path.DirectorySeparatorChar) ? path.Substring(path.LastIndexOf(Path.DirectorySeparatorChar) + 1) : path,
-                                Extension = Path.GetExtension(path)
-                            };
-                        }));
+                    var files = new DirectoryInfo(path).GetFiles("*", SearchOption.TopDirectoryOnly)
+                                                       .AsParallel()
+                                                       .Select(fi => new FileSystemEntity()
+                                                       {
+                                                           Path = fi.FullName,
+                                                           Date = fi.LastAccessTime,
+                                                           Size = fi.Length,
+                                                           FileSystemItemType = FileSystemItemTypes.File,
+                                                           //IconSource = "/mnt/STORAGE/MULTIMEDIA/PHOTO/ICONS/anime.ico",
+                                                           Name = fi.Name,
+                                                           Extension = fi.Extension
+                                                       });
+                    temp.AddRange(files);
                     // sort items by name (default sorting criteria)
-                    SortItems(SortingItems.Name);
+                    temp = (await SortItems(temp, SortingItems.Name)).ToList();
                 }
                 catch (Exception e)
                 {
@@ -1245,19 +1437,102 @@ namespace Devonia.Views.Common.Controls
                     throw;
                 }
             });
+            if (currentPath != path)
+            {
+                currentPath = path;
+                LocationChanged?.Invoke(null, currentPath);
+            }
             UpdateSortAdorners();
-            Items = new AvaloniaList<FileSystemEntity>(temp);
+            if (temp.Count == 0)
+                foreach (FileSystemExplorerItem control in container.Children.OfType<FileSystemExplorerItem>().ToArray())
+                    container.Children.Remove(control);
+            Items = temp;
+        }
+
+        /// <summary>
+        /// Provides forward navigation
+        /// </summary>
+        private async Task NavigateForwardAsync()
+        {
+            // check if forward navigation is possible
+            if (redoStack.Count > 0)
+            {
+                // get the first path in the forward navigation list
+                string path = redoStack.Pop();
+                // put the current path in the backward navigation list, before navigating to the forward path
+                if (currentPath != null && ((undoStack.Count > 0 && undoStack.Peek() != path) || undoStack.Count == 0))
+                {
+                    undoStack.Push(currentPath);
+                    VM!.SourceHistory = undoStack.ToList();
+                }
+                // navigate to the forward path
+                await NavigateToPath(path);
+            }
+        }
+
+        /// <summary>
+        /// Provides backwards navigation
+        /// </summary>
+        private async Task NavigateBackAsync()
+        {
+            // check if backward navigation is possible
+            if (undoStack.Count > 0)
+            {
+                // get the first path in the backward navigation list
+                string path = undoStack.Pop();
+                VM!.SourceHistory = undoStack.ToList();
+                // put the current path in the forward navigation list, before navigating to the backward path
+                if (currentPath != null && ((redoStack.Count > 0 && redoStack.Peek() != path) || redoStack.Count == 0))
+                    redoStack.Push(currentPath);
+                // navigate to the backward path
+                await NavigateToPath(path);
+            }
+        }
+
+        /// <summary>
+        /// Navigates up one directory level from the current location, if available
+        /// </summary>
+        private async Task NavigateUpAsync()
+        {
+            // check if the current path ends with the directory separator char (it is a directory) or not (it is a drive)
+            string path = currentPath;
+            // if the current path is a directory, remove the last directory separator character from it
+            if (path.EndsWith(Path.DirectorySeparatorChar))
+                path = path.Substring(0, path.LastIndexOf(Path.DirectorySeparatorChar));
+            // if the modified current path still containes the directory separator character (it is still a directory), get the directories located in it
+            if (path.Contains(Path.DirectorySeparatorChar))
+            {
+                // store the current path in the backwards navigation list
+                if ((undoStack.Count > 0 && undoStack.Peek() != path + Path.DirectorySeparatorChar) || undoStack.Count == 0)
+                    undoStack.Push(path + Path.DirectorySeparatorChar);
+                VM!.SourceHistory = undoStack.ToList();
+                // clear the forward navigation list (forward navigation is no longer possible when navigating up)
+                redoStack.Clear();
+                // navigate to the next upwards directory from the current path
+                await NavigateToPath(path.Substring(0, path.LastIndexOf(Path.DirectorySeparatorChar) + 1));
+            }
+            else
+            {
+                // the modified path doesn't contain the directory separation character, it is a drive
+                CurrentPath = null;
+                //await GetDrivesAsync(); // TODO: implement
+            }
         }
         #endregion
-        
+
         #region ============================================================= EVENT HANDLERS ================================================================================
         /// <summary>
         /// Handles FileSystemExploer's PropertyChanged event
         /// </summary>
-        private void FileSystemExploer_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
+        private async void FileSystemExploer_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
         {
             if (e.Property == BoundsProperty & isWindowLoaded)
-                Initialize();
+            {
+                ApplyGlobalTemplate(); // TODO: remove in production!
+                //await NavigateToPath("/mnt/STORAGE/MULTIMEDIA/MUSIC/"); // TODO: remove in production!
+
+                //Initialize();
+            }
         }
 
         /// <summary>
@@ -1268,7 +1543,7 @@ namespace Devonia.Views.Common.Controls
             isInRenameMode = false;
             txtRename.IsVisible = false;
             // if a mouse selection is not in progress and the Control key is pressed, change items size
-            if (IsCtrlPressed && !isMouseDown)
+            if (isControlPressed && !isMouseDown)
             {
                 if (e.Delta.Y > 0)
                 {
@@ -1289,27 +1564,30 @@ namespace Devonia.Views.Common.Controls
             else if ((isMouseDown && mouseMovePoint.X > 0 && mouseMovePoint.Y > 0) || !isMouseDown) // when selecting, only scroll if mouse is over the file explorer control area
             {
                 scrollForward = e.Delta.Y < 0;
-                // get the item control whose origin point is closest to the mouse down coordinate
-                var closestControl = container.Children.OfType<FileSystemExplorerItem>()
-                                              .Where(item => item.IsVisible)
-                                              .Select(item => new
-                                              {
-                                                  Point = item.Bounds.Position,
-                                                  Distance2 = Math.Pow(item.Bounds.Position.X - mouseDownPoint.X, 2) +  Math.Pow(item.Bounds.Position.Y - mouseDownPoint.Y, 2),
-                                                  Control = item
-                                              })
-                                              .Aggregate((p1, p2) => p1.Distance2 < p2.Distance2 ? p1 : p2);
-                // get the coordinates of the control closest to furthest edge (right, in list mode, bottom in the other modes)
-                int outterMostCoord = (int)container.Children.OfType<FileSystemExplorerItem>()
-                                                    .Where(item => item.IsVisible)
-                                                    .Select(item => layout == FileSystemExplorerLayouts.List ? Canvas.GetLeft(item) : Canvas.GetTop(item))
-                                                    .Where(coord => coord <= (layout == FileSystemExplorerLayouts.List ? container.Bounds.Width : container.Bounds.Height))
-                                                    .Max();
-                // if the mouse down coordinates are within the bounds of the above control, the selection was started near edge and needs to be stored
-                // (when scrolling backwards, the selection rectangle can get inversed while the control goes off-screen) 
-                if ((layout == FileSystemExplorerLayouts.List ? closestControl.Point.X : closestControl.Point.Y) >= outterMostCoord)
-                    isSelectionNearEdge = true;
-                FetchMoreData(e.Delta.Y < 0);
+                IEnumerable<FileSystemExplorerItem> visibleItems = container.Children.OfType<FileSystemExplorerItem>();
+                if (visibleItems.Count() > 0)
+                {
+                    // get the item control whose origin point is closest to the mouse down coordinate
+                    var closestControl = visibleItems.Where(item => item.IsVisible)
+                                                     .Select(item => new
+                                                     {
+                                                         Point = item.Bounds.Position,
+                                                         Distance2 = Math.Pow(item.Bounds.Position.X - mouseDownPoint.X, 2) +
+                                                                     Math.Pow(item.Bounds.Position.Y - mouseDownPoint.Y, 2),
+                                                         Control = item
+                                                     })
+                                                     .Aggregate((p1, p2) => p1.Distance2 < p2.Distance2 ? p1 : p2);
+                    // get the coordinates of the control closest to furthest edge (right, in list mode, bottom in the other modes)
+                    int outterMostCoord = (int)visibleItems.Where(item => item.IsVisible)
+                                                           .Select(item => layout == FileSystemExplorerLayouts.List ? Canvas.GetLeft(item) : Canvas.GetTop(item))
+                                                           .Where(coord => coord <= (layout == FileSystemExplorerLayouts.List ? container.Bounds.Width : container.Bounds.Height))
+                                                           .Max();
+                    // if the mouse down coordinates are within the bounds of the above control, the selection was started near edge and needs to be stored
+                    // (when scrolling backwards, the selection rectangle can get inversed while the control goes off-screen) 
+                    if ((layout == FileSystemExplorerLayouts.List ? closestControl.Point.X : closestControl.Point.Y) >= outterMostCoord)
+                        isSelectionNearEdge = true;
+                    FetchMoreData(e.Delta.Y < 0);
+                }
             }
         }
 
@@ -1354,7 +1632,7 @@ namespace Devonia.Views.Common.Controls
         /// </summary>
         private void UserControl_OnPointerMoved(object? sender, PointerEventArgs e)
         {
-            if (isMouseDown)
+            if (isMouseDown && items?.Count > 0)
             {
                 e.Device.Capture(container);
                 // update the stored coordinates of the mouse
@@ -1372,7 +1650,7 @@ namespace Devonia.Views.Common.Controls
                     FetchMoreData(false);
             }
         }
-        
+
         /// <summary>
         /// Handles control's PointerReleased event
         /// </summary>
@@ -1381,6 +1659,7 @@ namespace Devonia.Views.Common.Controls
             isMouseDown = false;
             closestControlPath = null;
             // clicks on items should be at least one second apart, otherwise it is double click
+            // TODO: check if mouse was clicked at same location (it is not double click if cursor was moved!)
             if (DateTime.Now.Subtract(lastClickTime) < TimeSpan.FromSeconds(1))
             {
                 // if it's double click, get rid of any started selection rectangle
@@ -1388,10 +1667,12 @@ namespace Devonia.Views.Common.Controls
                 selectionRectangle.Height = 0;
                 return;
             }
+            if (items == null || items?.Count == 0)
+                return;
             // update the stored time of the last click
             lastClickTime = DateTime.Now;
             // if neither Control or Shift keys are pressed and a selection rectangle is present, deselect all items before selecting just those inside the selection
-            if (!IsCtrlPressed && !IsShiftPressed && selectionRectangle.Width > 0 && selectionRectangle.Bounds.Height > 0)
+            if (!isControlPressed && !isShiftPressed && selectionRectangle.Width > 0 && selectionRectangle.Bounds.Height > 0)
                 DeselectAll(true);
             // if there was a selection rectangle, mark the items inside it as selected
             if (selectionRectangle.Width > 0 && selectionRectangle.Bounds.Height > 0)
@@ -1532,14 +1813,14 @@ namespace Devonia.Views.Common.Controls
                     FileSystemExplorerItem clickedItem = container.Children.OfType<FileSystemExplorerItem>()
                         .Where(item => item.Bounds.Contains(e.GetPosition(container)))
                         .FirstOrDefault();
-                    if (IsCtrlPressed)
+                    if (isControlPressed)
                     {
                         // if any item was clicked
                         if (clickedItem != null)
                             clickedItem.IsSelected = !clickedItem.IsSelected;
                         Items.Where(item => item.Path == clickedItem.Path).First().IsSelected = clickedItem.IsSelected;
                     }
-                    else if (IsShiftPressed)
+                    else if (isShiftPressed)
                     {
                         if (clickedItem != null)
                         {
@@ -1628,38 +1909,46 @@ namespace Devonia.Views.Common.Controls
         private void HorizontalScrollBar_OnScroll(object? sender, ScrollEventArgs e)
         {
             scrHorizontal.Value = Math.Round(e.NewValue);
-            currentIndex = (int)scrHorizontal.Value;
-            numberOfVisibleItems = CalculateNumberOfVisibleItems();
-            FetchDataChunk();
-            RecycleUIElements();
+            if (items?.Count > 0)
+            {
+                currentIndex = (int)scrHorizontal.Value;
+                numberOfVisibleItems = CalculateNumberOfVisibleItems();
+                FetchDataChunk();
+                RecycleUIElements();
+            }
         }
-        
+
         /// <summary>
         /// Handles vertical scrollbar's Scroll event
         /// </summary>
         private void VerticalScrollBar_OnScroll(object? sender, ScrollEventArgs e)
         {
             scrVertical.Value = Math.Round(e.NewValue);
-            // scroll three more items from the current position (vertical scrollbar apply only on details and icons layouts)
-            if ((Items.Count - numberOfVerticalItems) / (layout == FileSystemExplorerLayouts.Details ? 3 : 1) > (int)scrVertical.Value)
-                currentIndex = (int)scrVertical.Value * (layout == FileSystemExplorerLayouts.Details ? 3 : 1);
-            else // if there are less than three items left at the end of the list, add them too as an extra scroll unit
-                currentIndex = (int)scrVertical.Value * (layout == FileSystemExplorerLayouts.Details ? 3 : 1) - ((Items.Count - numberOfVerticalItems) % (layout == FileSystemExplorerLayouts.Details ? 3 : 1) > 0 ? 1 : 0);
-            FetchDataChunk();
-            RecycleUIElements();
+            if (items?.Count > 0)
+            {
+                // scroll three more items from the current position (vertical scrollbar apply only on details and icons layouts)
+                if ((Items.Count - numberOfVerticalItems) / (layout == FileSystemExplorerLayouts.Details ? 3 : 1) > (int)scrVertical.Value)
+                    currentIndex = (int)scrVertical.Value * (layout == FileSystemExplorerLayouts.Details ? 3 : 1);
+                else // if there are less than three items left at the end of the list, add them too as an extra scroll unit
+                    currentIndex = (int)scrVertical.Value * (layout == FileSystemExplorerLayouts.Details ? 3 : 1) -
+                                   ((Items.Count - numberOfVerticalItems) % (layout == FileSystemExplorerLayouts.Details ? 3 : 1) > 0 ? 1 : 0);
+                FetchDataChunk();
+                RecycleUIElements();
+            }
         }
 
         /// <summary>
         /// Handles details layout header sort button's Click event 
         /// </summary>
-        private void BtnSort_OnClick(object? sender, RoutedEventArgs e)
+        private async void BtnSort_OnClick(object? sender, RoutedEventArgs e)
         {
             // when sorting by the same currently sorted item, just change sorting direction
             if (currentSortBy == (SortingItems)(sender as Button).Tag)
                 isSortedDescending = !isSortedDescending;
-            SortItems((SortingItems)(sender as Button).Tag);
             UpdateSortAdorners();
-            Items = new AvaloniaList<FileSystemEntity>(temp);
+            if (items == null || items?.Count == 0)
+                return;
+            Items = (await SortItems(Items, (SortingItems)(sender as Button).Tag)).ToList();
             Initialize();
         }
 
@@ -1669,12 +1958,16 @@ namespace Devonia.Views.Common.Controls
         private async void UserControl_OnDoubleTapped(object? sender, RoutedEventArgs e)
         {
             // check if the mouse was clicked over an item
-            var clickedItem = container.Children.OfType<FileSystemExplorerItem>()
-                                                .Where(item => item.Bounds.Contains((e as TappedEventArgs).GetPosition(container)))
-                                                .FirstOrDefault();
+            FileSystemExplorerItem? clickedItem = container.Children.OfType<FileSystemExplorerItem>()
+                                                                    .Where(item => item.Bounds.Contains((e as TappedEventArgs).GetPosition(container)))
+                                                                    .FirstOrDefault();
             // a folder was double clicked, browse it
             if (clickedItem != null && clickedItem.FileSystemItemType == FileSystemItemTypes.Folder)
-                FolderBrowsed?.Invoke(clickedItem.Path);
+            {
+                undoStack.Push(currentPath);
+                VM!.SourceHistory = undoStack.ToList();
+                FolderBrowsed?.Invoke(null, clickedItem.Path + Path.DirectorySeparatorChar);//.Invoke(clickedItem.Path);
+            }
             else if (clickedItem != null && clickedItem.FileSystemItemType == FileSystemItemTypes.File)
             {
                 // TODO: handle file launching in cross platform way

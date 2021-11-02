@@ -26,8 +26,8 @@ namespace Devonia.ViewModels.Main
     {
 
         #region ============================================================== FIELD MEMBERS ================================================================================
-        public event Action Navigated;
-        public event Action<bool> ValidationChanged;
+        public event Action<string> FolderBrowsed;
+     
         public delegate bool AutoCompleteFilterPredicate<T>(string search, T item);
 
         private readonly IAppOptions appOptions;
@@ -40,6 +40,10 @@ namespace Devonia.ViewModels.Main
         public AutoCompleteFilterPredicate<object> SearchMediaLibrary_Command { get; private set; }
         public IAsyncCommand SelectedExtensionChangedAsync_Command { get; private set; }
         public IAsyncCommand CreateNewFolder_Command { get; private set; }
+        public ISyncCommand SetControlSpecialMode_Command { get; private set; }
+        public ISyncCommand SetShiftSpecialMode_Command { get; private set; }
+        public ISyncCommand<FileSystemExplorerLayouts> ChangeExplorerLayout_Command { get; private set; }
+        public ISyncCommand SelectedPageChanged_Command { get; private set; }
         #endregion
 
         #region ============================================================ BINDING PROPERTIES ============================================================================= 
@@ -96,6 +100,23 @@ namespace Devonia.ViewModels.Main
             get { return searchDirectoriesSelectedItem; }
             set { searchDirectoriesSelectedItem = value; Notify(); }
         }
+        
+        
+        
+        
+        ObservableCollection<ExplorerPageVM> sourceExplorerPages = new ObservableCollection<ExplorerPageVM>();
+        public ObservableCollection<ExplorerPageVM> SourceExplorerPages
+        {
+            get { return sourceExplorerPages; }
+            set { sourceExplorerPages = value; Notify(); }
+        }
+
+        private ExplorerPageVM selectedExplorerPage;
+        public ExplorerPageVM SelectedExplorerPage
+        {
+            get { return selectedExplorerPage; }
+            set { selectedExplorerPage = value; Notify(); }
+        }
         #endregion
 
         #region ================================================================== CTOR =====================================================================================
@@ -112,6 +133,10 @@ namespace Devonia.ViewModels.Main
 
             ViewOpenedAsync_Command = new AsyncCommand(ViewOpenedAsync);
             SearchMediaLibrary_Command = new AutoCompleteFilterPredicate<object>(SearchMediaLibrary);
+            SetControlSpecialMode_Command = new SyncCommand(SetControlSpecialMode);
+            SetShiftSpecialMode_Command = new SyncCommand(SetShiftSpecialMode);
+            ChangeExplorerLayout_Command = new SyncCommand<FileSystemExplorerLayouts>(ChangeExplorerLayout);
+            SelectedPageChanged_Command = new SyncCommand(SelectedPageChanged);
         }
         #endregion
 
@@ -182,6 +207,64 @@ namespace Devonia.ViewModels.Main
             bool hasRoles = (element?.Hover as string[]).Where(r => r.ToLower().Contains(search)).Count() > 0;
             return hasEpisode || hasTvShow || hasTags || hasGenres || hasActors || hasRoles;
         }
+
+        /// <summary>
+        /// Signals the currently selected explorer page that the control key is pressed 
+        /// </summary>
+        public void SetControlSpecialMode()
+        {
+            // set all explorer pages control key pressed status to false  
+            foreach (ExplorerPageVM page in sourceExplorerPages)
+                page.IsCtrlPressed = false;
+            // set control key pressed status only for the currently selected explorer page 
+            if (selectedExplorerPage != null)
+                selectedExplorerPage.IsCtrlPressed = true;
+        }
+        
+        /// <summary>
+        /// Signals the currently selected explorer page that the shift key is pressed 
+        /// </summary>
+        public void SetShiftSpecialMode()
+        {
+            // set all explorer pages shift key pressed status to false  
+            foreach (ExplorerPageVM page in sourceExplorerPages)
+                page.IsShiftPressed = false;
+            // set shift key pressed status only for the currently selected explorer page 
+            if (selectedExplorerPage != null)
+                selectedExplorerPage.IsShiftPressed = true;
+        }
+        
+        /// <summary>
+        /// Resets the shift and control keys status for the currently selected explorer page to false 
+        /// </summary>
+        public void ResetSpecialModes()
+        {
+            if (selectedExplorerPage != null)
+            {
+                selectedExplorerPage.IsShiftPressed = false;
+                selectedExplorerPage.IsCtrlPressed = false;
+            }
+        }
+
+        /// <summary>
+        /// Changes the display of the currently selected file system explorer page to <paramref name="layout"/>
+        /// </summary>
+        /// <param name="layout">The layout to apply to the currently selected file system explorer page</param>
+        private void ChangeExplorerLayout(FileSystemExplorerLayouts layout)
+        {
+            ShowProgressBar();
+            if (selectedExplorerPage != null)
+                selectedExplorerPage.Layout = layout;
+            HideProgressBar();
+        }
+
+        public void NavigateToPath(string path)
+        {
+            ShowProgressBar();
+            if (selectedExplorerPage != null && selectedExplorerPage.CurrentPath != path)
+                selectedExplorerPage.CurrentPath = path;
+            HideProgressBar();
+        }
         #endregion
 
         #region ============================================================= EVENT HANDLERS ================================================================================
@@ -195,7 +278,58 @@ namespace Devonia.ViewModels.Main
             ShowProgressBar();
             WindowTitle = "Devonia";
             IsMediaPlayingIndicatorSocketVisible = true;
-            //HideProgressBar();
+            ExplorerPageVM explorer_one = new ExplorerPageVM();
+            explorer_one.Id = 1;
+            explorer_one.ExplorerPageClosed += OnExplorerPageClosed;
+            explorer_one.CurrentPath = Directory.Exists("/mnt/STORAGE/MULTIMEDIA/MUSIC/") ? "/mnt/STORAGE/MULTIMEDIA/MUSIC/" : @"Z:\MULTIMEDIA\MUSIC\";
+            explorer_one.FolderBrowsed += OnFolderBrowsed;
+            SourceExplorerPages.Add(explorer_one);
+        
+            ExplorerPageVM explorer_two = new ExplorerPageVM();
+            explorer_two.CurrentPath = Directory.Exists("/mnt/STORAGE/MULTIMEDIA/MUSIC/") ? "/mnt/STORAGE/MULTIMEDIA/" : @"Z:\MULTIMEDIA\";
+            explorer_two.Id = 2;
+            explorer_two.ExplorerPageClosed += OnExplorerPageClosed;
+            explorer_two.FolderBrowsed += OnFolderBrowsed;
+            SourceExplorerPages.Add(explorer_two);
+           
+            ExplorerPageVM explorer_three = new ExplorerPageVM();
+            explorer_three.CurrentPath = Directory.Exists("/mnt/STORAGE/MULTIMEDIA/ANIME/") ? "/mnt/STORAGE/MULTIMEDIA/ANIME/" : @"Z:\MULTIMEDIA\ANIME\";
+            explorer_three.Id = 3;
+            explorer_three.ExplorerPageClosed += OnExplorerPageClosed;
+            explorer_three.FolderBrowsed += OnFolderBrowsed;
+            SourceExplorerPages.Add(explorer_three);
+            HideProgressBar();
+        }
+
+        private void OnFolderBrowsed(string path)
+        {
+            FolderBrowsed?.Invoke(path);
+        }
+
+        /// <summary>
+        /// Closes an explorer page identified by <paramref name="pageId"/>
+        /// </summary>
+        /// <param name="pageId">The id of the explorer page to be closed</param>
+        private void OnExplorerPageClosed(int pageId)
+        {
+            // do not close the page if its the only one left
+            if (sourceExplorerPages.Count > 1)
+            {
+                // get the page that initiated the close request
+                ExplorerPageVM pageToBeClosed = sourceExplorerPages.Where(page => page.Id == pageId)
+                                                                   .First();
+                // unsubscribe selected page's events, to avoid memory leaks
+                pageToBeClosed.ExplorerPageClosed -= OnExplorerPageClosed;
+                pageToBeClosed.FolderBrowsed -= OnFolderBrowsed;
+                // remove selected page and notify the UI
+                SourceExplorerPages.Remove(pageToBeClosed);
+                Notify(nameof(SourceExplorerPages));
+            }
+        }
+
+        private void SelectedPageChanged()
+        {
+            
         }
         #endregion
     }

@@ -23,10 +23,17 @@ namespace Devonia.Infrastructure.Configuration
         public string ItemsBorderColorFirst { get; set; }
         public string ItemsBorderColorSecond { get; set; }
         public string ItemsForegroundColor { get; set; }
+        public string SelectionBorderColor { get; set; }
+        public string SelectionBackgroundColor { get; set; }
+        public string SelectionHoverItemsBackgroundColor { get; set; }
         public string ItemsFont { get; set; }
+        public bool ShowGrid { get; set; }
+        public bool AutosizeWidth { get; set; }
         public int ItemsFontSize { get; set; }
         public int ItemsFontStyle { get; set; }
         public int ItemsFontWeight { get; set; }
+        public int ItemsHorizontalSpacing { get; set; }
+        public int ItemsVerticalSpacing { get; set; }
         public int DialogNavigationFilterSelectedIndex { get; set; }
         #endregion
     }

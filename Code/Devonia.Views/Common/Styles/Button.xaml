@@ -357,17 +357,15 @@
         <Setter Property="Template">
             <ControlTemplate>
                 <Grid Background="{TemplateBinding Background}">
-                    <Grid Width="1" Classes="borders" Margin="0" Background="{DynamicResource TimelineGradient}" HorizontalAlignment="Left" VerticalAlignment="Stretch"/>
-                    <Grid Width="1" Classes="borders" Margin="0" Background="{DynamicResource TimelineGradient}" HorizontalAlignment="Right" VerticalAlignment="Stretch"/>
                     <Grid Margin="1,0,1,0">
                         <ContentPresenter Name="PART_ContentPresenter" Grid.RowSpan="2"
-                Background="Transparent"
-                ContentTemplate="{TemplateBinding ContentTemplate}"
-                Content="{TemplateBinding Content}"
-                Padding="0"
-                TextBlock.Foreground="{TemplateBinding Foreground}"
-                HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
-                VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
+                            Background="Transparent"
+                            ContentTemplate="{TemplateBinding ContentTemplate}"
+                            Content="{TemplateBinding Content}"
+                            Padding="0"
+                            TextBlock.Foreground="{TemplateBinding Foreground}"
+                            HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                            VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"/>
                     </Grid>
                 </Grid>
             </ControlTemplate>

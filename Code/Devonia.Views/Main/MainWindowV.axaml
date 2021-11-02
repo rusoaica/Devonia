@@ -8,6 +8,7 @@
         xmlns:ia="clr-namespace:Avalonia.Xaml.Interactions.Core;assembly=Avalonia.Xaml.Interactions"
         xmlns:iac="using:Avalonia.Xaml.Interactions.Custom"
         xmlns:converter="clr-namespace:Devonia.Views.Common.Converters"
+        xmlns:viewModels="clr-namespace:Devonia.ViewModels;assembly=Devonia.ViewModels"
         mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
         x:Class="Devonia.Views.Main.MainWindowV"
         Title="{Binding WindowTitle}" Classes="styledWindow" Icon="avares://Devonia/Assets/icon.ico" HasSystemDecorations="False" WindowStartupLocation="CenterScreen" Width="1000" Height="800" MinWidth="1024" MinHeight="768" 
@@ -25,6 +26,122 @@
     <converter:ImageSourceConverter x:Key="ImageSourceConverter"/>
     <converter:BitmapValueConverter x:Key="BitmapValueConverter"/>
   </Window.Resources>
+  <Window.KeyBindings>
+      <!-- <KeyBinding Gesture="Ctrl+D1" Command="{Binding ActiveTabsListViewModel.GoToTabCommand}"> -->
+      <!--     <KeyBinding.CommandParameter> -->
+      <!--         <system:Int32>0</system:Int32> -->
+      <!--     </KeyBinding.CommandParameter> -->
+      <!-- </KeyBinding> -->
+      <!-- <KeyBinding Gesture="Ctrl+D2" Command="{Binding ActiveTabsListViewModel.GoToTabCommand}"> -->
+      <!--     <KeyBinding.CommandParameter> -->
+      <!--         <system:Int32>1</system:Int32> -->
+      <!--     </KeyBinding.CommandParameter> -->
+      <!-- </KeyBinding> -->
+      <!-- <KeyBinding Gesture="Ctrl+D3" Command="{Binding ActiveTabsListViewModel.GoToTabCommand}"> -->
+      <!--     <KeyBinding.CommandParameter> -->
+      <!--         <system:Int32>2</system:Int32> -->
+      <!--     </KeyBinding.CommandParameter> -->
+      <!-- </KeyBinding> -->
+      <!-- <KeyBinding Gesture="Ctrl+D4" Command="{Binding ActiveTabsListViewModel.GoToTabCommand}"> -->
+      <!--     <KeyBinding.CommandParameter> -->
+      <!--         <system:Int32>3</system:Int32> -->
+      <!--     </KeyBinding.CommandParameter> -->
+      <!-- </KeyBinding> -->
+      <!-- <KeyBinding Gesture="Ctrl+D5" Command="{Binding ActiveTabsListViewModel.GoToTabCommand}"> -->
+      <!--     <KeyBinding.CommandParameter> -->
+      <!--         <system:Int32>4</system:Int32> -->
+      <!--     </KeyBinding.CommandParameter> -->
+      <!-- </KeyBinding> -->
+      <!-- <KeyBinding Gesture="Ctrl+D6" Command="{Binding ActiveTabsListViewModel.GoToTabCommand}"> -->
+      <!--     <KeyBinding.CommandParameter> -->
+      <!--         <system:Int32>5</system:Int32> -->
+      <!--     </KeyBinding.CommandParameter> -->
+      <!-- </KeyBinding> -->
+      <!-- <KeyBinding Gesture="Ctrl+D7" Command="{Binding ActiveTabsListViewModel.GoToTabCommand}"> -->
+      <!--     <KeyBinding.CommandParameter> -->
+      <!--         <system:Int32>6</system:Int32> -->
+      <!--     </KeyBinding.CommandParameter> -->
+      <!-- </KeyBinding> -->
+      <!-- <KeyBinding Gesture="Ctrl+D8" Command="{Binding ActiveTabsListViewModel.GoToTabCommand}"> -->
+      <!--     <KeyBinding.CommandParameter> -->
+      <!--         <system:Int32>7</system:Int32> -->
+      <!--     </KeyBinding.CommandParameter> -->
+      <!-- </KeyBinding> -->
+      <!-- <KeyBinding Gesture="Ctrl+D9" Command="{Binding ActiveTabsListViewModel.GoToTabCommand}"> -->
+      <!--     <KeyBinding.CommandParameter> -->
+      <!--         <system:Int32>8</system:Int32> -->
+      <!--     </KeyBinding.CommandParameter> -->
+      <!-- </KeyBinding> -->
+      <!-- <KeyBinding Gesture="Ctrl+NumPad1" Command="{Binding ActiveTabsListViewModel.GoToTabCommand}"> -->
+      <!--     <KeyBinding.CommandParameter> -->
+      <!--         <system:Int32>0</system:Int32> -->
+      <!--     </KeyBinding.CommandParameter> -->
+      <!-- </KeyBinding> -->
+      <!-- <KeyBinding Gesture="Ctrl+NumPad2" Command="{Binding ActiveTabsListViewModel.GoToTabCommand}"> -->
+      <!--     <KeyBinding.CommandParameter> -->
+      <!--         <system:Int32>1</system:Int32> -->
+      <!--     </KeyBinding.CommandParameter> -->
+      <!-- </KeyBinding> -->
+      <!-- <KeyBinding Gesture="Ctrl+NumPad3" Command="{Binding ActiveTabsListViewModel.GoToTabCommand}"> -->
+      <!--     <KeyBinding.CommandParameter> -->
+      <!--         <system:Int32>2</system:Int32> -->
+      <!--     </KeyBinding.CommandParameter> -->
+      <!-- </KeyBinding> -->
+      <!-- <KeyBinding Gesture="Ctrl+NumPad4" Command="{Binding ActiveTabsListViewModel.GoToTabCommand}"> -->
+      <!--     <KeyBinding.CommandParameter> -->
+      <!--         <system:Int32>3</system:Int32> -->
+      <!--     </KeyBinding.CommandParameter> -->
+      <!-- </KeyBinding> -->
+      <!-- <KeyBinding Gesture="Ctrl+NumPad5" Command="{Binding ActiveTabsListViewModel.GoToTabCommand}"> -->
+      <!--     <KeyBinding.CommandParameter> -->
+      <!--         <system:Int32>4</system:Int32> -->
+      <!--     </KeyBinding.CommandParameter> -->
+      <!-- </KeyBinding> -->
+      <!-- <KeyBinding Gesture="Ctrl+NumPad6" Command="{Binding ActiveTabsListViewModel.GoToTabCommand}"> -->
+      <!--     <KeyBinding.CommandParameter> -->
+      <!--         <system:Int32>5</system:Int32> -->
+      <!--     </KeyBinding.CommandParameter> -->
+      <!-- </KeyBinding> -->
+      <!-- <KeyBinding Gesture="Ctrl+NumPad7" Command="{Binding ActiveTabsListViewModel.GoToTabCommand}"> -->
+      <!--     <KeyBinding.CommandParameter> -->
+      <!--         <system:Int32>6</system:Int32> -->
+      <!--     </KeyBinding.CommandParameter> -->
+      <!-- </KeyBinding> -->
+      <!-- <KeyBinding Gesture="Ctrl+NumPad8" Command="{Binding ActiveTabsListViewModel.GoToTabCommand}"> -->
+      <!--     <KeyBinding.CommandParameter> -->
+      <!--         <system:Int32>7</system:Int32> -->
+      <!--     </KeyBinding.CommandParameter> -->
+      <!-- </KeyBinding> -->
+      <!-- <KeyBinding Gesture="Ctrl+NumPad9" Command="{Binding ActiveTabsListViewModel.GoToTabCommand}"> -->
+      <!--     <KeyBinding.CommandParameter> -->
+      <!--         <system:Int32>8</system:Int32> -->
+      <!--     </KeyBinding.CommandParameter> -->
+      <!-- </KeyBinding> -->
+      <KeyBinding Gesture="Ctrl+D0" Command="{Binding ActiveTabsListViewModel.GoToLastTabCommand}" />
+      <KeyBinding Gesture="Ctrl+NumPad0" Command="{Binding ActiveTabsListViewModel.GoToLastTabCommand}" />
+      <KeyBinding Gesture="Ctrl+T" Command="{Binding ActiveTabsListViewModel.CreateNewTabCommand}" />
+      <KeyBinding Gesture="Meta+T" Command="{Binding ActiveTabsListViewModel.CreateNewTabCommand}" />
+      <KeyBinding Gesture="Ctrl+W" Command="{Binding ActiveTabsListViewModel.CloseCurrentTabCommand}" />
+      <KeyBinding Gesture="Meta+W" Command="{Binding ActiveTabsListViewModel.CloseCurrentTabCommand}" />
+      <KeyBinding Gesture="Ctrl+F" Command="{Binding SearchCommand}" />
+      <KeyBinding Gesture="Meta+F" Command="{Binding SearchCommand}" />
+      <KeyBinding Gesture="Ctrl+L" Command="{Binding FocusDirectorySelectorCommand}" />
+      <KeyBinding Gesture="Meta+L" Command="{Binding FocusDirectorySelectorCommand}" />
+      <KeyBinding Gesture="Ctrl+D" Command="{Binding ActiveDirectorySelectorViewModel.ToggleFavouriteStatusCommand}" />
+      <KeyBinding Gesture="Meta+D" Command="{Binding ActiveDirectorySelectorViewModel.ToggleFavouriteStatusCommand}" />
+      <KeyBinding Gesture="Ctrl+Tab" Command="{Binding ActiveTabsListViewModel.SelectTabToTheRightCommand}" />
+      <KeyBinding Gesture="Ctrl+PageDown" Command="{Binding ActiveTabsListViewModel.SelectTabToTheRightCommand}" />
+      <KeyBinding Gesture="Ctrl+Shift+Tab" Command="{Binding ActiveTabsListViewModel.SelectTabToTheLeftCommand}" />
+      <KeyBinding Gesture="Ctrl+PageUp" Command="{Binding ActiveTabsListViewModel.SelectTabToTheLeftCommand}" />
+      <KeyBinding Gesture="Ctrl+Shift+T" Command="{Binding ActiveTabsListViewModel.ReopenClosedTabCommand}" />
+      <KeyBinding Gesture="Tab" Command="{Binding SwitchPanelCommand}" />
+      <KeyBinding Gesture="F1" Command="{Binding MenuViewModel.AboutCommand}" />
+      <KeyBinding Gesture="F2" Command="{Binding MenuViewModel.OpenSettingsCommand}" />
+      <KeyBinding Gesture="F9" Command="{Binding TopOperationsViewModel.OpenTerminalCommand}" />
+      <KeyBinding Gesture="F10" Command="{Binding TopOperationsViewModel.PackCommand}" />
+      <KeyBinding Gesture="F11" Command="{Binding TopOperationsViewModel.ExtractCommand}" />
+  </Window.KeyBindings>
+    
   <Grid Background="{DynamicResource containerBackground}">
     <Grid Margin="21,42,21,85">
       <Path Data="M 1,0 0.5,0 Q 0,0 0,0.5 L 0,1" Fill="Transparent" HorizontalAlignment="Left" Height="6" Margin="-5" Stretch="Fill" Stroke="{DynamicResource BorderLit}" StrokeThickness="4" VerticalAlignment="Top" Width="6"/>
@@ -40,24 +157,24 @@
     <Border Margin="10,31,10,74" Classes="contentBorder" BoxShadow="3 3 5 1 #88000000"/>
 
     
-    <Image Cursor="Hand" ToolTip.Tip="List Mode" Margin="10,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Tag="{x:Static enums:FileSystemExplorerLayouts.List}" Source="avares://Devonia/Assets/list.png" Height="20" Width="20" PointerReleased="ViewModes_OnPointerReleased">
+    <Image Cursor="Hand" ToolTip.Tip="List Mode" Margin="10,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Tag="{x:Static enums:FileSystemExplorerLayouts.List}" Source="avares://Devonia/Assets/list.png" Height="20" Width="20">
       <i:Interaction.Behaviors>
         <ia:EventTriggerBehavior EventName="PointerReleased">
-          <ia:InvokeCommandAction Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.NavigateBackAsync_Command}"/>
+          <ia:InvokeCommandAction Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.ChangeExplorerLayout_Command}" CommandParameter="{Binding Path=Tag, RelativeSource={RelativeSource Mode=Self}}"/>
         </ia:EventTriggerBehavior>
       </i:Interaction.Behaviors>
     </Image>
-    <Image Cursor="Hand" ToolTip.Tip="Details Mode" Margin="40,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Tag="{x:Static enums:FileSystemExplorerLayouts.Details}" Source="avares://Devonia/Assets/details.png" Height="20" Width="20" PointerReleased="ViewModes_OnPointerReleased">
+    <Image Cursor="Hand" ToolTip.Tip="Details Mode" Margin="40,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Tag="{x:Static enums:FileSystemExplorerLayouts.Details}" Source="avares://Devonia/Assets/details.png" Height="20" Width="20">
       <i:Interaction.Behaviors>
         <ia:EventTriggerBehavior EventName="PointerReleased">
-          <ia:InvokeCommandAction Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.NavigateBackAsync_Command}"/>
+          <ia:InvokeCommandAction Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.ChangeExplorerLayout_Command}" CommandParameter="{Binding Path=Tag, RelativeSource={RelativeSource Mode=Self}}"/>
         </ia:EventTriggerBehavior>
       </i:Interaction.Behaviors>
     </Image>
-    <Image Cursor="Hand" ToolTip.Tip="Icons Mode" Margin="70,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Tag="{x:Static enums:FileSystemExplorerLayouts.Icons}" Source="avares://Devonia/Assets/icons.png" Height="17" Width="17" PointerReleased="ViewModes_OnPointerReleased">
+    <Image Cursor="Hand" ToolTip.Tip="Icons Mode" Margin="70,10,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Tag="{x:Static enums:FileSystemExplorerLayouts.Icons}" Source="avares://Devonia/Assets/icons.png" Height="17" Width="17">
       <i:Interaction.Behaviors>
         <ia:EventTriggerBehavior EventName="PointerReleased">
-          <ia:InvokeCommandAction Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.NavigateBackAsync_Command}"/>
+          <ia:InvokeCommandAction Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.ChangeExplorerLayout_Command}" CommandParameter="{Binding Path=Tag, RelativeSource={RelativeSource Mode=Self}}"/>
         </ia:EventTriggerBehavior>
       </i:Interaction.Behaviors>
     </Image>
@@ -69,27 +186,27 @@
         <ColumnDefinition Width="26"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
-      <controls:PathNavigator x:Name="txtNavigator" VerticalAlignment="Top" Margin="0" LocationChanged="PathNavigator_OnLocationChanged"/>
+      <controls:PathNavigator x:Name="txtNavigator" VerticalAlignment="Top" Margin="0" NavigatorLocationChanged="PathNavigator_OnLocationChanged"/>
       <CheckBox IsChecked="{Binding IsFavoritePath}" ToolTip.Tip="Favorite Directory" Classes="favorite" Cursor="Hand" Grid.Column="1" Height="18" Width="20" Checked="Favorite_CheckedChanged" Unchecked="Favorite_CheckedChanged"/>
       <CheckBox IsChecked="{Binding IsPreviewPanelVisible, Mode=TwoWay}" ToolTip.Tip="Preview" Classes="preview" Height="15" Width="20" Cursor="Hand" Grid.Column="2" Checked="TogglePreviewPanel_CheckChanged" Unchecked="TogglePreviewPanel_CheckChanged"/>
       <Button Command="{Binding ShowNewFolderDialog_Command}" Content="New Folder" Classes="abortButton" IsVisible="{Binding ShowNewFolderButton}" Grid.Column="3" Height="21" Width="90" Margin="3,0,0,0" FontSize="12" VerticalAlignment="Top" Click="ShowNewFolderModalBox"/>
     </Grid>
     
-    <Image Cursor="Hand" ToolTip.Tip="Back" Margin="100,8,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Source="avares://Devonia/Assets/Previous-icon.png" Height="20" Width="20">
+    <Image Cursor="Hand" ToolTip.Tip="Back" Margin="100,8,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Source="avares://Devonia/Assets/Previous-icon.png" Height="20" Width="20" PointerReleased="NavigateBack_OnPointerReleased">
       <i:Interaction.Behaviors>
         <ia:EventTriggerBehavior EventName="PointerReleased">
           <ia:InvokeCommandAction Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.NavigateBackAsync_Command}"/>
         </ia:EventTriggerBehavior>
       </i:Interaction.Behaviors>
     </Image>
-    <Image Cursor="Hand" ToolTip.Tip="Forward" Margin="122,8,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Source="avares://Devonia/Assets/Next-icon.png" Height="20" Width="20">
+    <Image Cursor="Hand" ToolTip.Tip="Forward" Margin="122,8,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Source="avares://Devonia/Assets/Next-icon.png" Height="20" Width="20" PointerReleased="NavigateForward_OnPointerReleased">
       <i:Interaction.Behaviors>
         <ia:EventTriggerBehavior EventName="PointerReleased">
           <ia:InvokeCommandAction Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.NavigateForwardAsync_Command}"/>
         </ia:EventTriggerBehavior>
       </i:Interaction.Behaviors>
     </Image>
-    <Image Cursor="Hand" ToolTip.Tip="Up one level" Margin="144,8,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Source="avares://Devonia/Assets/Previous-icon.png" Height="20" Width="20">
+    <Image Cursor="Hand" ToolTip.Tip="Up one level" Margin="144,8,0,0" VerticalAlignment="Top" HorizontalAlignment="Left" Source="avares://Devonia/Assets/Previous-icon.png" Height="20" Width="20" PointerReleased="NavigateUp_OnPointerReleased">
       <Image.RenderTransform>
         <TransformGroup>
           <RotateTransform Angle="90"/>
@@ -116,47 +233,42 @@
       <GridSplitter Grid.Column="1" Background="{DynamicResource SeparatorBackground}" MinWidth="2" HorizontalAlignment="Stretch" Width="2" Margin="0,5" DragCompleted="SeparatorDirectories_DragCompleted"/>
       <Grid Grid.Column="2" Margin="10" ClipToBounds="True">
         <Grid Margin="2,-2,2,30" ClipToBounds="True">
-          <controls:FileSystemExplorer x:Name="lstDirectories"/>
-          <!-- <ListBox Items="{Binding SourceDirectories}" x:Name="lstDirectoriesj" Background="{DynamicResource contentBackground}" Margin="50" Classes="ListBox" VirtualizationMode="Simple" -->
-          <!--     ScrollViewer.VerticalScrollBarVisibility="Disabled" ScrollViewer.HorizontalScrollBarVisibility="Auto" PointerWheelChanged="Directories_PointerWheelChanged" SelectionChanged="Directories_SelectionChanged"> -->
-          <!--   <i:Interaction.Behaviors> -->
-          <!--     <iac:NthChildBehavior /> -->
-          <!--   </i:Interaction.Behaviors> -->
-          <!--   <ListBox.ItemTemplate> -->
-          <!--     <DataTemplate> -->
-          <!--       <Label HorizontalAlignment="Stretch" MinWidth="300" Cursor="Hand" Background="Transparent" DataContext="{Binding}" BorderThickness="0" Padding="3"> -->
-          <!--         <Label.Content> -->
-          <!--           <DockPanel> -->
-          <!--             <Grid Height="32" Width="32" DockPanel.Dock="Left" Margin="0" VerticalAlignment="Center"> -->
-          <!--               <Image Width="32" Height="32" Margin="0" Source="{Binding Path=IconSource, Mode=OneTime, Converter={StaticResource ImageSourceConverter}}"/> -->
-          <!--               <TextBlock Foreground="{DynamicResource contentBackground}" Text="{Binding Extension}" Padding="0" Margin="0" Height="10" HorizontalAlignment="Center" FontSize="8" /> -->
-          <!--             </Grid> -->
-          <!--             <Label DockPanel.Dock="Left" Padding="4,0,0,0" Margin="0" Height="32" VerticalAlignment="Center" VerticalContentAlignment="Center" FontWeight="Bold" Content="{Binding Path}" Foreground="{DynamicResource textForeground}"/> -->
-          <!--           </DockPanel> -->
-          <!--         </Label.Content> -->
-          <!--         <ToolTip.Tip> -->
-          <!--           <StackPanel Background="{DynamicResource containerBackground}"> -->
-          <!--             <Line StartPoint="0,0" EndPoint="1,0" Stroke="{DynamicResource BorderUnlit}" Stretch="Fill" StrokeThickness="1" HorizontalAlignment="Center" VerticalAlignment="Top"/> -->
-          <!--             <Line StartPoint="0,1" EndPoint="1,1" Stroke="{DynamicResource BorderLit}" Stretch="Fill" StrokeThickness="2" HorizontalAlignment="Center" VerticalAlignment="Bottom"/> -->
-          <!--             <Line StartPoint="0,0" EndPoint="0,1" Stroke="{DynamicResource BorderUnlit}" Stretch="Fill" StrokeThickness="1" HorizontalAlignment="Left" VerticalAlignment="Center"/> -->
-          <!--             <Line StartPoint="1,0" EndPoint="1,1" Stroke="{DynamicResource BorderLit}" Stretch="Fill" StrokeThickness="2" HorizontalAlignment="Right" VerticalAlignment="Center"/> -->
-          <!--             <TextBlock Foreground="{DynamicResource textForeground}" Text="{Binding Path}"/> -->
-          <!--           </StackPanel> -->
-          <!--         </ToolTip.Tip> -->
-          <!--         <i:Interaction.Behaviors> -->
-          <!--           <ia:EventTriggerBehavior EventName="DoubleTapped"> -->
-          <!--             <ia:InvokeCommandAction Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.FolderMouseDoubleClickAsync_Command}" CommandParameter="{Binding Content, RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type ListBoxItem}}}"/> -->
-          <!--           </ia:EventTriggerBehavior> -->
-          <!--         </i:Interaction.Behaviors> -->
-          <!--       </Label> -->
-          <!--     </DataTemplate> -->
-          <!--   </ListBox.ItemTemplate> -->
-          <!--   <ListBox.ItemsPanel> -->
-          <!--     <ItemsPanelTemplate> -->
-          <!--       <WrapPanel Orientation="Vertical" Background="{DynamicResource contentBackground}" PointerWheelChanged="Directories_PointerWheelChanged"/> -->
-          <!--     </ItemsPanelTemplate> -->
-          <!--   </ListBox.ItemsPanel> -->
-          <!-- </ListBox> -->
+          <TabControl Margin="0,2,0,0" Padding="0" Items="{Binding SourceExplorerPages}" BorderThickness="0" SelectedItem="{Binding SelectedExplorerPage, Mode=TwoWay}"> 
+            <TabControl.ItemTemplate>
+              <DataTemplate>
+                <TextBlock Text="{Binding Title}" FontFamily="Verdana" FontWeight="Normal" FontSize="18" ToolTip.Tip="{Binding CurrentPath}"/>
+              </DataTemplate>
+            </TabControl.ItemTemplate>
+            <TabControl.ContentTemplate>
+              <DataTemplate DataType="viewModels:ExplorerPageVM">
+                <controls:FileSystemExplorer CurrentPath="{Binding CurrentPath, Mode=TwoWay}" Layout="{Binding Layout}" 
+                                             NavigateBackCommand="{Binding NavigateBack_Command, Mode=OneWayToSource}" NavigateForwardCommand="{Binding NavigateForward_Command, Mode=OneWayToSource}" NavigateUpCommand="{Binding NavigateUp_Command, Mode=OneWayToSource}"  
+                                             IsControlPressed="{Binding IsCtrlPressed}" IsShiftPressed="{Binding IsShiftPressed}"
+                                             ItemsBackgroundColorFirst="{DynamicResource ItemsBackgroundColorFirstRes}" ItemsBackgroundColorSecond="{DynamicResource ItemsBackgroundColorSecondRes}"
+                                             ItemsBorderColorFirst="{DynamicResource ItemsBorderColorFirstRes}" ItemsBorderColorSecond="{DynamicResource ItemsBorderColorSecondRes}"
+                                             ItemsSelectionBackgroundColor="{DynamicResource ItemsSelectionBackgroundColorRes}" ItemsSelectionBorderColor="{DynamicResource ItemsSelectionBorderColorRes}"
+                                             ItemsSelectionForegroundColor="{DynamicResource ItemsSelectionForegroundColorRes}" ItemsForegroundColor="{DynamicResource ItemsForegroundColorRes}"
+                                             SelectionBackgroundColor="{DynamicResource SelectionBackgroundColorRes}" SelectionBorderColor="{DynamicResource SelectionBorderColorRes}"
+                                             SelectionHoverItemsBackgroundColor="{DynamicResource SelectionHoverItemsBackgroundColorRes}" AlternatesBackgroundColor="{Binding AlternatesBackgroundColor}"
+                                             ItemsHorizontalSpacing="{DynamicResource ItemsHorizontalSpacingRes}" ItemsVerticalSpacing="{DynamicResource ItemsVerticalSpacingRes}"
+                                             ItemsFontSize="{DynamicResource ItemsFontSizeRes}" ShowGrid="{DynamicResource ShowGridRes}" AutosizeWidth="{DynamicResource AutosizeWidthRes}" >
+                  <i:Interaction.Behaviors>
+                    <ia:EventTriggerBehavior EventName="FolderBrowsed">
+                      <ia:InvokeCommandAction Command="{Binding FolderBrowsed_Command}" />
+                    </ia:EventTriggerBehavior>
+                    <ia:EventTriggerBehavior EventName="LocationChanged">
+                      <ia:InvokeCommandAction Command="{Binding LocationChanged_Command}" />
+                    </ia:EventTriggerBehavior>
+                  </i:Interaction.Behaviors>
+                </controls:FileSystemExplorer>
+              </DataTemplate>
+            </TabControl.ContentTemplate>
+            <i:Interaction.Behaviors>
+              <ia:EventTriggerBehavior EventName="SelectionChanged">
+                <ia:InvokeCommandAction Command="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType={x:Type Window}}, Path=DataContext.SelectedPageChanged_Command}"/>
+              </ia:EventTriggerBehavior>
+            </i:Interaction.Behaviors>
+          </TabControl>
           <Border Background="Black" Height="10" Margin="-3,-8,0,0" VerticalAlignment="Top" BoxShadow="3 3 5 1 #88000000"/>
           <Border Background="Black" Width="10" Margin="-10,-3,0,0" HorizontalAlignment="Left" BoxShadow="3 3 5 1 #88000000"/>
         </Grid>
@@ -171,6 +283,7 @@
       </Grid>
     </Grid>
     
+    <!--listbox substitute for navigator control drop down context menu-->
     <ListBox x:Name="lstNavigationDirectories" Background="{DynamicResource contentBackground}" VerticalAlignment="Top" HorizontalAlignment="Left" IsVisible="False" Classes="ListBox" VirtualizationMode="Simple"
               ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
       <i:Interaction.Behaviors>

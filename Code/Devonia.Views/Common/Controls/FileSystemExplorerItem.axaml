@@ -11,7 +11,7 @@
                 <Panel x:Name="pnlContainer">
                     <Image Margin="2, 1" VerticalAlignment="Center" HorizontalAlignment="Left"/>
 
-                    <Label x:Name="lblContent" ToolTip.Tip="fdfdfd" Cursor="IBeam" Padding="0" VerticalContentAlignment="Center"/>
+                    <Label x:Name="lblContent" ToolTip.Tip="fdfdfd" Padding="0" VerticalContentAlignment="Center"/>
                     <Label x:Name="lblModified" Width="245" Padding="0" VerticalContentAlignment="Center" HorizontalAlignment="Right" Margin="0,0,5,0" HorizontalContentAlignment="Right"/>
                     <Label x:Name="lblType" Width="150" Padding="0" VerticalContentAlignment="Center" HorizontalAlignment="Right" Margin="0,0,250,0" HorizontalContentAlignment="Center"/>
                     <Label x:Name="lblSize" Width="150" Padding="0" VerticalContentAlignment="Center" HorizontalAlignment="Right" Margin="0,0,400,0" HorizontalContentAlignment="Right"/>

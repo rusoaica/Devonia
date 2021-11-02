@@ -28,7 +28,6 @@
             <Color x:Key="ListboxBackgroundColor">#AAAAAA</Color>
             <Color x:Key="ListviewItemTopBorderColor">#777777</Color>
             <Color x:Key="ListviewItemBottomBorderColor">#999999</Color>
-           
             <LinearGradientBrush x:Key="RadioButtonOutterEllipseGradient" StartPoint="0%,0%" EndPoint="100%,100%">
                 <GradientStop Color="#777777" Offset="0.0" />
                 <GradientStop Color="#999999" Offset="1.0" />

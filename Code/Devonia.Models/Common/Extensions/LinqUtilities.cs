@@ -21,13 +21,21 @@ namespace Devonia.Models.Common.Extensions
         /// <exception cref="NullReferenceException">Exception thrown when either <paramref name="source"/> or <paramref name="action"/> is null</exception>
         public static IEnumerable<TSource> ForEach<TSource>(this IEnumerable<TSource> source, Action<TSource> action)
         {
-            if (source == null)
-                throw new NullReferenceException("source");
-            if (action == null)
-                throw new NullReferenceException("action");
-            foreach (TSource element in source)
-                action(element);
-            return source;
+            try
+            {
+                if (source == null)
+                    throw new NullReferenceException("source");
+                if (action == null)
+                    throw new NullReferenceException("action");
+                foreach (TSource element in source)
+                    action(element);
+                return source;
+            }
+            catch (Exception e)
+            {
+                // TODO: remove in production!
+                throw;
+            }
         }
         #endregion
     }
