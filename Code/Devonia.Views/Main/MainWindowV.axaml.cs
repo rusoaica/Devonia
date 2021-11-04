@@ -47,8 +47,8 @@ namespace Devonia.Views.Main
 
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
         {
-            YTypeFace typeface = (Typeface)value;
-            return typeface;
+            YTypeFace yTypeface = (Typeface)value;
+            return yTypeface;
         }
 
         public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
@@ -58,7 +58,8 @@ namespace Devonia.Views.Main
 
         public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
         {
-            return (Typeface)value;
+            Typeface typeface = (YTypeFace)value;
+            return typeface;
         }
     }
 
@@ -66,15 +67,16 @@ namespace Devonia.Views.Main
     public class YTypeFace
     {
         public FontWeight FontWeight { get; set; }
+        public FontStyle FontStyle { get; set; }
 
         public static implicit operator Typeface(YTypeFace myTypeFace)
         {
-            return new Typeface(FontFamily.Default, FontStyle.Italic, myTypeFace.FontWeight);
+            return new Typeface(FontFamily.Default, myTypeFace.FontStyle, myTypeFace.FontWeight);
         }
 
         public static implicit operator YTypeFace(Typeface typeFace)
         {
-            return new YTypeFace { FontWeight = typeFace.Weight };
+            return new YTypeFace { FontWeight = typeFace.Weight, FontStyle = typeFace.Style };
         }
 
 
@@ -159,10 +161,10 @@ namespace Devonia.Views.Main
             Application.Current.Resources["ItemsSelectionBackgroundColorRes"] = brushConverter.ConvertFromString(appConfig.Explorer.ItemsSelectionBackgroundColor ?? "#FFD1E8FF");
             Application.Current.Resources["ItemsSelectionForegroundColorRes"] = brushConverter.ConvertFromString(appConfig.Explorer.ItemsSelectionForegroundColor ?? "#FF000000");
             Application.Current.Resources["SelectionHoverItemsBackgroundColorRes"] = brushConverter.ConvertFromString(appConfig.Explorer.SelectionHoverItemsBackgroundColor ?? "#FF0048D7");
-            Application.Current.Resources["ItemsTypeFaceRes"] = new Typeface(
-                new FontFamily(appConfig.Explorer.ItemsFont),
-                (FontStyle)appConfig.Explorer.ItemsFontStyle,
-                (FontWeight)appConfig.Explorer.ItemsFontWeight);
+            //Application.Current.Resources["ItemsTypeFaceRes"] = new Typeface(
+            //    new FontFamily(appConfig.Explorer.ItemsFont),
+            //    (FontStyle)appConfig.Explorer.ItemsFontStyle,
+            //    (FontWeight)appConfig.Explorer.ItemsFontWeight);
             if (appConfig.Explorer.ItemsFontSize > 0)
                 Application.Current.Resources["ItemsFontSizeRes"] = appConfig.Explorer.ItemsFontSize;
         }
