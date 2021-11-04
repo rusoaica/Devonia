@@ -25,63 +25,16 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using Avalonia.Controls.Presenters;
-using Avalonia.Markup.Xaml.Converters;
 using Avalonia.Media;
 using Devonia.Infrastructure.Notification;
 using Devonia.ViewModels;
 using Devonia.ViewModels.Common.Dispatcher;
 using System.ComponentModel;
-using System.Globalization;
 #endregion
 
 namespace Devonia.Views.Main
 {
 
-
-    public class YTypeFaceConverter : AvaloniaPropertyTypeConverter
-    {
-        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
-        {
-            return sourceType == typeof(Typeface);
-        }
-
-        public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
-        {
-            YTypeFace yTypeface = (Typeface)value;
-            return yTypeface;
-        }
-
-        public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
-        {
-            return destinationType == typeof(Typeface);
-        }
-
-        public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
-        {
-            Typeface typeface = (YTypeFace)value;
-            return typeface;
-        }
-    }
-
-    [TypeConverter(typeof(YTypeFaceConverter))]
-    public class YTypeFace
-    {
-        public FontWeight FontWeight { get; set; }
-        public FontStyle FontStyle { get; set; }
-
-        public static implicit operator Typeface(YTypeFace myTypeFace)
-        {
-            return new Typeface(FontFamily.Default, myTypeFace.FontStyle, myTypeFace.FontWeight);
-        }
-
-        public static implicit operator YTypeFace(Typeface typeFace)
-        {
-            return new YTypeFace { FontWeight = typeFace.Weight, FontStyle = typeFace.Style };
-        }
-
-
-    }
-    
     public partial class MainWindowV : Window, IMainWindowView
     {
         #region ============================================================== FIELD MEMBERS ================================================================================
