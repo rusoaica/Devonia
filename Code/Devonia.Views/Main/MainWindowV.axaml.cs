@@ -25,61 +25,16 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using Avalonia.Controls.Presenters;
-using Avalonia.Markup.Xaml.Converters;
 using Avalonia.Media;
 using Devonia.Infrastructure.Notification;
 using Devonia.ViewModels;
 using Devonia.ViewModels.Common.Dispatcher;
 using System.ComponentModel;
-using System.Globalization;
 #endregion
 
 namespace Devonia.Views.Main
 {
 
-
-    public class YTypeFaceConverter : AvaloniaPropertyTypeConverter
-    {
-        public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
-        {
-            return sourceType == typeof(Typeface);
-        }
-
-        public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
-        {
-            YTypeFace typeface = (Typeface)value;
-            return typeface;
-        }
-
-        public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
-        {
-            return destinationType == typeof(Typeface);
-        }
-
-        public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
-        {
-            return (Typeface)value;
-        }
-    }
-
-    [TypeConverter(typeof(YTypeFaceConverter))]
-    public class YTypeFace
-    {
-        public FontWeight FontWeight { get; set; }
-
-        public static implicit operator Typeface(YTypeFace myTypeFace)
-        {
-            return new Typeface(FontFamily.Default, FontStyle.Italic, myTypeFace.FontWeight);
-        }
-
-        public static implicit operator YTypeFace(Typeface typeFace)
-        {
-            return new YTypeFace { FontWeight = typeFace.Weight };
-        }
-
-
-    }
-    
     public partial class MainWindowV : Window, IMainWindowView
     {
         #region ============================================================== FIELD MEMBERS ================================================================================
@@ -159,10 +114,10 @@ namespace Devonia.Views.Main
             Application.Current.Resources["ItemsSelectionBackgroundColorRes"] = brushConverter.ConvertFromString(appConfig.Explorer.ItemsSelectionBackgroundColor ?? "#FFD1E8FF");
             Application.Current.Resources["ItemsSelectionForegroundColorRes"] = brushConverter.ConvertFromString(appConfig.Explorer.ItemsSelectionForegroundColor ?? "#FF000000");
             Application.Current.Resources["SelectionHoverItemsBackgroundColorRes"] = brushConverter.ConvertFromString(appConfig.Explorer.SelectionHoverItemsBackgroundColor ?? "#FF0048D7");
-            Application.Current.Resources["ItemsTypeFaceRes"] = new Typeface(
-                new FontFamily(appConfig.Explorer.ItemsFont),
-                (FontStyle)appConfig.Explorer.ItemsFontStyle,
-                (FontWeight)appConfig.Explorer.ItemsFontWeight);
+            //Application.Current.Resources["ItemsTypeFaceRes"] = new Typeface(
+            //    new FontFamily(appConfig.Explorer.ItemsFont),
+            //    (FontStyle)appConfig.Explorer.ItemsFontStyle,
+            //    (FontWeight)appConfig.Explorer.ItemsFontWeight);
             if (appConfig.Explorer.ItemsFontSize > 0)
                 Application.Current.Resources["ItemsFontSizeRes"] = appConfig.Explorer.ItemsFontSize;
         }

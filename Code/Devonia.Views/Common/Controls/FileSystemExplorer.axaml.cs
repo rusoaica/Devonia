@@ -577,7 +577,7 @@ namespace Devonia.Views.Common.Controls
             // show items border
             // font size/color/weight/etc
             // autosize width for list layout
-            ItemsTypeFace = new Typeface(new FontFamily("Arial"), FontStyle.Normal, FontWeight.Normal);
+            //ItemsTypeFace = new Typeface(new FontFamily("Arial"), FontStyle.Normal, FontWeight.Normal);
             isWindowLoaded = true;
         }
 
